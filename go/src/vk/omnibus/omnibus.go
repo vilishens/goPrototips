@@ -35,10 +35,10 @@ const (
 )
 
 const (
-	DoneError   = 0x0000001
-	DoneReboot  = 0x0000002
-	DoneRestart = 0x0000004
-	DoneStop    = 0x0000008
+	DoneError   = 0x0000010
+	DoneReboot  = 0x0000020
+	DoneRestart = 0x0000040
+	DoneStop    = 0x0000080
 )
 
 const (
