@@ -7,8 +7,7 @@ import (
 	"path/filepath"
 	"runtime"
 	vomni "vk/omnibus"
-
-	//	sall "vk/steps/allsteps"
+	sall "vk/steps/allsteps"
 	vutils "vk/utils"
 )
 
@@ -26,11 +25,10 @@ func main() {
 			vutils.LogStr(vomni.LogInfo, "***** App - START *****")
 		}
 
-		//endCd := runApp()
-		endCd = 4
+		endCd := runApp()
 
 		switch endCd {
-		case vomni.DoneRestart, vomni.DoneStop, vomni.DoneError:
+		case vomni.DoneRestart, vomni.DoneStop, vomni.DoneError, vomni.DoneReboot:
 			end = true
 		}
 
@@ -41,6 +39,8 @@ func main() {
 			vutils.LogStr(vomni.LogInfo, "***** App - STOP *****")
 		case vomni.DoneError:
 			vutils.LogStr(vomni.LogInfo, "***** App - ERROR *****")
+		case vomni.DoneReboot:
+			vutils.LogStr(vomni.LogInfo, "***** App - REBOOT *****")
 		default:
 			str := fmt.Sprintf("***** App - unknown Exit code %d *****", endCd)
 			vutils.LogStr(vomni.LogInfo, str)
@@ -53,30 +53,21 @@ func main() {
 }
 
 func runApp() (cd int) {
-	/*
-		Bashkatoff++
+	chDone := make(chan int)
 
-		fmt.Println("Roots", vomni.RootPath)
+	go sall.DoSteps(chDone)
 
-		fmt.Printf("================================ PIRMS brembisy %d\n", runtime.NumGoroutine())
+	select {
+	case err := <-vomni.RootErr:
+		fmt.Printf("App finished due to an error ---> %v\n", err)
+		cd = vomni.DoneError
+		break
+	case cd = <-chDone:
+		str := fmt.Sprintf("***** App - received code %d *****", cd)
+		vutils.LogStr(vomni.LogInfo, str)
+		break
+	}
 
-		chDone := make(chan int)
-
-		go sall.DoSteps(chDone)
-
-		select {
-		case err := <-vomni.RootErr:
-			fmt.Printf("App finished due to an error ---> %v\n", err)
-			cd = vomni.DoneError
-			break
-		case cd = <-chDone:
-			fmt.Printf("App finished with Done code %d\n", cd)
-			break
-		}
-
-		fmt.Printf("================================ PIRMS RETURNA %d\n", runtime.NumGoroutine())
-
-	*/
 	return
 }
 

@@ -3,7 +3,11 @@ package omnibus
 import (
 	"log"
 	"os"
+	"time"
 )
+
+var RootErr = make(chan error)
+var RootDone = make(chan int)
 
 var (
 	RootPath    string
@@ -32,6 +36,15 @@ const (
 
 const (
 	DoneError   = 0x0000001
-	DoneRestart = 0x0000002
-	DoneStop    = 0x0000004
+	DoneReboot  = 0x0000002
+	DoneRestart = 0x0000004
+	DoneStop    = 0x0000008
+)
+
+const (
+	StepExecDelay = 10 * time.Millisecond
+)
+
+const (
+	StepNameStart = "step-start"
 )

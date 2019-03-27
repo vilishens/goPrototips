@@ -3,8 +3,9 @@
 GO_ARDUINO_PATH="/home/vilis/0_Dev/next/go"
 #GO_ARDUINO_CMD="go run -v goArduino.go"
 GO_ARDUINO_CMD="./goArduino"
-CD_RESTART=8 # paredzētais
-#CD_RESTART=8
+GO_REBOOT_CMD="sudo shutdown -r now"
+CD_RESTART=64 # paredzētais
+CD_REBOOT=32 
 
 CD=$CD_RESTART
 
@@ -21,8 +22,6 @@ while [  $CD -eq $CD_RESTART ]; do
     echo
 
     $GO_ARDUINO_CMD
-
-#	echo "Skoljko?" $?
 
     CD=$?		
 
@@ -55,3 +54,9 @@ echo '*****'
 echo goArduino.go finished
 echo '*****'
 echo
+
+if [  $CD -eq $CD_REBOOT  ]; then
+
+    $GO_REBOOT_CMD
+
+fi
