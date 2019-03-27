@@ -1,0 +1,57 @@
+#!/bin/bash 
+
+GO_ARDUINO_PATH="/home/vilis/0_Dev/next/go"
+#GO_ARDUINO_CMD="go run -v goArduino.go"
+GO_ARDUINO_CMD="./goArduino"
+CD_RESTART=8 # paredzētais
+#CD_RESTART=8
+
+CD=$CD_RESTART
+
+CURRENT_PATH=$(pwd)
+
+cd $GO_ARDUINO_PATH
+
+echo $GO_ARDUINO_CMD
+
+while [  $CD -eq $CD_RESTART ]; do
+    echo '#####'	
+    echo The BEFORE CD is $CD
+    echo '#####'
+    echo
+
+    $GO_ARDUINO_CMD
+
+#	echo "Skoljko?" $?
+
+    CD=$?		
+
+    echo
+    echo '#####'
+    echo The AFTER  CD is $CD
+    echo '#####'
+    echo
+
+    echo
+    echo
+    echo
+    echo
+    echo
+    echo
+    echo
+    echo
+    echo
+    echo
+    echo
+    echo
+
+
+done
+
+cd $CURRENT_PATH
+
+echo
+echo '*****'
+echo goArduino.go finished
+echo '*****'
+echo
