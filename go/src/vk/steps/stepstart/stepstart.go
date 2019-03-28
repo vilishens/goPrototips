@@ -1,8 +1,6 @@
 package stepstart
 
 import (
-	"fmt"
-	"time"
 	vomni "vk/omnibus"
 	"vk/steps/step"
 )
@@ -23,13 +21,11 @@ func (s *thisStep) stepDo() {
 
 	//	err := vcli.Init()
 	err := error(nil)
+
 	if nil != err {
 		s.Err <- err
 		return
 	}
-
-	fmt.Println("BACK goON")
-	time.Sleep(5 * time.Second)
 
 	s.GoOn <- true
 }

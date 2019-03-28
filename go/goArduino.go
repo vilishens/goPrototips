@@ -38,7 +38,8 @@ func main() {
 		case vomni.DoneStop:
 			vutils.LogStr(vomni.LogInfo, "***** App - STOP *****")
 		case vomni.DoneError:
-			vutils.LogStr(vomni.LogInfo, "***** App - ERROR *****")
+			str := fmt.Sprintf("***** App - ERROR *****")
+			vutils.LogStr(vomni.LogInfo, str)
 		case vomni.DoneReboot:
 			vutils.LogStr(vomni.LogInfo, "***** App - REBOOT *****")
 		default:
@@ -85,8 +86,6 @@ func rootPath() {
 	} else {
 		vomni.RootPath = filepath.Dir(rootFile)
 	}
-
-	fmt.Println("ROOT PATH ", vomni.RootPath)
 
 	return
 }

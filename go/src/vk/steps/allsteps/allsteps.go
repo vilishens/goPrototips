@@ -2,11 +2,11 @@ package allsteps
 
 import (
 	"fmt"
+
 	//	vcfg "vk/cfg"
 	vomni "vk/omnibus"
 	vutils "vk/utils"
 
-	"vk/steps/step"
 	vstep "vk/steps/step"
 
 	//	schecknet "vk/steps/stepchecknet"
@@ -39,7 +39,7 @@ func initSteps() {
 	//	addStep(&(spointscan.ThisStep))
 }
 
-func addStep(s step.Step) {
+func addStep(s vstep.Step) {
 	sName := s.StepName()
 
 	if _, exists := steps[sName]; exists {
@@ -79,8 +79,11 @@ func doAllSteps(chanDone chan int) {
 
 		ind++
 
-		vutils.LogStr(vomni.LogInfo, fmt.Sprintf("===== Step %q -> started", this_s.StepName()))
-		go step.Execute(this_s, chDone, chGoOn, chErr)
+		str := fmt.Sprintf("===== Step %q -> started", this_s.StepName())
+		fmt.Println(str)
+		vutils.LogStr(vomni.LogInfo, fmt.Sprintf(str))
+		go vstep.Execute(this_s, chDone, chGoOn, chErr)
+
 
 		select {
 		case <-chGoOn:
@@ -98,13 +101,16 @@ func doAllSteps(chanDone chan int) {
 		count++
 	}
 
-	fmt.Println("Cikls beidzās")
+	fmt.Println("ooooooooooooooooooooooooooooooooooooooooooooo END-APP")
+	fmt.Println("ooooooooooooooooooooooooooooooooooooooooooooo END-APP")
+	fmt.Println("ooooooooooooooooooooooooooooooooooooooooooooo END-APP")
 
 	if !stop {
-		fmt.Println("Nav stops")
+		str := fmt.Sprintf("===== All steps running")
+		fmt.Println(str)
+
 		select {
 		case err = <-chErr:
-			stop = true
 		case done = <-vomni.RootDone:
 			stop = true
 		}
