@@ -17,7 +17,9 @@ func LogNew(d *os.File, prefix string) (newLog *log.Logger) {
 	return log.New(d, prefix+vomni.UDPMessageSeparator+" ", vomni.LogLoggerFlags)
 }
 
+/*
 // Point logger with no prefix -- <SEPARATOR> <DATE+TIME>
 func LogNewPoint(d *os.File) (newLog *log.Logger) {
 	return log.New(d, vomni.UDPMessageSeparator+" ", vomni.LogLoggerFlags)
 }
+*/

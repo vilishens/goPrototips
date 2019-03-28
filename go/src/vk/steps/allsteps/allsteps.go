@@ -84,7 +84,6 @@ func doAllSteps(chanDone chan int) {
 		vutils.LogStr(vomni.LogInfo, fmt.Sprintf(str))
 		go vstep.Execute(this_s, chDone, chGoOn, chErr)
 
-
 		select {
 		case <-chGoOn:
 			vutils.LogStr(vomni.LogInfo, fmt.Sprintf("===== Step %q -> sent GoOn", this_s.StepName()))
@@ -106,7 +105,9 @@ func doAllSteps(chanDone chan int) {
 	fmt.Println("ooooooooooooooooooooooooooooooooooooooooooooo END-APP")
 
 	if !stop {
-		str := fmt.Sprintf("===== All steps running")
+
+		str := fmt.Sprintf("===== All steps are running")
+		vutils.LogStr(vomni.LogInfo, str)
 		fmt.Println(str)
 
 		select {

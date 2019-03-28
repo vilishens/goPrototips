@@ -49,29 +49,6 @@ const (
 	StepNameStart = "step-start"
 )
 
-//#################################
-var MessageTypeLimits = map[string]int{
-	MessageOmnibus: 3} // type,point, cmd
-
 const (
-	MessageTypeCmd   = "CMD"
-	MessageTypeError = "ERROR"
-	MessageTypeEvent = "EVENT"
-	MessageTypeStart = "START"
-	MessageTypeStop  = "STOP"
-	MessageOmnibus   = "OMNIBUS"
-)
-
-const (
-	LogStatusFile    = "logstatus.status"
-	PointLogDataFile = "data.log"
-	PointLogInfoFile = "info.log"
-)
-
-const (
-	DIR_PERMISSIONS = 0744
-
-//FILE_PERMISSIONS       = 0644
-//GAMMU_CFG_FILE_INDEX   = 3
-//GAMMU_PIN_SUBMIT_INDEX = 5
+	DirPermissions = 0744
 )

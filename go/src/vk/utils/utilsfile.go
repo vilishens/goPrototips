@@ -4,6 +4,7 @@ import (
 	"fmt"
 	"os"
 	"path/filepath"
+	vomni "vk/omnibus"
 )
 
 func OpenFile(path string, fileFlags int, userPerms os.FileMode) (f *os.File, err error) {
@@ -23,7 +24,7 @@ func OpenFile(path string, fileFlags int, userPerms os.FileMode) (f *os.File, er
 
 func FileDir(full string) (err error) {
 
-	permDir := os.FileMode(0700)
+	permDir := os.FileMode(vomni.DirPermissions)
 
 	dirpath := filepath.Dir(full)
 
