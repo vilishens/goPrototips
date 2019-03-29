@@ -46,8 +46,9 @@ const (
 )
 
 const (
-	StepNameStart = "step-start"
-	StepNameWeb   = "step-web"
+	StepNameConfig = "step-config"
+	StepNameStart  = "step-start"
+	StepNameWeb    = "step-web"
 )
 
 const (

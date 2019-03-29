@@ -10,7 +10,7 @@ import (
 	vstep "vk/steps/step"
 
 	//	schecknet "vk/steps/stepchecknet"
-	//	scfg "vk/steps/stepconfig"
+	scfg "vk/steps/stepconfig"
 	//	sparam "vk/steps/stepparams"
 	//	spointcfg "vk/steps/steppointconfig"
 	//	spointscan "vk/steps/steppointscan"
@@ -30,7 +30,7 @@ func init() {
 func initSteps() {
 	addStep(&(sstart.ThisStep))
 	addStep(&(sweb.ThisStep))
-	//addStep(&(scfg.ThisStep))
+	addStep(&(scfg.ThisStep))
 	//	addStep(&(sparam.ThisStep))
 	//	addStep(&(schecknet.ThisStep))
 	//	addStep(&(sweb.ThisStep)) // WEB step must be before point steps
