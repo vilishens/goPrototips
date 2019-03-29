@@ -34,3 +34,17 @@ func FileDir(full string) (err error) {
 
 	return
 }
+
+func FileAbsPath(fPath string, file string) (full string) {
+
+	abs := ""
+
+	if !filepath.IsAbs(fPath) {
+		abs = vomni.RootPath
+	}
+
+	abs = filepath.Join(abs, fPath, file)
+	full = filepath.Clean(abs)
+
+	return
+}

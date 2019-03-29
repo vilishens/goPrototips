@@ -47,8 +47,22 @@ const (
 
 const (
 	StepNameStart = "step-start"
+	StepNameWeb   = "step-web"
 )
 
 const (
 	DirPermissions = 0744
+)
+
+const (
+	TimeFormat1 = "2006-01-02 15:04:05 -07:00 MST"
+)
+
+const (
+	WebPrefix     = "/xK-@eRty$Wj7e$yZ/"
+	WebStaticPath = "webstatic/"
+)
+
+const (
+	CfgDefaultPath = "../cfg/default/default.cfg"
 )

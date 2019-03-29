@@ -17,7 +17,7 @@ import (
 	//	srunpoints "vk/steps/steprunpoints"
 	sstart "vk/steps/stepstart"
 	//	sudp "vk/steps/stepudp"
-	//	sweb "vk/steps/stepweb"
+	sweb "vk/steps/stepweb"
 )
 
 var steps = make(map[string]vstep.Step)
@@ -29,7 +29,8 @@ func init() {
 
 func initSteps() {
 	addStep(&(sstart.ThisStep))
-	//	addStep(&(scfg.ThisStep))
+	addStep(&(sweb.ThisStep))
+	//addStep(&(scfg.ThisStep))
 	//	addStep(&(sparam.ThisStep))
 	//	addStep(&(schecknet.ThisStep))
 	//	addStep(&(sweb.ThisStep)) // WEB step must be before point steps
@@ -86,7 +87,8 @@ func doAllSteps(chanDone chan int) {
 
 		select {
 		case <-chGoOn:
-			vutils.LogStr(vomni.LogInfo, fmt.Sprintf("===== Step %q -> sent GoOn", this_s.StepName()))
+			str = fmt.Sprintf("===== Step %q -> sent GoOn", this_s.StepName())
+			vutils.LogStr(vomni.LogInfo, str)
 		case err = <-chErr:
 			stop = true
 		case done = <-chDone:
@@ -112,15 +114,24 @@ func doAllSteps(chanDone chan int) {
 
 		select {
 		case err = <-chErr:
+			str := fmt.Sprintf("Steps need to be closed due to an err - %q", err)
+			vutils.LogStr(vomni.LogErr, str)
+			stop = true
 		case done = <-vomni.RootDone:
 			stop = true
 		}
 	}
 
+	fmt.Println("Tagad jābeidz...")
+
 	for ; count >= 0; count-- {
 		// let's do Post of each step starting from the last one
-		this_s := steps[stepSequence[count]]
-		this_s.StepPost()
+		thisS := steps[stepSequence[count]]
+		thisS.StepPost()
+
+		str := fmt.Sprintf("===== Step %q -> closed", thisS.StepName())
+		vutils.LogStr(vomni.LogInfo, str)
+		fmt.Println(str)
 	}
 
 	if stop {
