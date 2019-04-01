@@ -65,5 +65,6 @@ const (
 )
 
 const (
-	CfgDefaultPath = "../cfg/default/default.cfg"
+	CfgDefaultPath = "../cfg/default/app.cfg"
+	CliCfgPathFld  = "path"
 )

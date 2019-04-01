@@ -48,3 +48,11 @@ func FileAbsPath(fPath string, file string) (full string) {
 
 	return
 }
+
+func PathExists(full string) (exists bool, err error) {
+	if _, err = os.Stat(full); os.IsNotExist(err) {
+		return false, nil
+	}
+
+	return true, nil
+}

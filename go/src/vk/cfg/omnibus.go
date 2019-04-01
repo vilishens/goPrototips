@@ -33,7 +33,10 @@ type CfgData struct {
 }
 
 type CfgFinalData struct {
-	Name                string
+	Name string
+
+	//==========================================================================================
+
 	LogMainFile         string
 	PointDefaultCfgFile string
 	PointCfgFile        string
@@ -42,8 +45,6 @@ type CfgFinalData struct {
 	RotatePointCfg      string
 	RotateRunCfg        string
 	RotateRunSecs       int
-
-	//#####################################################
 
 	UDPPort int
 

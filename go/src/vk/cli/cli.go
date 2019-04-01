@@ -8,7 +8,7 @@ import (
 var CliCfgDefaultPath string
 
 func init() {
-	flag.StringVar(&CliCfgDefaultPath, "path", vomni.CfgDefaultPath, "default configuration file path")
+	flag.StringVar(&CliCfgDefaultPath, vomni.CliCfgPathFld, vomni.CfgDefaultPath, "configuration file path")
 
 	flag.Parse()
 }
