@@ -29,8 +29,8 @@ func init() {
 
 func initSteps() {
 	addStep(&(sstart.ThisStep))
-	addStep(&(sweb.ThisStep))
 	addStep(&(scfg.ThisStep))
+	addStep(&(sweb.ThisStep))
 	//	addStep(&(sparam.ThisStep))
 	//	addStep(&(schecknet.ThisStep))
 	//	addStep(&(sweb.ThisStep)) // WEB step must be before point steps
@@ -76,18 +76,18 @@ func doAllSteps(chanDone chan int) {
 	ind := 0
 
 	for _, s := range stepSequence {
-		this_s := steps[s]
+		thisS := steps[s]
 
 		ind++
 
-		str := fmt.Sprintf("===== Step %q -> started", this_s.StepName())
+		str := fmt.Sprintf("===== Step %q -> started", thisS.StepName())
 		fmt.Println(str)
 		vutils.LogStr(vomni.LogInfo, fmt.Sprintf(str))
-		go vstep.Execute(this_s, chDone, chGoOn, chErr)
+		go vstep.Execute(thisS, chDone, chGoOn, chErr)
 
 		select {
 		case <-chGoOn:
-			str = fmt.Sprintf("===== Step %q -> sent GoOn", this_s.StepName())
+			str = fmt.Sprintf("===== Step %q -> sent GoOn", thisS.StepName())
 			vutils.LogStr(vomni.LogInfo, str)
 		case err = <-chErr:
 			stop = true
