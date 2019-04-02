@@ -11,7 +11,8 @@ import (
 
 	//	schecknet "vk/steps/stepchecknet"
 	scfg "vk/steps/stepconfig"
-	//	sparam "vk/steps/stepparams"
+	sparams "vk/steps/stepparams"
+
 	//	spointcfg "vk/steps/steppointconfig"
 	//	spointscan "vk/steps/steppointscan"
 	//	srunpoints "vk/steps/steprunpoints"
@@ -30,8 +31,9 @@ func init() {
 func initSteps() {
 	addStep(&(sstart.ThisStep))
 	addStep(&(scfg.ThisStep))
+	addStep(&(sparams.ThisStep))
 	addStep(&(sweb.ThisStep))
-	//	addStep(&(sparam.ThisStep))
+	// seit jaieliek rotateMain solis
 	//	addStep(&(schecknet.ThisStep))
 	//	addStep(&(sweb.ThisStep)) // WEB step must be before point steps
 	//	addStep(&(spointcfg.ThisStep))

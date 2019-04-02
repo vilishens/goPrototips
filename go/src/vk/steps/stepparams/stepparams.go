@@ -1,9 +1,7 @@
 package stepparams
 
 import (
-	"fmt"
 	"time"
-	vcfg "vk/cfg"
 	vomni "vk/omnibus"
 	vparam "vk/params"
 	"vk/steps/step"
@@ -25,9 +23,8 @@ func (s *thisStep) stepDo() {
 
 	chErr := make(chan error)
 	chDone := make(chan bool)
-	//	go vcfg.Cfg(chDone, chErr) put the right call here
 
-	go vparam.Put(vcfg.Final, chDone, chErr)
+	go vparam.Put(chDone, chErr)
 
 	for {
 		select {
@@ -35,11 +32,7 @@ func (s *thisStep) stepDo() {
 			s.Err <- err
 			return
 		case done := <-chDone:
-
-			fmt.Println("MESKALS")
-
 			s.GoOn <- done
-			return
 		}
 	}
 }
@@ -77,5 +70,5 @@ func (s *thisStep) StepExec(chDone chan int, chGoOn chan bool, chErr chan error)
 
 func (s *thisStep) StepPost() {
 	// may be something needs to be done before leave the step
-	s.Done <- vomni.DoneOK
+	s.Done <- vomni.DoneStop
 }

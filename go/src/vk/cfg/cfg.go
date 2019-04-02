@@ -5,6 +5,8 @@ import (
 	"flag"
 	"fmt"
 	"io/ioutil"
+	"path/filepath"
+	"strconv"
 	vomni "vk/omnibus"
 	vutils "vk/utils"
 )
@@ -12,7 +14,19 @@ import (
 var Final CfgFinalData
 
 func init() {
+
 	Final.Name = ""
+
+	Final.LogMainPath = ""
+
+	Final.PortSSHInternal = -1
+	Final.PortUDPInternal = -1
+	Final.PortWEBInternal = -1
+
+	Final.RotateMainCfg = ""
+	Final.RotatePointCfg = ""
+	Final.RotateRunCfg = ""
+	Final.RotateRunSecs = -1
 
 	/*
 		Final.LogMainFile = ""
@@ -149,8 +163,53 @@ func (c *CfgData) Put() (err error) {
 		Final.Name = c.Name
 	}
 
+	// hard coded Main log file path
+	Final.LogMainPath = filepath.Join(vomni.RootPath, vomni.LogMainPath)
+
+	// rotation of logs
+	if (nil == err) && ("" != c.RotateMainCfg) {
+		Final.RotateMainCfg = c.RotateMainCfg
+	}
+	if (nil == err) && ("" != c.RotatePointCfg) {
+		Final.RotatePointCfg = c.RotatePointCfg
+	}
+	if (nil == err) && ("" != c.RotateRunCfg) {
+		Final.RotateRunCfg = c.RotateRunCfg
+	}
+	if (nil == err) && ("" != c.RotateRunSecs) {
+		Final.RotateRunSecs, err = strconv.Atoi(c.RotateRunSecs)
+	}
+
+	// internal ports
+	if (nil == err) && ("" != c.PortSSHInternal) {
+		Final.PortSSHInternal, err = strconv.Atoi(c.PortSSHInternal)
+	}
+	if (nil == err) && ("" != c.PortUDPInternal) {
+		Final.PortUDPInternal, err = strconv.Atoi(c.PortUDPInternal)
+	}
+	if (nil == err) && ("" != c.PortWEBInternal) {
+		Final.PortWEBInternal, err = strconv.Atoi(c.PortWEBInternal)
+	}
+
+	//PortSSHInternal string `json:"PortSSHInternal"`
+	//PortUDPInternal string `json:"PortUDPInternal"`
+	//PortWEBInternal string `json:"PortWEBInternal"`
+
+	//	RotateMainCfg  string `json:"RotateMainCfg"`
+	//	RotatePointCfg string `json:"RotatePointCfg"`
+	//	RotateRunCfg   string `json:"RotateRunCfg"`
+	//	RotateRunSecs  string `json:"RotateRunIntervalSecs"`
+
 	return
 }
 
-//###################################################################################
-//###################################################################################
+/*
+func prepareLogFile() (err error) {
+	// Set Rotate config for the main log
+	if err = vutils.SetRotateCfg(vomni.LogMainPath, Final.RotateMainCfg, Final.RotateRunCfg, true); nil != err {
+		return vutils.ErrFuncLine(fmt.Errorf("Main rotate file error - %v", err))
+	}
+
+	return
+}
+*/

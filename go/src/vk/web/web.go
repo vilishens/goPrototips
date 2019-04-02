@@ -6,7 +6,7 @@ import (
 	"net"
 	"net/http"
 	"strconv"
-	//	vparam "vk/params"
+	vparams "vk/params"
 )
 
 func GoWeb(chGoOn chan bool, chDone chan int, chErr chan error) {
@@ -28,8 +28,8 @@ func GoWeb(chGoOn chan bool, chDone chan int, chErr chan error) {
 func startListen(chGoOn chan bool) {
 	//	prefix := vomni.WebPrefix //v_cli.Param(v_cli.CliFileServPrefix)
 	//	f_static := vutils.FileAbsPath(vomni.WebStaticPath, "")
-	lPort := 49955 //vparam.Params.WebPort
-	netAddr := ""  // v_cli.Param(v_cli.CliNetAddr)
+	lPort := vparams.Params.PortWEBInternal //vparam.Params.WebPort
+	netAddr := ""                           // v_cli.Param(v_cli.CliNetAddr)
 
 	listenAddr := ":" + strconv.Itoa(lPort)
 	fmt.Println("Listen...", listenAddr)

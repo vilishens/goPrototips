@@ -3,16 +3,21 @@ package cfg
 type CfgData struct {
 	Name string `json:"Name"`
 
+	RotateMainCfg  string `json:"RotateMainCfg"`
+	RotatePointCfg string `json:"RotatePointCfg"`
+	RotateRunCfg   string `json:"RotateRunCfg"`
+	RotateRunSecs  string `json:"RotateRunIntervalSecs"`
+
+	PortSSHInternal string `json:"PortSSHInternal"`
+	PortUDPInternal string `json:"PortUDPInternal"`
+	PortWEBInternal string `json:"PortWEBInternal"`
+
 	//==========================================================================================
 
 	//	LogMainFile         string `json:"mainLogFile"`
 	PointDefaultCfgFile string `json:"pointDefaultCfgFile"`
 	PointCfgFile        string `json:"pointCfgFile"`
 	PointLogPath        string `json:"pointLogPath"`
-	RotateMainCfg       string `json:"rotateMainCfg"`
-	RotatePointCfg      string `json:"rotatePointCfg"`
-	RotateRunCfg        string `json:"rotateRunCfg"`
-	RotateRunSecs       string `json:"rotateRunIntervalSecs"`
 
 	//#########################################
 
@@ -33,18 +38,23 @@ type CfgData struct {
 }
 
 type CfgFinalData struct {
-	Name string
+	Name        string
+	LogMainPath string
+
+	RotateMainCfg  string
+	RotatePointCfg string
+	RotateRunCfg   string
+	RotateRunSecs  int
+
+	PortSSHInternal int
+	PortUDPInternal int
+	PortWEBInternal int
 
 	//==========================================================================================
 
-	LogMainFile         string
 	PointDefaultCfgFile string
 	PointCfgFile        string
 	PointLogPath        string
-	RotateMainCfg       string
-	RotatePointCfg      string
-	RotateRunCfg        string
-	RotateRunSecs       int
 
 	UDPPort int
 

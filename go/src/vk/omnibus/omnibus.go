@@ -47,6 +47,7 @@ const (
 
 const (
 	StepNameConfig = "step-config"
+	StepNameParams = "step-params"
 	StepNameStart  = "step-start"
 	StepNameWeb    = "step-web"
 )
@@ -65,6 +66,6 @@ const (
 )
 
 const (
-	CfgDefaultPath = "../cfg/default/app.cfg"
+	CfgDefaultPath = "../cfg/app/default.cfg"
 	CliCfgPathFld  = "path"
 )
