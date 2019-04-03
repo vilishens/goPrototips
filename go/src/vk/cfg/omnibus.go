@@ -3,10 +3,11 @@ package cfg
 type CfgData struct {
 	Name string `json:"Name"`
 
-	RotateMainCfg  string `json:"RotateMainCfg"`
-	RotatePointCfg string `json:"RotatePointCfg"`
-	RotateRunCfg   string `json:"RotateRunCfg"`
-	RotateRunSecs  string `json:"RotateRunIntervalSecs"`
+	RotateMainCfg        string `json:"RotateMainCfg"`
+	RotatePointCfg       string `json:"RotatePointCfg"`
+	RotateRunCfg         string `json:"RotateRunCfg"`
+	RotateRunSecs        string `json:"RotateRunIntervalSecs"`
+	RotateStatusFileName string `json:"RotateStatusFileName"`
 
 	PortSSHInternal string `json:"PortSSHInternal"`
 	PortUDPInternal string `json:"PortUDPInternal"`
@@ -41,10 +42,11 @@ type CfgFinalData struct {
 	Name        string
 	LogMainPath string
 
-	RotateMainCfg  string
-	RotatePointCfg string
-	RotateRunCfg   string
-	RotateRunSecs  int
+	RotateMainCfg        string
+	RotatePointCfg       string
+	RotateRunCfg         string
+	RotateRunSecs        int
+	RotateStatusFileName string
 
 	PortSSHInternal int
 	PortUDPInternal int

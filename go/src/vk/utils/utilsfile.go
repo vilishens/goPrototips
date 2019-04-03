@@ -56,3 +56,30 @@ func PathExists(full string) (exists bool, err error) {
 
 	return true, nil
 }
+
+func FileDelete(full string) (err error) {
+	return os.Remove(full)
+}
+
+func FileAppend(fullPath string, strAdd string) (err error) {
+
+	permDir := os.FileMode(vomni.DirPermissions)
+	permFile := os.FileMode(vomni.FileNonExecPermissions)
+
+	dirpath := filepath.Dir(fullPath)
+
+	if err = os.MkdirAll(dirpath, permDir); nil != err {
+		return
+	}
+
+	f, err := os.OpenFile(fullPath, os.O_APPEND|os.O_CREATE|os.O_WRONLY, permFile)
+	if err != nil {
+		return
+	}
+
+	defer f.Close()
+
+	_, err = f.WriteString(strAdd)
+
+	return
+}

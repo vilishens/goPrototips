@@ -27,6 +27,7 @@ func init() {
 	Final.RotatePointCfg = ""
 	Final.RotateRunCfg = ""
 	Final.RotateRunSecs = -1
+	Final.RotateStatusFileName = ""
 
 	/*
 		Final.LogMainFile = ""
@@ -178,6 +179,9 @@ func (c *CfgData) Put() (err error) {
 	}
 	if (nil == err) && ("" != c.RotateRunSecs) {
 		Final.RotateRunSecs, err = strconv.Atoi(c.RotateRunSecs)
+	}
+	if (nil == err) && ("" != c.RotateStatusFileName) {
+		Final.RotateStatusFileName = c.RotateStatusFileName
 	}
 
 	// internal ports

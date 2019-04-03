@@ -19,7 +19,7 @@ func init() {
 
 	Params.Name = ""
 
-	Params.LogMainFile = ""
+	Params.LogMainPath = ""
 
 	Params.PortSSHInternal = -1
 	Params.PortUDPInternal = -1
@@ -29,6 +29,7 @@ func init() {
 	Params.RotatePointCfg = ""
 	Params.RotateRunCfg = ""
 	Params.RotateRunSecs = -1
+	Params.RotateStatusFileName = ""
 
 	/*
 
@@ -76,7 +77,7 @@ func Put(chDone chan bool, chErr chan error) {
 	}
 
 	if "" != data.LogMainPath {
-		Params.LogMainFile = data.LogMainPath
+		Params.LogMainPath = data.LogMainPath
 	}
 
 	if 0 <= data.PortSSHInternal {
@@ -100,6 +101,9 @@ func Put(chDone chan bool, chErr chan error) {
 	}
 	if 0 <= data.RotateRunSecs {
 		Params.RotateRunSecs = data.RotateRunSecs
+	}
+	if "" != data.RotateStatusFileName {
+		Params.RotateStatusFileName = data.RotateStatusFileName
 	}
 
 	/*

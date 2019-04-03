@@ -12,10 +12,10 @@ var RootDone = make(chan int)
 var (
 	RootPath    string
 	LogMainFile *os.File
-	LogErr      *log.Logger
-	LogInfo     *log.Logger
 	LogData     *log.Logger
+	LogErr      *log.Logger
 	LogFatal    *log.Logger
+	LogInfo     *log.Logger
 )
 
 // constants for loag
@@ -46,14 +46,16 @@ const (
 )
 
 const (
-	StepNameConfig = "step-config"
-	StepNameParams = "step-params"
-	StepNameStart  = "step-start"
-	StepNameWeb    = "step-web"
+	StepNameConfig     = "step-config"
+	StepNameParams     = "step-params"
+	StepNameRotateMain = "step-rotate-main"
+	StepNameStart      = "step-start"
+	StepNameWeb        = "step-web"
 )
 
 const (
-	DirPermissions = 0744
+	DirPermissions         = 0744
+	FileNonExecPermissions = 0666
 )
 
 const (
@@ -66,6 +68,7 @@ const (
 )
 
 const (
-	CfgDefaultPath = "../cfg/app/default.cfg"
-	CliCfgPathFld  = "path"
+	CfgDefaultPath      = "../cfg/app/default.cfg"
+	CliCfgPathFld       = "path"
+	LogRotateStatusFile = "logStatus.status"
 )

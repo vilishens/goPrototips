@@ -1,17 +1,17 @@
-package step<NAME>
+package steprotatemain
 
 import (
-	"fmt"
-	"time"
 	vomni "vk/omnibus"
+	vrotate "vk/rotate"
 	vstep "vk/steps/step"
 )
 
-type thisStep step.StepVars
+type thisStep vstep.StepVars
+
 var ThisStep thisStep
 
 func init() {
-	ThisStep.Name =vomni.<NAME>
+	ThisStep.Name = vomni.StepNameRotateMain
 	ThisStep.Err = make(chan error)
 	ThisStep.GoOn = make(chan bool)
 	ThisStep.Done = make(chan int)
@@ -23,7 +23,7 @@ func (s *thisStep) stepDo() {
 	chErr := make(chan error)
 	chDone := make(chan int)
 	chGoOn := make(chan bool)
-//	go vudp.Server(chGoOn, chDone, chErr) // put the right call here
+	go vrotate.MainStart(chGoOn, chDone, chErr) // put the right call here
 
 	for {
 		select {

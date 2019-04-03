@@ -3,16 +3,17 @@ package params
 type ParamData struct {
 	Name string
 
-	LogMainFile string
+	LogMainPath string
 
 	PortSSHInternal int
 	PortUDPInternal int
 	PortWEBInternal int
 
-	RotateMainCfg  string
-	RotatePointCfg string
-	RotateRunCfg   string
-	RotateRunSecs  int
+	RotateMainCfg        string
+	RotatePointCfg       string
+	RotateRunCfg         string
+	RotateRunSecs        int
+	RotateStatusFileName string
 	//###################################
 
 	PointLogPath string

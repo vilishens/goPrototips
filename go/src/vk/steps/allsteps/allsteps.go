@@ -18,6 +18,7 @@ import (
 	//	srunpoints "vk/steps/steprunpoints"
 	sstart "vk/steps/stepstart"
 	//	sudp "vk/steps/stepudp"
+	srotatemain "vk/steps/steprotatemain"
 	sweb "vk/steps/stepweb"
 )
 
@@ -32,6 +33,7 @@ func initSteps() {
 	addStep(&(sstart.ThisStep))
 	addStep(&(scfg.ThisStep))
 	addStep(&(sparams.ThisStep))
+	addStep(&(srotatemain.ThisStep))
 	addStep(&(sweb.ThisStep))
 	// seit jaieliek rotateMain solis
 	//	addStep(&(schecknet.ThisStep))
