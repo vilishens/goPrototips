@@ -35,6 +35,7 @@ func initSteps() {
 	addStep(&(sparams.ThisStep))
 	addStep(&(srotatemain.ThisStep))
 	addStep(&(sweb.ThisStep))
+
 	// seit jaieliek rotateMain solis
 	//	addStep(&(schecknet.ThisStep))
 	//	addStep(&(sweb.ThisStep)) // WEB step must be before point steps

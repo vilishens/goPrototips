@@ -22,6 +22,7 @@ func (s *thisStep) stepDo() {
 
 	chErr := make(chan error)
 	chDone := make(chan bool)
+
 	go vcfg.Cfg(chDone, chErr)
 
 	for {

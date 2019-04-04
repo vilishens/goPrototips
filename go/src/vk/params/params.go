@@ -31,6 +31,10 @@ func init() {
 	Params.RotateRunSecs = -1
 	Params.RotateStatusFileName = ""
 
+	Params.WebStaticPrefix = ""
+	Params.WebStaticDir = ""
+	Params.WebTemplateDir = ""
+
 	/*
 
 
@@ -104,6 +108,16 @@ func Put(chDone chan bool, chErr chan error) {
 	}
 	if "" != data.RotateStatusFileName {
 		Params.RotateStatusFileName = data.RotateStatusFileName
+	}
+
+	if "" != data.WebStaticPrefix {
+		Params.WebStaticPrefix = data.WebStaticPrefix
+	}
+	if "" != data.WebStaticDir {
+		Params.WebStaticDir = data.WebStaticDir
+	}
+	if "" != data.WebTemplateDir {
+		Params.WebTemplateDir = data.WebTemplateDir
 	}
 
 	/*

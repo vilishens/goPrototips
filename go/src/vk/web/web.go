@@ -16,7 +16,8 @@ func GoWeb(chGoOn chan bool, chDone chan int, chErr chan error) {
 	defer os.Remove(backendfile)
 	*/
 
-	//setMux()
+	setTmpls()
+	setMux()
 
 	locGo := make(chan bool)
 	go startListen(locGo)

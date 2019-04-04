@@ -29,6 +29,10 @@ func init() {
 	Final.RotateRunSecs = -1
 	Final.RotateStatusFileName = ""
 
+	Final.WebStaticPrefix = ""
+	Final.WebStaticDir = ""
+	Final.WebTemplateDir = ""
+
 	/*
 		Final.LogMainFile = ""
 		Final.PointDefaultCfgFile = ""
@@ -78,20 +82,6 @@ func load(chDone chan bool, chErr chan error) {
 		return
 	}
 
-	/*
-		// customer
-		//	if err = loadCfg(false); nil != err {
-		//		chErr <- err
-		//		return
-		//	}
-
-		// prepare log file
-		if err = prepareLogFile(); nil != err {
-			chErr <- err
-			return
-		}
-
-	*/
 	chDone <- true
 }
 
@@ -195,25 +185,17 @@ func (c *CfgData) Put() (err error) {
 		Final.PortWEBInternal, err = strconv.Atoi(c.PortWEBInternal)
 	}
 
-	//PortSSHInternal string `json:"PortSSHInternal"`
-	//PortUDPInternal string `json:"PortUDPInternal"`
-	//PortWEBInternal string `json:"PortWEBInternal"`
+	// WEB configuration
+	if (nil == err) && ("" != c.WebStaticPrefix) {
+		Final.WebStaticPrefix = c.WebStaticPrefix
+	}
+	if (nil == err) && ("" != c.WebStaticDir) {
+		Final.WebStaticDir = c.WebStaticDir
+	}
 
-	//	RotateMainCfg  string `json:"RotateMainCfg"`
-	//	RotatePointCfg string `json:"RotatePointCfg"`
-	//	RotateRunCfg   string `json:"RotateRunCfg"`
-	//	RotateRunSecs  string `json:"RotateRunIntervalSecs"`
-
-	return
-}
-
-/*
-func prepareLogFile() (err error) {
-	// Set Rotate config for the main log
-	if err = vutils.SetRotateCfg(vomni.LogMainPath, Final.RotateMainCfg, Final.RotateRunCfg, true); nil != err {
-		return vutils.ErrFuncLine(fmt.Errorf("Main rotate file error - %v", err))
+	if (nil == err) && ("" != c.WebTemplateDir) {
+		Final.WebTemplateDir = c.WebTemplateDir
 	}
 
 	return
 }
-*/

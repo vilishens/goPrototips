@@ -13,6 +13,10 @@ type CfgData struct {
 	PortUDPInternal string `json:"PortUDPInternal"`
 	PortWEBInternal string `json:"PortWEBInternal"`
 
+	WebStaticPrefix string `json:"WEBStaticPrefix"`
+	WebStaticDir    string `json:"WEBStaticDir"`
+	WebTemplateDir  string `json:"WEBTemplateDir"`
+
 	//==========================================================================================
 
 	//	LogMainFile         string `json:"mainLogFile"`
@@ -51,6 +55,10 @@ type CfgFinalData struct {
 	PortSSHInternal int
 	PortUDPInternal int
 	PortWEBInternal int
+
+	WebStaticPrefix string
+	WebStaticDir    string
+	WebTemplateDir  string
 
 	//==========================================================================================
 

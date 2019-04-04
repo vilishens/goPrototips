@@ -4,10 +4,6 @@ import (
 	"fmt"
 	"net/http"
 
-	//	vscanip "vk/code/net/scanpoints"
-
-	//	xrun "vk/run/a_runningpoints"
-
 	"github.com/gorilla/mux"
 )
 
@@ -44,14 +40,18 @@ func pageHome(w http.ResponseWriter, r *http.Request) {
 
 func pageStatic(tmpl string, w http.ResponseWriter, r *http.Request) {
 
-	//var data interface{}
+	var data interface{}
 
-	err := error(nil)
-	//err := tmpls.ExecuteTemplate(w, tmpl, data)
+	_ = data
 
-	if err != nil {
-		http.Error(w, err.Error(), http.StatusInternalServerError)
-	}
+	/*
+
+		err := tmpls.ExecuteTemplate(w, tmpl, data)
+		if err != nil {
+			http.Error(w, err.Error(), http.StatusInternalServerError)
+		}
+
+	*/
 }
 
 //----------------------------------------------------------------------------->

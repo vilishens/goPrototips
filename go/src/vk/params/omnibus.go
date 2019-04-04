@@ -14,6 +14,11 @@ type ParamData struct {
 	RotateRunCfg         string
 	RotateRunSecs        int
 	RotateStatusFileName string
+
+	WebStaticPrefix string
+	WebStaticDir    string
+	WebTemplateDir  string
+
 	//###################################
 
 	PointLogPath string

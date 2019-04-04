@@ -63,11 +63,6 @@ const (
 )
 
 const (
-	WebPrefix     = "/xK-@eRty$Wj7e$yZ/"
-	WebStaticPath = "webstatic/"
-)
-
-const (
 	CfgDefaultPath      = "../cfg/app/default.cfg"
 	CliCfgPathFld       = "path"
 	LogRotateStatusFile = "logStatus.status"
