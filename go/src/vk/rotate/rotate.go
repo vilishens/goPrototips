@@ -28,11 +28,12 @@ func addMainLogs() {
 
 func MainStart(chGoOn chan bool, chDone chan int, chErr chan error) {
 
-	fmt.Println("ALEX PASHUTIN")
+	fmt.Println("!!!!!!!!!!!!! ROTATION NAV Vēl līdz galam izbaudīta !!!!!!!!!!!")
 
+	// Log Main loggers have created already it's necessary to put its in the list of loggers
 	addMainLogs()
 
-	// start the brand new rotation with the Main Log file
+	// start the brand new rotation configuration with the Main Log file
 	err := SetRotateCfg(vparams.Params.LogMainPath, vparams.Params.RotateMainCfg, vparams.Params.RotateRunCfg, true)
 	if nil != err {
 		err = vutils.ErrFuncLine(err)
@@ -133,91 +134,50 @@ func runRotate(chDone chan int, chErr chan error) {
 		timer := time.NewTimer(time.Duration(vparams.Params.RotateRunSecs) * time.Second)
 
 		// rotate
-		if err := setRotateFiles(); nil != err {
-			chErr <- vutils.ErrFuncLine(fmt.Errorf("\nRotation command failure -- %v", err))
+		if err := rotateFiles(); nil != err {
+			chErr <- vutils.ErrFuncLine(fmt.Errorf("\nRotation command failure -- %s", err.Error()))
 			return
 		}
-
-		vutils.LogStr(vomni.LogInfo, "Rotate check")
-
-		timeStr := time.Now().Format("2006-01-02 15:04:05 -07:00 MST")
-		str := fmt.Sprintf("==>>>>>\n==>>>>>\n==>>>>>\n==>>>>>\n %s <<<<<< ROTATE\n==>>>>>\n==>>>>>\n==>>>>>", timeStr)
-		fmt.Println(str)
 
 		select {
 		case <-timer.C:
 
-			fmt.Println("\n\n\n$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$")
-			fmt.Println("$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$")
-			fmt.Printf("$$$$$$$$$$$$$$$$$$$$$$ %q $$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$\n", timeStr)
-			fmt.Println("$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$")
-			fmt.Println("$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$\n\n\n")
+			vutils.LogStr(vomni.LogInfo, "Time to rotate log files")
+
+			timeStr := time.Now().Format("2006-01-02 15:04:05 -07:00 MST")
+			str := fmt.Sprintf("==>>>>> %s <<<<<< ROTATE", timeStr)
+			fmt.Println(str)
 		}
 	}
 }
 
-func setRotateFiles() (err error) {
+func rotateFiles() (err error) {
 	// rotate files if necessary
 	if err = runRotateCmd(); nil != err {
-		err = vutils.ErrFuncLine(fmt.Errorf("\nRotation command failure -- %v", err))
+		err = vutils.ErrFuncLine(fmt.Errorf("\nRotation command failure -- %s", err.Error()))
 		vutils.LogStr(vomni.LogErr, err.Error())
 		return
 	}
 
-	jaturpina ar Reaassignu
-
-
-	/*
-
-		// reassign the main logger files
-		if err = reassingMainFile(); nil != err {
-			vomni.RootErr <- vutils.ErrFuncLine(fmt.Errorf("\nRotation main file reassign failure -- %v", err))
+	for k, v := range allLoggers {
+		// set the log file to the original path
+		// as it is renamed in case of rotation
+		if allLoggers[k].file, err = LogReassignFile(v.file, v.path); nil != err {
+			err = vutils.ErrFuncLine(fmt.Errorf("Log file reassign failure -- %s", err.Error()))
+			vutils.LogStr(vomni.LogErr, err.Error())
 			return
 		}
 
-		// reassign point logger files
-		if err = reassignPointFiles(); nil != err {
-			vomni.RootErr <- vutils.ErrFuncLine(fmt.Errorf("\nRotation point files reassign failure -- %v", err))
-			return
+		// link loggers to the log file object
+		for _, v1 := range v.loggers {
+			v1.SetOutput(allLoggers[k].file)
 		}
-
-		fmt.Println("@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@")
-		fmt.Println("@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@")
-		fmt.Println("@@@@@@@@@@@@@@@@@@@@@@ ZAPAH-ZAPAH-ZAPAH --> RESTART @@@@@@@@@@@@@@@@@@@@@@@@@@@@@")
-		fmt.Println("@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@")
-		fmt.Println("@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@")
-	*/
-	return
-}
-
-func reassingMainFile() (err error) {
-
-	/*
-		if vomni.LogMainFile, err = vutils.LogReAssign(vomni.LogMainFile, vomni.LogMainPath); nil != err {
-			vomni.RootErr <- vutils.ErrFuncLine(fmt.Errorf("\nRotation file reaasign failure -- %v", err))
-			return
-		}
-
-		vomni.LogData.SetOutput(vomni.LogMainFile)
-		vomni.LogErr.SetOutput(vomni.LogMainFile)
-		vomni.LogFatal.SetOutput(vomni.LogMainFile)
-		vomni.LogInfo.SetOutput(vomni.LogMainFile)
-	*/
-	return
-}
-
-/*
-func reassignPointFiles() (err error) {
-
-	if err = xrun.RotateReAssign(); nil != err {
-		return err
 	}
 
 	return
 }
-*/
 
-func LogReAssign(f *os.File, path string) (fNew *os.File, err error) {
+func LogReassignFile(f *os.File, path string) (fNew *os.File, err error) {
 	var perms os.FileMode
 	flags := vomni.LogFileFlags
 
@@ -259,9 +219,6 @@ func runRotateCmd() (err error) {
 	if err = cmd.Run(); nil != err {
 		return vutils.ErrFuncLine(err)
 	}
-
-	b, _ := cmd.Output()
-	fmt.Println("Execution of my mind >>>", string(b))
 
 	return
 }
