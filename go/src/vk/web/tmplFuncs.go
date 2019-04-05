@@ -6,13 +6,19 @@ import (
 	//xrun "vk/run/a_runningpoints"
 )
 
-func raspName() string {
+func stationName() string {
 	return vparam.Params.Name
 }
 
+func webPrefix() (prefix string) {
+	return vparams.Params.WebStaticPrefix
+}
+
+//########################################
+/*
 func pointList() (stra interface{}) {
 
-	/* Šis jāatjauno
+	//***** Šis jāatjauno
 	runL, runAct := xrun.RunAndActive()
 
 	type str struct {
@@ -29,7 +35,7 @@ func pointList() (stra interface{}) {
 	}
 
 	json.Unmarshal(back, &stra)
-	*/
+
 	return
 }
 
@@ -38,7 +44,7 @@ func increment1(n int) (inc int) {
 }
 
 func pointCfg(point string) (cfg interface{}) {
-	/* Šis jāatjauno
+	//****  Šis jāatjauno
 	_, runAct := xrun.RunAndActive()
 
 	//fmt.Println("MIMINO DEF ", len(runAct[point].Cfg.Def), "	SEQ ", runAct[point].Cfg.Seq)
@@ -52,9 +58,6 @@ func pointCfg(point string) (cfg interface{}) {
 	json.Unmarshal(back, &cfg)
 
 	return runAct[point]
-	*/
-	return
-}
 
 func tmpDataFromInterface(data interface{}) (back interface{}) {
 	return
@@ -62,7 +65,7 @@ func tmpDataFromInterface(data interface{}) (back interface{}) {
 
 func pointLastEvents(name string) (list []string) {
 
-	/* Šis jāatjauno
+	//***** Šis jāatjauno
 	var ind int
 
 	list = []string{}
@@ -80,15 +83,13 @@ func pointLastEvents(name string) (list []string) {
 		list = append(list, fmt.Sprintf("%s --> \"%s\"", timeStr, val.Msg))
 	}
 
-	*/
-
 	return
 
 }
 
 func pointCfgJsFile() (str string) {
 
-	/* Šis jāatjauno
+	//**** Šis jāatjauno
 
 	path := vutils.FileAbsPath("marketa", "a.js")
 
@@ -101,15 +102,6 @@ func pointCfgJsFile() (str string) {
 	str = strings.Trim(str, "\n")
 
 	return template.JSEscapeString(str)
-	*/
-
-	return
 }
 
-func webPrefix() (prefix string) {
-	return vparams.Params.WebStaticPrefix
-}
-
-func webPref() (prefix string) {
-	return vparams.Params.WebStaticPrefix
-}
+*/

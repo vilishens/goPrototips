@@ -1,8 +1,10 @@
 package web
 
 import (
-	"fmt"
+	"io"
 	"net/http"
+	"time"
+	vparams "vk/params"
 
 	"github.com/gorilla/mux"
 )
@@ -11,23 +13,20 @@ var rtr = mux.NewRouter()
 
 func setMux() {
 
-	fmt.Println("Jāatjauno pageStatic!!!!!")
+	http.HandleFunc(vparams.Params.WebStaticPrefix, StaticFile) // read static file in the particular directory
 
 	rtr.HandleFunc("/about", pageAbout) //
-	//	rtr.HandleFunc("/login", pageLogin) //
 	rtr.HandleFunc("/", pageHome)
 	rtr.HandleFunc("/home", pageHome)
 
+	http.Handle("/", rtr)
+
+	//	rtr.HandleFunc("/login", pageLogin) //
 	//	rtr.HandleFunc("/pointlist", tmplPointList)
 	//	rtr.HandleFunc("/pointlist/data", tmplPointListData)
-
 	//	rtr.HandleFunc("/point/{point}/{todo}", pointToDo)
 	//	rtr.HandleFunc("/point/handlecfg/{point}/{todo}", handleCfg)
 	//	rtr.HandleFunc("/station/{todo}", handleStation)
-
-	//	http.HandleFunc(vomni.WebPrefix, StaticFile) // usually read files required for templates css, js, ...
-
-	http.Handle("/", rtr)
 }
 
 func pageAbout(w http.ResponseWriter, r *http.Request) {
@@ -42,16 +41,24 @@ func pageStatic(tmpl string, w http.ResponseWriter, r *http.Request) {
 
 	var data interface{}
 
-	_ = data
+	err := tmpls.ExecuteTemplate(w, tmpl, data)
+	if err != nil {
+		http.Error(w, err.Error(), http.StatusInternalServerError)
+	}
+}
 
-	/*
+func StaticFile(w http.ResponseWriter, req *http.Request) {
+	staticFile := req.URL.Path[len(vparams.Params.WebStaticPrefix):]
 
-		err := tmpls.ExecuteTemplate(w, tmpl, data)
-		if err != nil {
-			http.Error(w, err.Error(), http.StatusInternalServerError)
+	if len(staticFile) != 0 {
+		f, err := http.Dir(vparams.Params.WebStaticDir).Open(staticFile)
+		if err == nil {
+			content := io.ReadSeeker(f)
+			http.ServeContent(w, req, staticFile, time.Now(), content)
+			return
 		}
-
-	*/
+	}
+	http.NotFound(w, req)
 }
 
 //----------------------------------------------------------------------------->
@@ -224,17 +231,4 @@ func responseOK(w http.ResponseWriter) {
 	w.Write(a)
 }
 
-func StaticFile(w http.ResponseWriter, req *http.Request) {
-	staticFile := req.URL.Path[len(vomni.WebPrefix):]
-
-	if len(staticFile) != 0 {
-		f, err := http.Dir(vomni.WebStaticPath).Open(staticFile)
-		if err == nil {
-			content := io.ReadSeeker(f)
-			http.ServeContent(w, req, staticFile, time.Now(), content)
-			return
-		}
-	}
-	http.NotFound(w, req)
-}
 */
