@@ -18,6 +18,7 @@ import (
 	//	srunpoints "vk/steps/steprunpoints"
 	sstart "vk/steps/stepstart"
 	//	sudp "vk/steps/stepudp"
+	snetinfo "vk/steps/stepnetinfo"
 	srotatemain "vk/steps/steprotatemain"
 	sweb "vk/steps/stepweb"
 )
@@ -30,11 +31,12 @@ func init() {
 }
 
 func initSteps() {
-	addStep(&(sstart.ThisStep))
-	addStep(&(scfg.ThisStep))
-	addStep(&(sparams.ThisStep))
-	addStep(&(srotatemain.ThisStep))
-	addStep(&(sweb.ThisStep))
+	addStep(&(sstart.ThisStep))      // the very first routines: CLI flags, ...
+	addStep(&(scfg.ThisStep))        // application configuration
+	addStep(&(sparams.ThisStep))     // prepare application configuration as parameters
+	addStep(&(srotatemain.ThisStep)) // set rotation of the main (application) log file
+	addStep(&(snetinfo.ThisStep))    // get and check frequently net info, send email about it state if necessary
+	addStep(&(sweb.ThisStep))        // start WEB server
 
 	// seit jaieliek rotateMain solis
 	//	addStep(&(schecknet.ThisStep))

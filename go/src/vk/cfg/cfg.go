@@ -197,5 +197,13 @@ func (c *CfgData) Put() (err error) {
 		Final.WebTemplateDir = c.WebTemplateDir
 	}
 
+	// External net settings
+	if (nil == err) && (0 < len(c.IPExternalAddressCmds)) {
+		Final.IPExternalAddressCmds = c.IPExternalAddressCmds
+	}
+	if (nil == err) && ("" != c.NetExternalRequirement) {
+		Final.NetExternalRequirement, err = strconv.Atoi(c.NetExternalRequirement)
+	}
+
 	return
 }

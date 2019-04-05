@@ -19,6 +19,14 @@ type ParamData struct {
 	WebStaticDir    string
 	WebTemplateDir  string
 
+	IPAddressInternal string
+	IPAddressExternal string
+
+	IPExternalAddressCmds  []string
+	NetExternalRequirement int
+
+	//###################################
+	//###################################
 	//###################################
 
 	PointLogPath string

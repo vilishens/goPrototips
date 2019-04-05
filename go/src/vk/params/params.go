@@ -35,6 +35,12 @@ func init() {
 	Params.WebStaticDir = ""
 	Params.WebTemplateDir = ""
 
+	Params.IPAddressInternal = ""
+	Params.IPAddressExternal = ""
+
+	Params.IPExternalAddressCmds = []string{}
+	Params.NetExternalRequirement = -1
+
 	/*
 
 
@@ -118,6 +124,10 @@ func Put(chDone chan bool, chErr chan error) {
 	}
 	if "" != data.WebTemplateDir {
 		Params.WebTemplateDir = data.WebTemplateDir
+	}
+
+	if 0 <= data.PortSSHInternal {
+		Params.PortWEBInternal = data.PortWEBInternal
 	}
 
 	/*

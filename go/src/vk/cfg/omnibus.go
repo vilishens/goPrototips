@@ -17,6 +17,10 @@ type CfgData struct {
 	WebStaticDir    string `json:"WEBStaticDir"`
 	WebTemplateDir  string `json:"WEBTemplateDir"`
 
+	IPExternalAddressCmds  []string `json:"IPExternalAddressCmds"`
+	NetExternalRequirement string   `json:"NetExternalRequirement"`
+
+	//==========================================================================================
 	//==========================================================================================
 
 	//	LogMainFile         string `json:"mainLogFile"`
@@ -60,6 +64,10 @@ type CfgFinalData struct {
 	WebStaticDir    string
 	WebTemplateDir  string
 
+	IPExternalAddressCmds  []string
+	NetExternalRequirement int
+
+	//==========================================================================================
 	//==========================================================================================
 
 	PointDefaultCfgFile string

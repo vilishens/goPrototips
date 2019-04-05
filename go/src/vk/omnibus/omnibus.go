@@ -47,6 +47,7 @@ const (
 
 const (
 	StepNameConfig     = "step-config"
+	StepNameNetInfo    = "step-net-info"
 	StepNameParams     = "step-params"
 	StepNameRotateMain = "step-rotate-main"
 	StepNameStart      = "step-start"
