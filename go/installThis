@@ -4,3 +4,8 @@
 go get -u -v github.com/gorilla/mux
 #go get -u -v github.com/sendgrid/sendgrid-go
 
+#
+# sākt goArduino ar bootu (pirms tam jābūt - go build goArduino.go)
+#
+# /etc/rc.local pievieno /home/pi/0_dev/next/go/runA &
+#
