@@ -202,14 +202,11 @@ func (c *CfgData) Put() (err error) {
 
 	// External net settings
 	if (nil == err) && (0 < len(c.IPExternalAddressCmds)) {
-		Final.IPExternalAddressCmds = c.IPExternalAddressCmds
+		Final.IPExternalAddressCmds = make([]string, len(c.IPExternalAddressCmds))
+		copy(Final.IPExternalAddressCmds, c.IPExternalAddressCmds)
 	}
 	if (nil == err) && ("" != c.NetRequirement) {
 		Final.NetRequirement, err = strconv.Atoi(c.NetRequirement)
-	}
-	if (nil == err) && (0 < len(c.IPExternalAddressCmds)) {
-		Final.IPExternalAddressCmds = make([]string, len(c.IPExternalAddressCmds))
-		copy(Final.IPExternalAddressCmds, c.IPExternalAddressCmds)
 	}
 
 	return

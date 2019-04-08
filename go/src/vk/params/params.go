@@ -38,8 +38,8 @@ func init() {
 	Params.IPAddressInternal = ""
 	Params.IPAddressExternal = ""
 
-	Params.NetRequirement = -1
 	Params.IPExternalAddressCmds = []string{} // commands to find the station external IP address
+	Params.NetRequirement = -1
 
 	/*
 
@@ -130,12 +130,12 @@ func Put(chDone chan bool, chErr chan error) {
 		Params.PortWEBInternal = data.PortWEBInternal
 	}
 
-	if 0 <= data.NetRequirement {
-		Params.NetRequirement = data.NetRequirement
-	}
 	if (nil == err) && (0 < len(data.IPExternalAddressCmds)) {
 		Params.IPExternalAddressCmds = make([]string, len(data.IPExternalAddressCmds))
 		copy(Params.IPExternalAddressCmds, data.IPExternalAddressCmds)
+	}
+	if 0 <= data.NetRequirement {
+		Params.NetRequirement = data.NetRequirement
 	}
 
 	/*
