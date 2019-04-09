@@ -42,6 +42,12 @@ const (
 )
 
 const (
+	NetRequirementNone     = 0x0000
+	NetRequirementLocal    = 0x0001
+	NetRequirementExternal = 0x0002
+)
+
+const (
 	StepExecDelay = 10 * time.Millisecond
 )
 

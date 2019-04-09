@@ -3,6 +3,7 @@ package netinfo
 import (
 	"fmt"
 	"net"
+	"strings"
 	"time"
 	vomni "vk/omnibus"
 
@@ -75,6 +76,7 @@ func netInfo(chGoOn chan bool, chDone chan int, chErr chan error) {
 
 		repeat = 0
 		if setCurrentNet(intIP, extIP) {
+			// Ko darīt ja nevajag ārējo IP adresi? vai jāsūta emails?
 			/*
 				if err = sendNetInfov4(); nil != err {
 					err = vutils.ErrFuncLine(fmt.Errorf("Couldn't send new IPv4 - %v", err))
@@ -86,27 +88,33 @@ func netInfo(chGoOn chan bool, chDone chan int, chErr chan error) {
 				}
 			*/
 		}
+
+		str := `=== Iternal IP "` + vparams.Params.IPAddressInternal + `" External IP "` + vparams.Params.IPAddressExternal + `"`
+		fmt.Println(str)
 	}
 }
 
-func setCurrentNet(intIP string, extIP string) (send bool) {
+func setCurrentNet(intIP string, extIP string) (newIP bool) {
 
 	wasInternal := vparams.Params.IPAddressInternal
 	wasExternal := vparams.Params.IPAddressExternal
 
 	if (nil != net.ParseIP(intIP)) && (vparams.Params.IPAddressInternal != intIP) {
 		vparams.Params.IPAddressInternal = intIP
-		send = true
+		newIP = true
 	}
 
 	if (nil != net.ParseIP(extIP)) && (vparams.Params.IPAddressExternal != extIP) {
 		vparams.Params.IPAddressExternal = extIP
-		send = true
+		newIP = true
 	}
 
-	if send {
-		str := fmt.Sprintf("New IP addresses: Internal %q (was %q), External %q (was %q)",
-			vparams.Params.IPAddressInternal, wasInternal, vparams.Params.IPAddressExternal, wasExternal)
+	if newIP {
+		str := fmt.Sprintf("New IP: Internal %q (was %q)", vparams.Params.IPAddressInternal, wasInternal)
+		if vparams.Params.NetExternalRequired {
+			str += fmt.Sprintf(", External %q (was %q)", vparams.Params.IPAddressExternal, wasExternal)
+		}
+
 		vutils.LogStr(vomni.LogInfo, str)
 	}
 
@@ -135,21 +143,19 @@ func getIPv4Addrs() (intIP string, extIP string, err error) {
 		return
 	}
 
-	/*
-		if extIP, err = vutils.ExternalIPv4(); nil != err {
+	if vparams.Params.NetExternalRequired {
+		if extIP, err = ExternalIPv4(); nil != err {
 			err = vutils.ErrFuncLine(fmt.Errorf("Couldn't get External IPv4 - %v", err))
 			return
 		}
-	*/
+	}
 
 	return
 }
 
-/*
 func ExternalIPv4() (ip string, err error) {
 
-	cmds := []string{"dig +short myip.opendns.com @resolver1.opendns.com",
-		"curl http://myip.dnsomatic.com"}
+	cmds := vparams.Params.IPExternalAddressCmds
 
 	tmpIP := ""
 
@@ -160,27 +166,23 @@ func ExternalIPv4() (ip string, err error) {
 		chStr := make(chan string)
 		chErr := make(chan error)
 
-		go doCmd(cmd, chStr, chErr)
+		go vutils.DoCmd(cmd, chStr, chErr)
 		select {
 		case <-tick.C:
 			ind++
 		case tmpIP = <-chStr:
 			return strings.Trim(tmpIP, "\n"), nil
 		case err = <-chErr:
-			// return "", ErrFuncLine(fmt.Errorf("Failed CMD \"%s\" --- %v", cmd, err))
-			err1 := ErrFuncLine(fmt.Errorf("Failed CMD \"%s\" --- %v (index %d)", cmd, err, ind))
+			err1 := vutils.ErrFuncLine(fmt.Errorf("Failed CMD \"%s\" --- %v (index %d)", cmd, err, ind))
 
 			vomni.LogErr.Println(err1)
-
-			fmt.Println("########### OSET ### jāliek kļūdas ieraksts %v", err1)
 			ind++
 		}
 	}
 
 	if "" == tmpIP {
-		return "", ErrFuncLine(fmt.Errorf("Couldn't get the external IP"))
+		return "", vutils.ErrFuncLine(fmt.Errorf("Couldn't get the external IP"))
 	}
 
 	return
 }
-*/

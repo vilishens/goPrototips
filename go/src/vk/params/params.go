@@ -39,7 +39,7 @@ func init() {
 	Params.IPAddressExternal = ""
 
 	Params.IPExternalAddressCmds = []string{} // commands to find the station external IP address
-	Params.NetRequirement = -1
+	Params.NetExternalRequired = false
 
 	/*
 
@@ -134,8 +134,8 @@ func Put(chDone chan bool, chErr chan error) {
 		Params.IPExternalAddressCmds = make([]string, len(data.IPExternalAddressCmds))
 		copy(Params.IPExternalAddressCmds, data.IPExternalAddressCmds)
 	}
-	if 0 <= data.NetRequirement {
-		Params.NetRequirement = data.NetRequirement
+	if 0 < data.NetExternalRequired {
+		Params.NetExternalRequired = true
 	}
 
 	/*
