@@ -23,3 +23,27 @@ func LogNewPoint(d *os.File) (newLog *log.Logger) {
 	return log.New(d, vomni.UDPMessageSeparator+" ", vomni.LogLoggerFlags)
 }
 */
+
+func LogErr(err error) {
+
+	LogStr(vomni.LogErr, err.Error())
+
+}
+
+func LogInfo(str string) {
+
+	LogStr(vomni.LogInfo, str)
+
+}
+
+func LogData(str string) {
+
+	LogStr(vomni.LogData, str)
+
+}
+
+func LogFatal(str string) {
+
+	LogStr(vomni.LogFatal, str)
+
+}

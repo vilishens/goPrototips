@@ -36,7 +36,11 @@ func initSteps() {
 	addStep(&(sparams.ThisStep))     // prepare application configuration as parameters
 	addStep(&(srotatemain.ThisStep)) // set rotation of the main (application) log file
 	addStep(&(snetinfo.ThisStep))    // get and check frequently net info, send email about it state if necessary
-	addStep(&(sweb.ThisStep))        // start WEB server
+	//pointconfig
+	// udp
+	// netscan
+
+	addStep(&(sweb.ThisStep)) // start WEB server
 
 	// seit jaieliek rotateMain solis
 	//	addStep(&(schecknet.ThisStep))
@@ -98,6 +102,9 @@ func doAllSteps(chanDone chan int) {
 			vutils.LogStr(vomni.LogInfo, str)
 		case err = <-chErr:
 			stop = true
+		case err = <-vomni.StepErr:
+			stop = true
+
 		case done = <-chDone:
 			stop = true
 		}
@@ -116,14 +123,15 @@ func doAllSteps(chanDone chan int) {
 	if !stop {
 
 		str := fmt.Sprintf("===== All steps are running")
-		vutils.LogStr(vomni.LogInfo, str)
+		vutils.LogInfo(str)
 		fmt.Println(str)
 
 		select {
-		case err = <-chErr:
+		case err = <-vomni.StepErr:
 			str := fmt.Sprintf("Steps need to be closed due to an err - %q", err)
-			vutils.LogStr(vomni.LogErr, str)
+			vutils.LogErr(fmt.Errorf(str))
 			stop = true
+
 		case done = <-vomni.RootDone:
 			stop = true
 		}

@@ -55,7 +55,7 @@ func (s *thisStep) StepExec(chDone chan int, chGoOn chan bool, chErr chan error)
 //!!!!!	for {
 		select {
 		case locErr := <-s.Err:
-			chErr <- locErr
+			vomni.StepErr <- locErr
 		case locDone := <-s.Done:
 			chDone <- locDone
 		case locGoOn := <-s.GoOn:

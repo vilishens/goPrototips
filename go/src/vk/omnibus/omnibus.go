@@ -8,6 +8,7 @@ import (
 
 var RootErr = make(chan error)
 var RootDone = make(chan int)
+var StepErr = make(chan error)
 
 var (
 	RootPath    string
@@ -42,9 +43,13 @@ const (
 )
 
 const (
-	NetRequirementNone     = 0x0000
-	NetRequirementLocal    = 0x0001
-	NetRequirementExternal = 0x0002
+	NoNetError           = 0x0000
+	NoNetInternal        = 0x0010
+	NoNetExternal        = 0x0020
+	NetExternalNone      = 0x0000
+	NetExternalNice2Have = 0x0001
+	NetExternalRequired  = 0x0002
+	NetExternalBits      = 0x0003
 )
 
 const (

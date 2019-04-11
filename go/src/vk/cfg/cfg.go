@@ -34,7 +34,7 @@ func init() {
 	Final.WebTemplateDir = ""
 
 	Final.IPExternalAddressCmds = []string{}
-	Final.NetExternalRequired = -1
+	Final.NetExternalRequirement = -1
 
 	/*
 		Final.LogMainFile = ""
@@ -205,8 +205,8 @@ func (c *CfgData) Put() (err error) {
 		Final.IPExternalAddressCmds = make([]string, len(c.IPExternalAddressCmds))
 		copy(Final.IPExternalAddressCmds, c.IPExternalAddressCmds)
 	}
-	if (nil == err) && ("" != c.NetExternalRequired) {
-		Final.NetExternalRequired, err = strconv.Atoi(c.NetExternalRequired)
+	if (nil == err) && ("" != c.NetExternalRequirement) {
+		Final.NetExternalRequirement, err = strconv.Atoi(c.NetExternalRequirement)
 	}
 
 	return

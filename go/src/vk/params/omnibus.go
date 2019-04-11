@@ -22,8 +22,8 @@ type ParamData struct {
 	IPAddressInternal string
 	IPAddressExternal string
 
-	IPExternalAddressCmds []string
-	NetExternalRequired   bool
+	IPExternalAddressCmds  []string
+	NetExternalRequirement int
 
 	//###################################
 	//###################################

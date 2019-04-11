@@ -17,8 +17,8 @@ type CfgData struct {
 	WebStaticDir    string `json:"WEBStaticDir"`
 	WebTemplateDir  string `json:"WEBTemplateDir"`
 
-	IPExternalAddressCmds []string `json:"IPExternalAddressCmds"`
-	NetExternalRequired   string   `json:"NetExternalRequired"`
+	IPExternalAddressCmds  []string `json:"IPExternalAddressCmds"`
+	NetExternalRequirement string   `json:"NetExternalRequired"`
 
 	//==========================================================================================
 	//==========================================================================================
@@ -64,8 +64,8 @@ type CfgFinalData struct {
 	WebStaticDir    string
 	WebTemplateDir  string
 
-	IPExternalAddressCmds []string
-	NetExternalRequired   int
+	IPExternalAddressCmds  []string
+	NetExternalRequirement int
 
 	//==========================================================================================
 	//==========================================================================================

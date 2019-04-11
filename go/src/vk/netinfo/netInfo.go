@@ -27,7 +27,7 @@ func NetInfo(chGoOn chan bool, chDone chan int, chErr chan error) {
 			chGoOn <- true
 		case err := <-locErr:
 			err = vutils.ErrFuncLine(err)
-			vutils.LogStr(vomni.LogErr, err.Error())
+			vutils.LogErr(err)
 			chErr <- err
 			stop = true
 			return
@@ -48,35 +48,35 @@ func netInfo(chGoOn chan bool, chDone chan int, chErr chan error) {
 
 	repeat := 0
 	for {
-		if first {
-			chGoOn <- true
-			first = false
-		} else {
-			tick := time.NewTicker(netDuration)
-			<-tick.C
-		}
+		intIP, extIP, errCd, err := getIPv4Addrs()
 
-		intIP, extIP, err := getIPv4Addrs()
-		if nil != err {
+		if 0 != (vomni.NoNetInternal & errCd) {
+			err = vutils.ErrFuncLine(fmt.Errorf("Couldn't find the internal IP - %s", err.Error()))
+
+			chErr <- err
+			return
+		} else if 0 != (vomni.NoNetExternal & errCd) {
 			repeat++
 
 			if repeat <= repeatMax {
-				err = vutils.ErrFuncLine(fmt.Errorf("Couldn't get current IP addresses (attempt #%d)", repeat))
-				vutils.LogStr(vomni.LogErr, err.Error())
+				err = vutils.ErrFuncLine(fmt.Errorf("Couldn't get the external IP (attempt #%d) - %s", repeat, err.Error()))
+				vutils.LogErr(err)
 				continue
 			}
 
 			err := vutils.ErrFuncLine(fmt.Errorf("Couldn't find IP (int \"%s\", ext \"%s\", reapeat number %d)",
 				intIP, extIP, repeat))
-			vutils.LogStr(vomni.LogErr, err.Error())
 
-			chErr <- err
-			return
+			if 0 != (vomni.NetExternalRequired & vparams.Params.NetExternalRequirement) {
+				chErr <- err
+				return
+			}
 		}
 
 		repeat = 0
 		if setCurrentNet(intIP, extIP) {
 			// Ko darīt ja nevajag ārējo IP adresi? vai jāsūta emails?
+			// Jāņem vērā arī NetExternalTreatment
 			/*
 				if err = sendNetInfov4(); nil != err {
 					err = vutils.ErrFuncLine(fmt.Errorf("Couldn't send new IPv4 - %v", err))
@@ -91,6 +91,14 @@ func netInfo(chGoOn chan bool, chDone chan int, chErr chan error) {
 
 		str := `=== Iternal IP "` + vparams.Params.IPAddressInternal + `" External IP "` + vparams.Params.IPAddressExternal + `"`
 		fmt.Println(str)
+
+		if first {
+			chGoOn <- true
+			first = false
+		}
+
+		tick := time.NewTicker(netDuration)
+		<-tick.C
 	}
 }
 
@@ -111,7 +119,7 @@ func setCurrentNet(intIP string, extIP string) (newIP bool) {
 
 	if newIP {
 		str := fmt.Sprintf("New IP: Internal %q (was %q)", vparams.Params.IPAddressInternal, wasInternal)
-		if vparams.Params.NetExternalRequired {
+		if 0 != (vomni.NetExternalBits & vparams.Params.NetExternalRequirement) {
 			str += fmt.Sprintf(", External %q (was %q)", vparams.Params.IPAddressExternal, wasExternal)
 		}
 
@@ -137,15 +145,18 @@ func sendNetInfov4() (err error) {
 	return vsgrid.Send(emails, subj, msg_txt, msg_html)
 }
 */
-func getIPv4Addrs() (intIP string, extIP string, err error) {
+
+func getIPv4Addrs() (intIP string, extIP string, errCd int, err error) {
 	if intIP, err = vutils.InternalIPv4(); nil != err {
 		err = vutils.ErrFuncLine(fmt.Errorf("Couldn'get Internal IPv4 - %v", err))
+		errCd = vomni.NoNetInternal
 		return
 	}
 
-	if vparams.Params.NetExternalRequired {
+	if 0 != (vomni.NetExternalBits & vparams.Params.NetExternalRequirement) {
 		if extIP, err = ExternalIPv4(); nil != err {
 			err = vutils.ErrFuncLine(fmt.Errorf("Couldn't get External IPv4 - %v", err))
+			errCd = vomni.NoNetExternal
 			return
 		}
 	}
