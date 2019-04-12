@@ -93,10 +93,6 @@ func doAllSteps(chanDone chan int) {
 
 		select {
 		case <-chGoOn:
-
-			fmt.Println("#############################################", thisS.StepName())
-			fmt.Println("ooooooooooooooooooooooooooooooooooooooooooooo END-APP")
-
 			vomni.StepInList(thisS.StepName())
 			str = fmt.Sprintf("===== Step %q -> sent GoOn", thisS.StepName())
 			vutils.LogStr(vomni.LogInfo, str)
