@@ -38,6 +38,10 @@ func (s *thisStep) StepName() string {
 }
 
 func (s *thisStep) StepPost(done chan bool) {
+	// may be something needs to be done before leave the step
+	// if not just send Done flag
+	time.Sleep(vomni.StepExecDelay)
+
 	if isRunning {
 		s.Done <- vomni.DonePostStop
 	}

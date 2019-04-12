@@ -79,6 +79,8 @@ func (s *thisStep) StepExec(chDone chan int, chGoOn chan bool, chErr chan error)
 				chDone <- locDone
 			}
 
+			fmt.Println("Jerry Lackey")
+
 			stop = true
 		case locGoOn := <-s.GoOn:
 			isRunning = true
@@ -91,8 +93,7 @@ func (s *thisStep) StepExec(chDone chan int, chGoOn chan bool, chErr chan error)
 func (s *thisStep) StepPost(done chan bool) {
 	// may be something needs to be done before leave the step
 	// if not just send Done flag
-
-	fmt.Println("Bashkatin", isRunning)
+	time.Sleep(vomni.StepExecDelay)
 
 	if isRunning {
 		s.Done <- vomni.DonePostStop
