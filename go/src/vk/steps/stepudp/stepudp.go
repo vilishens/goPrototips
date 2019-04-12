@@ -1,20 +1,22 @@
-package stepparams
+package stepudp
 
 import (
+	"fmt"
 	"time"
 	vomni "vk/omnibus"
-	vparam "vk/params"
-	"vk/steps/step"
+	vstep "vk/steps/step"
+	vudp "vk/udp"
+	vutils "vk/utils"
 )
 
 var isRunning bool
 
-type thisStep step.StepVars
+type thisStep vstep.StepVars
 
 var ThisStep thisStep
 
 func init() {
-	ThisStep.Name = vomni.StepNameParams
+	ThisStep.Name = vomni.StepNameUDP
 	ThisStep.Err = make(chan error)
 	ThisStep.GoOn = make(chan bool)
 	ThisStep.Done = make(chan int)
@@ -24,17 +26,19 @@ func (s *thisStep) stepDo() {
 	// put code here to do what is necessary
 
 	chErr := make(chan error)
-	chDone := make(chan bool)
+	chDone := make(chan int)
+	chGoOn := make(chan bool)
 
-	go vparam.Put(chDone, chErr)
+	go vudp.Server(chGoOn, chDone, chErr) // put the right call here
 
 	for {
 		select {
 		case err := <-chErr:
 			s.Err <- err
-			return
 		case done := <-chDone:
-			s.GoOn <- done
+			s.Done <- done
+		case <-chGoOn:
+			s.GoOn <- true
 		}
 	}
 }
@@ -45,6 +49,14 @@ func (s *thisStep) StepName() string {
 
 func (s *thisStep) StepPre(chDone chan int, chGoOn chan bool, chErr chan error) {
 	// do if something is required before the step execution
+	need := []string{vomni.StepNameStart}
+
+	if err := vomni.AreStepsInList(need); nil != err {
+		err = vutils.ErrFuncLine(fmt.Errorf("The step %q has error - %s", s.StepName(), err))
+		vutils.LogErr(err)
+		chErr <- err
+		return
+	}
 
 	chGoOn <- true
 }
@@ -66,6 +78,7 @@ func (s *thisStep) StepExec(chDone chan int, chGoOn chan bool, chErr chan error)
 			if locDone != vomni.DonePostStop {
 				chDone <- locDone
 			}
+
 			stop = true
 		case locGoOn := <-s.GoOn:
 			isRunning = true
@@ -77,6 +90,10 @@ func (s *thisStep) StepExec(chDone chan int, chGoOn chan bool, chErr chan error)
 
 func (s *thisStep) StepPost(done chan bool) {
 	// may be something needs to be done before leave the step
+	// if not just send Done flag
+
+	fmt.Println("Bashkatin", isRunning)
+
 	if isRunning {
 		s.Done <- vomni.DonePostStop
 	}

@@ -1,10 +1,13 @@
 package stepstart
 
 import (
+	"time"
 	vcli "vk/cli"
 	vomni "vk/omnibus"
 	"vk/steps/step"
 )
+
+var isRunning bool
 
 type thisStep step.StepVars
 
@@ -34,9 +37,12 @@ func (s *thisStep) StepName() string {
 	return ThisStep.Name
 }
 
-func (s *thisStep) StepPost() {
-	s.Done <- vomni.DoneStop
-	return
+func (s *thisStep) StepPost(done chan bool) {
+	if isRunning {
+		s.Done <- vomni.DonePostStop
+	}
+
+	done <- true
 }
 
 func (s *thisStep) StepPre(chDone chan int, chGoOn chan bool, chErr chan error) {
@@ -44,6 +50,8 @@ func (s *thisStep) StepPre(chDone chan int, chGoOn chan bool, chErr chan error) 
 }
 
 func (s *thisStep) StepExec(chDone chan int, chGoOn chan bool, chErr chan error) {
+
+	defer func() { isRunning = false }()
 
 	go s.stepDo()
 
@@ -54,10 +62,14 @@ func (s *thisStep) StepExec(chDone chan int, chGoOn chan bool, chErr chan error)
 			vomni.StepErr <- locErr
 			stop = true
 		case locDone := <-s.Done:
-			chDone <- locDone
+			if locDone != vomni.DonePostStop {
+				chDone <- locDone
+			}
 			stop = true
 		case locGoOn := <-s.GoOn:
+			isRunning = true
 			chGoOn <- locGoOn
 		}
+		time.Sleep(vomni.StepExecDelay)
 	}
 }

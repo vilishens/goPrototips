@@ -6,6 +6,8 @@ import (
 	"time"
 )
 
+var stepList map[string]bool
+
 var RootErr = make(chan error)
 var RootDone = make(chan int)
 var StepErr = make(chan error)
@@ -36,10 +38,11 @@ const (
 )
 
 const (
-	DoneError   = 0x0000010
-	DoneReboot  = 0x0000020
-	DoneRestart = 0x0000040
-	DoneStop    = 0x0000080
+	DoneError    = 0x0000010
+	DoneReboot   = 0x0000020
+	DoneRestart  = 0x0000040
+	DoneStop     = 0x0000080
+	DonePostStop = 0x0000100
 )
 
 const (
@@ -62,6 +65,7 @@ const (
 	StepNameParams     = "step-params"
 	StepNameRotateMain = "step-rotate-main"
 	StepNameStart      = "step-start"
+	StepNameUDP        = "step-udp"
 	StepNameWeb        = "step-web"
 )
 

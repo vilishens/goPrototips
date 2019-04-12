@@ -10,7 +10,7 @@ type StepVars struct {
 type Step interface {
 	StepExec(chDone chan int, chGoOn chan bool, chErr chan error)
 	StepName() string
-	StepPost()
+	StepPost(chan bool)
 	StepPre(chDone chan int, chGoOn chan bool, chErr chan error)
 }
 

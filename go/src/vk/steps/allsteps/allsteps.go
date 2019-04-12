@@ -16,10 +16,10 @@ import (
 	//	spointcfg "vk/steps/steppointconfig"
 	//	spointscan "vk/steps/steppointscan"
 	//	srunpoints "vk/steps/steprunpoints"
-	sstart "vk/steps/stepstart"
-	//	sudp "vk/steps/stepudp"
 	snetinfo "vk/steps/stepnetinfo"
 	srotatemain "vk/steps/steprotatemain"
+	sstart "vk/steps/stepstart"
+	sudp "vk/steps/stepudp"
 	sweb "vk/steps/stepweb"
 )
 
@@ -37,7 +37,7 @@ func initSteps() {
 	addStep(&(srotatemain.ThisStep)) // set rotation of the main (application) log file
 	addStep(&(snetinfo.ThisStep))    // get and check frequently net info, send email about it state if necessary
 	//pointconfig
-	// udp
+	addStep(&(sudp.ThisStep)) // starts UDP
 	// netscan
 
 	addStep(&(sweb.ThisStep)) // start WEB server
@@ -79,17 +79,12 @@ func doAllSteps(chanDone chan int) {
 	chDone := make(chan int)
 	chGoOn := make(chan bool)
 
-	count := -1
 	stop := false
 	err := error(nil)
 	done := 0
 
-	ind := 0
-
 	for _, s := range stepSequence {
 		thisS := steps[s]
-
-		ind++
 
 		str := fmt.Sprintf("===== Step %q -> started", thisS.StepName())
 		fmt.Println(str)
@@ -98,10 +93,16 @@ func doAllSteps(chanDone chan int) {
 
 		select {
 		case <-chGoOn:
+
+			fmt.Println("#############################################", thisS.StepName())
+			fmt.Println("ooooooooooooooooooooooooooooooooooooooooooooo END-APP")
+
+			vomni.StepInList(thisS.StepName())
 			str = fmt.Sprintf("===== Step %q -> sent GoOn", thisS.StepName())
 			vutils.LogStr(vomni.LogInfo, str)
 		case err = <-chErr:
 			stop = true
+
 		case err = <-vomni.StepErr:
 			stop = true
 
@@ -112,8 +113,6 @@ func doAllSteps(chanDone chan int) {
 		if stop {
 			break
 		}
-
-		count++
 	}
 
 	fmt.Println("ooooooooooooooooooooooooooooooooooooooooooooo END-APP")
@@ -137,12 +136,16 @@ func doAllSteps(chanDone chan int) {
 		}
 	}
 
-	fmt.Println("Tagad jābeidz...")
+	fmt.Println("Tagad jābeidz...", vomni.StepCount())
 
-	for ; count >= 0; count-- {
+	for count := vomni.StepCount(); count > 0; count-- {
 		// let's do Post of each step starting from the last one
-		thisS := steps[stepSequence[count]]
-		thisS.StepPost()
+		ind := count - 1
+
+		locDone := make(chan bool)
+		thisS := steps[stepSequence[ind]]
+		go thisS.StepPost(locDone)
+		<-locDone
 
 		str := fmt.Sprintf("===== Step %q -> closed", thisS.StepName())
 		vutils.LogStr(vomni.LogInfo, str)

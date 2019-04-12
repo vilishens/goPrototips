@@ -1,10 +1,13 @@
-package stepcheckip
+package stepnetinfo
 
 import (
+	"time"
 	"vk/netinfo"
 	vomni "vk/omnibus"
 	vstep "vk/steps/step"
 )
+
+var isRunning bool
 
 type thisStep vstep.StepVars
 
@@ -48,6 +51,8 @@ func (s *thisStep) StepPre(chDone chan int, chGoOn chan bool, chErr chan error) 
 
 func (s *thisStep) StepExec(chDone chan int, chGoOn chan bool, chErr chan error) {
 
+	defer func() { isRunning = false }()
+
 	// do what you would like
 	go s.stepDo()
 
@@ -58,16 +63,24 @@ func (s *thisStep) StepExec(chDone chan int, chGoOn chan bool, chErr chan error)
 			vomni.StepErr <- locErr
 			stop = true
 		case locDone := <-s.Done:
-			chDone <- locDone
+			if locDone != vomni.DonePostStop {
+				chDone <- locDone
+			}
 			stop = true
 		case locGoOn := <-s.GoOn:
+			isRunning = true
 			chGoOn <- locGoOn
 		}
+		time.Sleep(vomni.StepExecDelay)
 	}
 }
 
-func (s *thisStep) StepPost() {
+func (s *thisStep) StepPost(done chan bool) {
 	// may be something needs to be done before leave the step
 	// if not just send Done flag
-	s.Done <- vomni.DoneStop
+	if isRunning {
+		s.Done <- vomni.DonePostStop
+	}
+
+	done <- true
 }
