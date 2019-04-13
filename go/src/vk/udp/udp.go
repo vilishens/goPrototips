@@ -13,9 +13,6 @@ import (
 
 func Server(chGoOn chan bool, chDone chan int, chErr chan error) {
 
-	//	lDone := make(chan bool)
-	//	lErr := make(chan error)
-
 	addr := net.UDPAddr{
 		Port: vparams.Params.PortUDPInternal,
 		IP:   net.ParseIP(vparams.Params.InternalIPv4),
@@ -56,49 +53,82 @@ func Server(chGoOn chan bool, chDone chan int, chErr chan error) {
 func sendMessages(done chan bool, chErr chan error) {
 
 	for {
+		time.Sleep(vomni.DelaySendMessage)
+
 		if len(vmsg.MessageList2Send) == 0 {
+			// no messages to send
 			time.Sleep(vomni.DelaySendMessageListEmpty)
 			continue
 		}
-		/*
-			for i := 0; i < len(xmsg.SendList); {
-				time.Sleep(msgSendListDelay)
 
-				if i >= len(xmsg.SendList) {
-					continue
-				}
+		for i := 0; i < len(vmsg.MessageList2Send); i++ {
+			time.Sleep(vomni.DelaySendMessage)
 
-				chDone := make(chan bool)
-
-				if (nil == xmsg.SendList[i]) || ("" == xmsg.SendList[i].Msg) {
-					xmsg.SendList.MinusIndex(i, chDone)
-					<-chDone
-					continue
-				}
-
-				if time.Since(xmsg.SendList[i].Last) < msgSendListInterval {
-					continue
-				}
-
-				xmsg.SendList[i].Repeat++
-				if xmsg.SendList[i].Repeat >= MsgSendRepeatLimit {
-					go xmsg.SendList.MinusIndex(i, chDone)
-					<-chDone
-
-					continue
-				}
-
-				xmsg.SendList[i].Last = time.Now()
-				if err := SendToAddress(xmsg.SendList[i].UDPAddr, xmsg.SendList[i].Msg); nil != err {
-					chErr <- err
-					return
-				}
-				i++
+			if i >= len(vmsg.MessageList2Send) {
+				// verify the index isn't out of the list
+				continue
 			}
-		*/
-		time.Sleep(vomni.DelaySendMessage)
+
+			chDone := make(chan bool)
+
+			if "" == vmsg.MessageList2Send[i].Msg {
+				// this is the blank message no need to try to send just remove it
+				vutils.LogInfo(fmt.Sprintf("Deleted blank message #%d", vmsg.MessageList2Send[i].MessageNbr))
+				go vmsg.MessageList2Send.MinusIndex(i, chDone)
+				<-chDone
+				continue
+			}
+
+			if time.Since(vmsg.MessageList2Send[i].Last) < vomni.DelaySendMessageRepeat {
+				// this is a repeated message but the repeat interval isn't passed yet
+				continue
+			}
+
+			vmsg.MessageList2Send[i].Repeat++
+			if vmsg.MessageList2Send[i].Repeat >= vomni.MessageSendRepeatLimit {
+				go vmsg.MessageList2Send.MinusIndex(i, chDone)
+				vutils.LogInfo(fmt.Sprintf("Deleted message #%d due to the exceeded repeat limit"))
+				<-chDone
+				continue
+			}
+
+			vmsg.MessageList2Send[i].Last = time.Now()
+			if err := SendToAddress(vmsg.MessageList2Send[i].UDPAddr, vmsg.MessageList2Send[i].Msg); nil != err {
+				// write the error in log
+				vutils.LogErr(err)
+			}
+		}
+	}
+}
+
+func SendToAddress(addr net.UDPAddr, msg string) (err error) {
+	addrStr := addr.IP.String() + ":" + strconv.Itoa(addr.Port)
+
+	chErr := make(chan error)
+	go sendToAddress(addrStr, msg, chErr)
+
+	return <-chErr
+}
+
+func sendToAddress(addr string, msg string, chErr chan error) (err error) {
+
+	conn, err := net.Dial("udp", addr)
+	if err != nil {
+		err = vutils.ErrFuncLine(fmt.Errorf("Connection ERROR: %v", err))
+		chErr <- err
+		return
 	}
 
+	if nil == err {
+		defer conn.Close()
+
+		if _, err = conn.Write([]byte(msg)); nil != err {
+			err = vutils.ErrFuncLine(fmt.Errorf("SentToAddress ERROR: %v", err))
+		}
+	}
+
+	chErr <- err
+	return
 }
 
 //##################################################
@@ -276,24 +306,4 @@ func waitMsg(conn *net.UDPConn, done chan bool, chErr chan error) {
 
 
 
-func SendToAddress(addr net.UDPAddr, msg string) (err error) {
-	addrStr := addr.IP.String() + ":" + strconv.Itoa(addr.Port)
-	return sendToAddress(addrStr, msg)
-}
-
-func sendToAddress(addr string, msg string) (err error) {
-
-	conn, err := net.Dial("udp", addr)
-	if err != nil {
-		err = vutils.ErrFuncLine(fmt.Errorf("Connection ERROR: %v", err))
-		return
-	}
-	defer conn.Close()
-
-	if _, err = conn.Write([]byte(msg)); nil != err {
-		err = vutils.ErrFuncLine(fmt.Errorf("SentToAddress ERROR: %v", err))
-	}
-
-	return
-}
 */
