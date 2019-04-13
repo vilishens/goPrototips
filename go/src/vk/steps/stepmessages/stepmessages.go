@@ -1,12 +1,10 @@
-package stepudp
+package stepmessages
 
 import (
-	"fmt"
 	"time"
+	vmsg "vk/messages"
 	vomni "vk/omnibus"
 	vstep "vk/steps/step"
-	vudp "vk/udp"
-	vutils "vk/utils"
 )
 
 var isRunning bool
@@ -16,7 +14,7 @@ type thisStep vstep.StepVars
 var ThisStep thisStep
 
 func init() {
-	ThisStep.Name = vomni.StepNameUDP
+	ThisStep.Name = vomni.StepNameMessages
 	ThisStep.Err = make(chan error)
 	ThisStep.GoOn = make(chan bool)
 	ThisStep.Done = make(chan int)
@@ -28,8 +26,7 @@ func (s *thisStep) stepDo() {
 	chErr := make(chan error)
 	chDone := make(chan int)
 	chGoOn := make(chan bool)
-
-	go vudp.Server(chGoOn, chDone, chErr) // put the right call here
+	go vmsg.Run(chGoOn, chDone, chErr) // put the right call here
 
 	for {
 		select {
@@ -49,15 +46,6 @@ func (s *thisStep) StepName() string {
 
 func (s *thisStep) StepPre(chDone chan int, chGoOn chan bool, chErr chan error) {
 	// do if something is required before the step execution
-	need := []string{vomni.StepNameStart, vomni.StepNameMessages}
-
-	if err := vomni.AreStepsInList(need); nil != err {
-		err = vutils.ErrFuncLine(fmt.Errorf("The step %q has error - %s", s.StepName(), err))
-		vutils.LogErr(err)
-		chErr <- err
-		return
-	}
-
 	chGoOn <- true
 }
 
@@ -83,7 +71,6 @@ func (s *thisStep) StepExec(chDone chan int, chGoOn chan bool, chErr chan error)
 			isRunning = true
 			chGoOn <- locGoOn
 		}
-		time.Sleep(vomni.DelayStepExec)
 	}
 }
 

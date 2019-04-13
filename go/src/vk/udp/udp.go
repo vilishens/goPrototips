@@ -4,6 +4,8 @@ import (
 	"fmt"
 	"net"
 	"strconv"
+	"time"
+	vmsg "vk/messages"
 	vomni "vk/omnibus"
 	vparams "vk/params"
 	vutils "vk/utils"
@@ -11,12 +13,8 @@ import (
 
 func Server(chGoOn chan bool, chDone chan int, chErr chan error) {
 
-	lDone := make(chan bool)
-	lErr := make(chan error)
-	//	rDone := make(chan bool)
-	//	rErr := make(chan error)
-
-	chGoOn <- true
+	//	lDone := make(chan bool)
+	//	lErr := make(chan error)
 
 	addr := net.UDPAddr{
 		Port: vparams.Params.PortUDPInternal,
@@ -25,39 +23,82 @@ func Server(chGoOn chan bool, chDone chan int, chErr chan error) {
 
 	conn, err := net.ListenUDP("udp", &addr)
 
-	chErr <- fmt.Errorf("kika")
-
 	if err != nil {
 		// Something really wrong - let's stop immediately
 		addrStr := addr.IP.String() + ":" + strconv.Itoa(addr.Port)
-
-		err = vutils.ErrFuncLine(fmt.Errorf("Couldn't get connection of %s --- %v", addrStr, err))
-		chErr <- err
+		err = fmt.Errorf("Couldn't get connection of %s --- %v", addrStr, err)
+		vutils.LogErr(err)
+		chErr <- vutils.ErrFuncLine(err)
 		return
 	}
 
 	defer conn.Close()
 
-	//xxx	go runRotate()
+	sendDone := make(chan bool)
+	sendErr := make(chan error)
 
-	//	go runRotate(rDone)
-	//	<-rDone
-	//	if err = <-rErr; nil == err {
-	//		chErr <- vutils.ErrFuncLine(fmt.Errorf("\nSomething wrong with point rotation -- %v", err))
-	//	}
-
-	//xxx	go sendMessages(rDone, rErr)
+	go sendMessages(sendDone, sendErr)
 
 	//xxx	go waitMsg(conn, lDone, lErr)
 
 	chGoOn <- true
 	select {
-	case <-lDone:
+	case cd := <-sendDone:
+		vutils.LogInfo(fmt.Sprintf("UDP finished with Send RC %d", cd))
 		break
-	case err := <-lErr:
-		vomni.RootErr <- err
+	case err := <-sendErr:
+		vutils.LogErr(err)
+		vomni.RootErr <- vutils.ErrFuncLine(err)
 		break
 	}
+}
+
+func sendMessages(done chan bool, chErr chan error) {
+
+	for {
+		if len(vmsg.MessageList2Send) == 0 {
+			time.Sleep(vomni.DelaySendMessageListEmpty)
+			continue
+		}
+		/*
+			for i := 0; i < len(xmsg.SendList); {
+				time.Sleep(msgSendListDelay)
+
+				if i >= len(xmsg.SendList) {
+					continue
+				}
+
+				chDone := make(chan bool)
+
+				if (nil == xmsg.SendList[i]) || ("" == xmsg.SendList[i].Msg) {
+					xmsg.SendList.MinusIndex(i, chDone)
+					<-chDone
+					continue
+				}
+
+				if time.Since(xmsg.SendList[i].Last) < msgSendListInterval {
+					continue
+				}
+
+				xmsg.SendList[i].Repeat++
+				if xmsg.SendList[i].Repeat >= MsgSendRepeatLimit {
+					go xmsg.SendList.MinusIndex(i, chDone)
+					<-chDone
+
+					continue
+				}
+
+				xmsg.SendList[i].Last = time.Now()
+				if err := SendToAddress(xmsg.SendList[i].UDPAddr, xmsg.SendList[i].Msg); nil != err {
+					chErr <- err
+					return
+				}
+				i++
+			}
+		*/
+		time.Sleep(vomni.DelaySendMessage)
+	}
+
 }
 
 //##################################################
@@ -233,51 +274,7 @@ func waitMsg(conn *net.UDPConn, done chan bool, chErr chan error) {
 	}
 }
 
-func sendMessages(done chan bool, chErr chan error) {
 
-	for {
-		if len(xmsg.SendList) == 0 {
-			time.Sleep(msgSendListEmptyDelay)
-		}
-
-		for i := 0; i < len(xmsg.SendList); {
-			time.Sleep(msgSendListDelay)
-
-			if i >= len(xmsg.SendList) {
-				continue
-			}
-
-			chDone := make(chan bool)
-
-			if (nil == xmsg.SendList[i]) || ("" == xmsg.SendList[i].Msg) {
-				xmsg.SendList.MinusIndex(i, chDone)
-				<-chDone
-				continue
-			}
-
-			if time.Since(xmsg.SendList[i].Last) < msgSendListInterval {
-				continue
-			}
-
-			xmsg.SendList[i].Repeat++
-			if xmsg.SendList[i].Repeat >= MsgSendRepeatLimit {
-				go xmsg.SendList.MinusIndex(i, chDone)
-				<-chDone
-
-				continue
-			}
-
-			xmsg.SendList[i].Last = time.Now()
-			if err := SendToAddress(xmsg.SendList[i].UDPAddr, xmsg.SendList[i].Msg); nil != err {
-				chErr <- err
-				return
-			}
-			i++
-		}
-
-		time.Sleep(msgSendListDelay)
-	}
-}
 
 func SendToAddress(addr net.UDPAddr, msg string) (err error) {
 	addrStr := addr.IP.String() + ":" + strconv.Itoa(addr.Port)

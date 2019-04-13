@@ -30,3 +30,8 @@ func AreStepsInList(steps []string) (err error) {
 func StepCount() (count int) {
 	return len(stepList)
 }
+
+func MessageNumberNext() (nbr int) {
+	MessageNumber++
+	return MessageNumber
+}

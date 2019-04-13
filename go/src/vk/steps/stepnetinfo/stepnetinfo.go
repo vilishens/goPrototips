@@ -71,14 +71,14 @@ func (s *thisStep) StepExec(chDone chan int, chGoOn chan bool, chErr chan error)
 			isRunning = true
 			chGoOn <- locGoOn
 		}
-		time.Sleep(vomni.StepExecDelay)
+		time.Sleep(vomni.DelayStepExec)
 	}
 }
 
 func (s *thisStep) StepPost(done chan bool) {
 	// may be something needs to be done before leave the step
 	// if not just send Done flag
-	time.Sleep(vomni.StepExecDelay)
+	time.Sleep(vomni.DelayStepExec)
 
 	if isRunning {
 		s.Done <- vomni.DonePostStop

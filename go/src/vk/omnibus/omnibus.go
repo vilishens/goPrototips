@@ -21,7 +21,9 @@ var (
 	LogInfo     *log.Logger
 )
 
-// constants for loag
+var MessageNumber int // unique message number (starting from the application launch)
+
+// constants for log
 const (
 	LogFileFlags   = os.O_RDWR | os.O_CREATE | os.O_APPEND
 	LogUserPerms   = os.FileMode(0666)
@@ -56,11 +58,14 @@ const (
 )
 
 const (
-	StepExecDelay = 10 * time.Millisecond
+	DelayStepExec             = 10 * time.Millisecond
+	DelaySendMessage          = time.Millisecond // time delay between two message send
+	DelaySendMessageListEmpty = 3 * time.Millisecond
 )
 
 const (
 	StepNameConfig     = "step-config"
+	StepNameMessages   = "step-messages"
 	StepNameNetInfo    = "step-net-info"
 	StepNameParams     = "step-params"
 	StepNameRotateMain = "step-rotate-main"
