@@ -1,10 +1,14 @@
-package stepnetinfo
+package stepnetscan
 
 import (
+	"fmt"
+	"net"
 	"time"
-	"vk/netinfo"
+	vnetscan "vk/net/netscan"
 	vomni "vk/omnibus"
+	vparams "vk/params"
 	vstep "vk/steps/step"
+	vutils "vk/utils"
 )
 
 var isRunning bool
@@ -14,7 +18,7 @@ type thisStep vstep.StepVars
 var ThisStep thisStep
 
 func init() {
-	ThisStep.Name = vomni.StepNameNetInfo
+	ThisStep.Name = vomni.StepNameNetScan
 	ThisStep.Err = make(chan error)
 	ThisStep.GoOn = make(chan bool)
 	ThisStep.Done = make(chan int)
@@ -26,7 +30,8 @@ func (s *thisStep) stepDo() {
 	chErr := make(chan error)
 	chDone := make(chan int)
 	chGoOn := make(chan bool)
-	go netinfo.NetInfo(chGoOn, chDone, chErr) // put the right call here
+
+	go vnetscan.ScanOctet(chGoOn, chDone, chErr) // put the right call here
 
 	for {
 		select {
@@ -46,7 +51,30 @@ func (s *thisStep) StepName() string {
 
 func (s *thisStep) StepPre(chDone chan int, chGoOn chan bool, chErr chan error) {
 	// do if something is required before the step execution
+
+	if err := ready2Start(); nil != err {
+		err = vutils.ErrFuncLine(fmt.Errorf("The step %q has error - %s", s.StepName(), err))
+		vutils.LogErr(err)
+		chErr <- err
+		return
+	}
+
 	chGoOn <- true
+}
+
+func ready2Start() (err error) {
+	// do if something is required before the step execution
+	need := []string{vomni.StepNameUDP}
+
+	if err = vomni.AreStepsInList(need); nil != err {
+		return
+	}
+
+	if nil == net.ParseIP(vparams.Params.IPAddressInternal) {
+		err = fmt.Errorf("The internal IP is not found yet")
+	}
+
+	return
 }
 
 func (s *thisStep) StepExec(chDone chan int, chGoOn chan bool, chErr chan error) {

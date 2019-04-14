@@ -71,6 +71,8 @@ func sendMessages(done chan int, chErr chan error) {
 		for i := 0; i < len(vmsg.MessageList2Send); i++ {
 			time.Sleep(vomni.DelaySendMessage)
 
+			radit := "192.168.0.182" == vmsg.MessageList2Send[i].UDPAddr.IP.String()
+
 			if i >= len(vmsg.MessageList2Send) {
 				// verify the index isn't out of the list
 				continue
@@ -86,13 +88,29 @@ func sendMessages(done chan int, chErr chan error) {
 				continue
 			}
 
-			if time.Since(vmsg.MessageList2Send[i].Last) < vomni.DelaySendMessageRepeat {
+			if !vmsg.MessageList2Send[i].Last.IsZero() && time.Since(vmsg.MessageList2Send[i].Last) < vomni.DelaySendMessageRepeat {
 				// this is a repeated message but the repeat interval isn't passed yet
 				continue
 			}
 
+			if radit {
+				fmt.Println("###### PIRMS ", vmsg.MessageList2Send[i].Repeat)
+			}
+
+			was := vmsg.MessageList2Send[i].Repeat
+
 			vmsg.MessageList2Send[i].Repeat++
+
+			if radit {
+				fmt.Println("###### Process  ", vmsg.MessageList2Send[i].Repeat, " WAS ", was, " NOW ", vmsg.MessageList2Send[i].Repeat)
+			}
+
 			if vmsg.MessageList2Send[i].Repeat >= vomni.MessageSendRepeatLimit {
+
+				if radit {
+					fmt.Println("###*************************************************### Paddington")
+				}
+
 				go vmsg.MessageList2Send.MinusIndex(i, chDone)
 				vutils.LogInfo(fmt.Sprintf("Deleted message #%d due to the exceeded repeat limit"))
 				<-chDone
@@ -100,6 +118,11 @@ func sendMessages(done chan int, chErr chan error) {
 			}
 
 			vmsg.MessageList2Send[i].Last = time.Now()
+
+			if radit {
+				fmt.Println("***** mizandarI  ", vmsg.MessageList2Send[i].Repeat)
+			}
+
 			if err := SendToAddress(vmsg.MessageList2Send[i].UDPAddr, vmsg.MessageList2Send[i].Msg); nil != err {
 				// write the error in log
 				vutils.LogErr(err)
@@ -109,10 +132,16 @@ func sendMessages(done chan int, chErr chan error) {
 }
 
 func SendToAddress(addr net.UDPAddr, msg string) (err error) {
+
 	addrStr := addr.IP.String() + ":" + strconv.Itoa(addr.Port)
 
 	chErr := make(chan error)
 	go sendToAddress(addrStr, msg, chErr)
+
+	select {
+	case err = <-chErr:
+		return
+	}
 
 	return <-chErr
 }

@@ -17,7 +17,8 @@ import (
 	//	spointscan "vk/steps/steppointscan"
 	//	srunpoints "vk/steps/steprunpoints"
 	smsg "vk/steps/stepmessages"
-	snetinfo "vk/steps/stepnetinfo"
+	snetinfo "vk/steps/stepnet/stepnetinfo"
+	snetscan "vk/steps/stepnet/stepnetscan"
 	spointrun "vk/steps/steppointrun"
 	srotatemain "vk/steps/steprotatemain"
 	sstart "vk/steps/stepstart"
@@ -38,13 +39,12 @@ func initSteps() {
 	addStep(&(sparams.ThisStep))     // prepare application configuration as parameters
 	addStep(&(srotatemain.ThisStep)) // set rotation of the main (application) log file
 	addStep(&(snetinfo.ThisStep))    // get and check frequently net info, send email about it state if necessary
-	addStep(&(smsg.ThisStep)) // messages
+	addStep(&(smsg.ThisStep))        // messages
 	//	pointconfig
 	addStep(&(spointrun.ThisStep)) // 	runpoints
-	addStep(&(sudp.ThisStep)) // starts UDP
-	// netscan
-
-	addStep(&(sweb.ThisStep)) // start WEB server
+	addStep(&(sudp.ThisStep))      // starts UDP
+	addStep(&(snetscan.ThisStep))  // scan all IP addresses of the last IPv4 segment
+	addStep(&(sweb.ThisStep))      // start WEB server
 
 	// seit jaieliek rotateMain solis
 	//	addStep(&(schecknet.ThisStep))

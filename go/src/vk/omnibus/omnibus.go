@@ -21,8 +21,6 @@ var (
 	LogInfo     *log.Logger
 )
 
-var MessageNumber int // unique message number (starting from the application launch)
-
 // constants for log
 const (
 	LogFileFlags   = os.O_RDWR | os.O_CREATE | os.O_APPEND
@@ -33,16 +31,6 @@ const (
 	LogPrefixErr   = "!!! ERROR !!! "
 	LogPrefixInfo  = "**** INFO *** "
 	LogPrefixFatal = "xxx FATAL xxx "
-)
-
-const (
-	UDPMessageSeparator = ":::"
-
-	MsgIndexSender = 0
-	MsgIndexCd     = 1
-	MsgIndexNbr    = 2
-
-	MsgPrefixLen = 3
 )
 
 const (
@@ -71,6 +59,8 @@ const (
 
 	DelayWaitMessage = time.Millisecond // time delay between two message waiting
 
+	DelayBetweenIPHello = 1000 * time.Millisecond
+
 	MessageSendRepeatLimit = 3
 )
 
@@ -78,6 +68,7 @@ const (
 	StepNameConfig     = "step-config"
 	StepNameMessages   = "step-messages"
 	StepNameNetInfo    = "step-net-info"
+	StepNameNetScan    = "step-net-scan"
 	StepNameParams     = "step-params"
 	StepNamePointRun   = "step-point-run"
 	StepNameRotateMain = "step-rotate-main"
@@ -99,4 +90,39 @@ const (
 	CfgDefaultPath      = "../cfg/app/default.cfg"
 	CliCfgPathFld       = "path"
 	LogRotateStatusFile = "logStatus.status"
+)
+
+//################################################# Message ####################
+
+var MessageNumber int // unique message number (starting from the application launch)
+
+const (
+	MsgCdOutputHelloFromStation = 0x00000001 // Output <station name><msgCd><msgNbr><station UTC seconds><station time offset><stationIP><stationPort>
+	MsgCdInputHelloFromPoint    = 0x00000002 // Input  <point name><msgCd><msgNbr><pointIP><pointPort>
+	MsgCdOutputSetRelayGpio     = 0x00000004 // Output <point name><msgCd><msgNbr><Gpio><set value>
+)
+
+const (
+	UDPMessageSeparator = ":::"
+
+	MsgIndexSender = 0
+	MsgIndexCd     = 1
+	MsgIndexNbr    = 2
+
+	MsgPrefixLen = 3
+)
+
+// Hello From Station
+const (
+	MsgIndexHelloFromStationTime   = 0
+	MsgIndexHelloFromStationOffset = 1
+	MsgIndexHelloFromStationIP     = 2
+	MsgIndexHelloFromStationPort   = 3
+	MsgHelloFromStationLen         = 4
+)
+
+const (
+	indexHelloFromPointIP   = 3
+	indexHelloFromPointPort = 4
+	lenHelloFromPoint       = 5
 )
