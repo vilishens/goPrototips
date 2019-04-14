@@ -1,19 +1,20 @@
-package step<NAME>
+package steppointrun
 
 import (
-	"fmt"
 	"time"
 	vomni "vk/omnibus"
+	vpointrun "vk/run/pointrun"
 	vstep "vk/steps/step"
 )
 
 var isRunning bool
 
 type thisStep vstep.StepVars
+
 var ThisStep thisStep
 
 func init() {
-	ThisStep.Name =vomni.<NAME>
+	ThisStep.Name = vomni.StepNamePointRun
 	ThisStep.Err = make(chan error)
 	ThisStep.GoOn = make(chan bool)
 	ThisStep.Done = make(chan int)
@@ -25,7 +26,8 @@ func (s *thisStep) stepDo() {
 	chErr := make(chan error)
 	chDone := make(chan int)
 	chGoOn := make(chan bool)
-//	go vudp.Server(chGoOn, chDone, chErr) // put the right call here
+
+	go vpointrun.Run(chGoOn, chDone, chErr) // put the right call here
 
 	for {
 		select {

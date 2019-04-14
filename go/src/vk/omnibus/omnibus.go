@@ -37,6 +37,12 @@ const (
 
 const (
 	UDPMessageSeparator = ":::"
+
+	MsgIndexSender = 0
+	MsgIndexCd     = 1
+	MsgIndexNbr    = 2
+
+	MsgPrefixLen = 3
 )
 
 const (
@@ -63,6 +69,8 @@ const (
 	DelaySendMessageListEmpty = 3 * time.Millisecond
 	DelaySendMessageRepeat    = 500 * time.Millisecond // interval between repeated messages
 
+	DelayWaitMessage = time.Millisecond // time delay between two message waiting
+
 	MessageSendRepeatLimit = 3
 )
 
@@ -71,6 +79,7 @@ const (
 	StepNameMessages   = "step-messages"
 	StepNameNetInfo    = "step-net-info"
 	StepNameParams     = "step-params"
+	StepNamePointRun   = "step-point-run"
 	StepNameRotateMain = "step-rotate-main"
 	StepNameStart      = "step-start"
 	StepNameUDP        = "step-udp"

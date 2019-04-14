@@ -18,6 +18,7 @@ import (
 	//	srunpoints "vk/steps/steprunpoints"
 	smsg "vk/steps/stepmessages"
 	snetinfo "vk/steps/stepnetinfo"
+	spointrun "vk/steps/steppointrun"
 	srotatemain "vk/steps/steprotatemain"
 	sstart "vk/steps/stepstart"
 	sudp "vk/steps/stepudp"
@@ -37,9 +38,9 @@ func initSteps() {
 	addStep(&(sparams.ThisStep))     // prepare application configuration as parameters
 	addStep(&(srotatemain.ThisStep)) // set rotation of the main (application) log file
 	addStep(&(snetinfo.ThisStep))    // get and check frequently net info, send email about it state if necessary
-	//	pointconfig
-	// 	runpoints
 	addStep(&(smsg.ThisStep)) // messages
+	//	pointconfig
+	addStep(&(spointrun.ThisStep)) // 	runpoints
 	addStep(&(sudp.ThisStep)) // starts UDP
 	// netscan
 

@@ -8,6 +8,7 @@ import (
 	vmsg "vk/messages"
 	vomni "vk/omnibus"
 	vparams "vk/params"
+	vpointrun "vk/run/pointrun"
 	vutils "vk/utils"
 )
 
@@ -31,26 +32,32 @@ func Server(chGoOn chan bool, chDone chan int, chErr chan error) {
 
 	defer conn.Close()
 
-	sendDone := make(chan bool)
+	sendDone := make(chan int)
 	sendErr := make(chan error)
 
 	go sendMessages(sendDone, sendErr)
 
-	//xxx	go waitMsg(conn, lDone, lErr)
+	waitDone := make(chan int)
+	waitErr := make(chan error)
+
+	go waitMsg(conn, waitDone, waitErr)
 
 	chGoOn <- true
 	select {
 	case cd := <-sendDone:
 		vutils.LogInfo(fmt.Sprintf("UDP finished with Send RC %d", cd))
-		break
+	case cd := <-waitDone:
+		vutils.LogInfo(fmt.Sprintf("UDP finished with Send RC %d", cd))
 	case err := <-sendErr:
 		vutils.LogErr(err)
 		vomni.RootErr <- vutils.ErrFuncLine(err)
-		break
+	case err := <-waitErr:
+		vutils.LogErr(err)
+		vomni.RootErr <- vutils.ErrFuncLine(err)
 	}
 }
 
-func sendMessages(done chan bool, chErr chan error) {
+func sendMessages(done chan int, chErr chan error) {
 
 	for {
 		time.Sleep(vomni.DelaySendMessage)
@@ -131,154 +138,13 @@ func sendToAddress(addr string, msg string, chErr chan error) (err error) {
 	return
 }
 
-//##################################################
-//##################################################
-//##################################################
-
-/*
-func Server(chGoOn chan bool, chDone chan int, chErr chan error) {
-
-	lDone := make(chan bool)
-	lErr := make(chan error)
-	rDone := make(chan bool)
-	rErr := make(chan error)
-
-	addr := net.UDPAddr{
-		Port: vparam.Params.InternalPort,
-		IP:   net.ParseIP(vparam.Params.InternalIPv4),
-	}
-
-	conn, err := net.ListenUDP("udp", &addr)
-	if err != nil {
-		// Something really wrong - let's stop immediately
-		addrStr := addr.IP.String() + ":" + strconv.Itoa(addr.Port)
-
-		err = vutils.ErrFuncLine(fmt.Errorf("Couldn't get connection of %s --- %v", addrStr, err))
-		chErr <- err
-		return
-	}
-
-	defer conn.Close()
-
-	go runRotate()
-
-	//	go runRotate(rDone)
-	//	<-rDone
-	//	if err = <-rErr; nil == err {
-	//		chErr <- vutils.ErrFuncLine(fmt.Errorf("\nSomething wrong with point rotation -- %v", err))
-	//	}
-
-	go sendMessages(rDone, rErr)
-
-	go waitMsg(conn, lDone, lErr)
-
-	chGoOn <- true
-	select {
-	case <-lDone:
-		break
-	case err := <-lErr:
-		vomni.RootErr <- err
-		break
-	}
-}
-
-func runRotate() {
-
-	if 0 >= vparam.Params.RotateRunSecs {
-		vomni.RootErr <- vutils.ErrFuncLine(fmt.Errorf("\nWrong point rotation interval %d", vparam.Params.RotateRunSecs))
-		return
-	}
-
-	for {
-		timer := time.NewTimer(time.Duration(vparam.Params.RotateRunSecs) * time.Second)
-		//time.Duration(hour*3600+min*60+sec) * time.Second
-
-		// rotate
-		if err := setRotateFiles(); nil != err {
-			//if err := vutils.RunRotate(vparam.Params.RotateRunCfg); nil != err {
-			vomni.RootErr <- vutils.ErrFuncLine(fmt.Errorf("\nRotation command failure -- %v", err))
-			return
-		}
-
-		vutils.LogStr(vomni.LogInfo, "Rotate check")
-
-		timeStr := time.Now().Format("2006-01-02 15:04:05 -07:00 MST")
-		str := fmt.Sprintf("==>>>>>\n==>>>>>\n==>>>>>\n==>>>>>\n %s <<<<<< ROTATE\n==>>>>>\n==>>>>>\n==>>>>>", timeStr)
-
-		fmt.Println(str)
-
-		select {
-		case <-timer.C:
-
-			fmt.Println("\n\n\n$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$")
-			fmt.Println("$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$")
-			fmt.Printf("$$$$$$$$$$$$$$$$$$$$$$ %q $$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$\n", timeStr)
-			fmt.Println("$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$")
-			fmt.Println("$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$\n\n\n")
-			//			timeStr := time.Now().Format("2006-01-02 15:04:05 -07:00 MST")
-			//			str := fmt.Sprintf("==>>>>>\n==>>>>>\n==>>>>>\n==>>>>>\n %s <<<<<< ROTATE\n==>>>>>\n==>>>>>\n==>>>>>", timeStr)
-
-			//			fmt.Println(str)
-		}
-	}
-}
-
-func setRotateFiles() (err error) {
-	// rotate files if necessary
-	if err = vutils.RunRotate(vparam.Params.RotateRunCfg); nil != err {
-		vomni.RootErr <- vutils.ErrFuncLine(fmt.Errorf("\nRotation command failure -- %v", err))
-		return
-	}
-
-	// reassign the main logger files
-	if err = reassingMainFile(); nil != err {
-		vomni.RootErr <- vutils.ErrFuncLine(fmt.Errorf("\nRotation main file reassign failure -- %v", err))
-		return
-	}
-
-	// reassign point logger files
-	if err = reassignPointFiles(); nil != err {
-		vomni.RootErr <- vutils.ErrFuncLine(fmt.Errorf("\nRotation point files reassign failure -- %v", err))
-		return
-	}
-
-	fmt.Println("@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@")
-	fmt.Println("@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@")
-	fmt.Println("@@@@@@@@@@@@@@@@@@@@@@ ZAPAH-ZAPAH-ZAPAH --> RESTART @@@@@@@@@@@@@@@@@@@@@@@@@@@@@")
-	fmt.Println("@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@")
-	fmt.Println("@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@")
-
-	return
-}
-
-func reassingMainFile() (err error) {
-	if vomni.LogMainFile, err = vutils.LogReAssign(vomni.LogMainFile, vomni.LogMainPath); nil != err {
-		vomni.RootErr <- vutils.ErrFuncLine(fmt.Errorf("\nRotation file reaasign failure -- %v", err))
-		return
-	}
-
-	vomni.LogData.SetOutput(vomni.LogMainFile)
-	vomni.LogErr.SetOutput(vomni.LogMainFile)
-	vomni.LogFatal.SetOutput(vomni.LogMainFile)
-	vomni.LogInfo.SetOutput(vomni.LogMainFile)
-
-	return
-}
-
-func reassignPointFiles() (err error) {
-
-	if err = xrun.RotateReAssign(); nil != err {
-		return err
-	}
-
-	return
-}
-
-func waitMsg(conn *net.UDPConn, done chan bool, chErr chan error) {
+func waitMsg(conn *net.UDPConn, done chan int, chErr chan error) {
 
 	for {
 		// waiting, waiting, ... UDP
-		buff := make([]byte, 2048)
+		time.Sleep(vomni.DelayWaitMessage)
+
+		buff := make([]byte, 4096)
 		nn, msgAddr, err := conn.ReadFromUDP(buff)
 		if err != nil {
 			continue
@@ -286,24 +152,19 @@ func waitMsg(conn *net.UDPConn, done chan bool, chErr chan error) {
 
 		if len(buff) == 0 {
 			continue
-		} else {
-			fmt.Printf("KASATONICH ##### %3d Read a message from %v \"%s\" \n", nn, msgAddr, string(buff))
 		}
 
-		locErr := make(chan error)
-		go xrun.MessageGet(string(buff[:nn]), locErr)
+		msg := string(buff[:nn])
 
+		locErr := make(chan error)
+		go vpointrun.MessageReceived(msg, locErr)
 		err = <-locErr
 
 		if err != nil {
-			chErr <- vutils.ErrFuncLine(err)
-			return
+			vutils.LogErr(fmt.Errorf("The received message %q (address %s:%d) %error %q", msg,
+				msgAddr.IP.String(), msgAddr.Port, err.Error()))
 		}
 
 		buff = []byte{}
 	}
 }
-
-
-
-*/

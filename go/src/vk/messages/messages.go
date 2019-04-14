@@ -1,6 +1,7 @@
 package messages
 
 import (
+	"fmt"
 	"sync"
 	"time"
 	vomni "vk/omnibus"
@@ -33,4 +34,23 @@ func (d SendMsgArray) MinusIndex(ind int, chDone chan bool) {
 	}
 
 	chDone <- true
+}
+
+func (d SendMsgArray) MinusNbr(nbr int) {
+	ind := -1
+	for key, val := range d {
+		if val.MessageNbr == nbr {
+			ind = key
+			break
+		}
+	}
+
+	if 0 > ind {
+		fmt.Printf("Received MSG #%d without record\n", nbr)
+		return
+	}
+
+	chDone := make(chan bool)
+	go d.MinusIndex(ind, chDone)
+	<-chDone
 }
