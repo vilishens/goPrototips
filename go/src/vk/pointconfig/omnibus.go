@@ -4,22 +4,22 @@ import (
 	"time"
 )
 
-type RelOnOffInterval struct {
+type RelInterval struct {
 	Gpio    int
 	State   int
 	Seconds time.Duration
 }
 
-type RelOnOffIntervalArray []RelOnOffInterval
+type RelIntervalArray []RelInterval
 
-type RelOnOffIntervalStruct struct {
-	Start  RelOnOffIntervalArray
-	Base   RelOnOffIntervalArray
-	Finish RelOnOffIntervalArray
+type RelIntervalStruct struct {
+	Start  RelIntervalArray
+	Base   RelIntervalArray
+	Finish RelIntervalArray
 }
 
 type PointCfg struct {
-	RelOnOffInterv RelOnOffIntervalStruct
+	RelInterv RelIntervalStruct
 }
 
 type PointCfgData struct {
@@ -32,21 +32,21 @@ type AllPointCfgData map[string]PointCfgData
 // JSON data
 
 type CfgJSONData struct {
-	RelOnOffIntervalJSON CfgRelOnOffIntervalPoints `json:"RelayOnOffIntervals"`
+	RelIntervalJSON CfgRelIntervalPoints `json:"RelayOnOffIntervals"`
 }
 
-type CfgRelOnOffInterval struct {
+type CfgRelInterval struct {
 	Gpio     string `json:"Gpio"`
 	State    string `json:"State"`
 	Interval string `json:"Interval"`
 }
 
-type CfgRelOnOffIntervalArr []CfgRelOnOffInterval
+type CfgRelIntervalArr []CfgRelInterval
 
-type CfgRelOnOffIntervalStruct struct {
-	Start  CfgRelOnOffIntervalArr `json:"Start"`  // array of the point relay default settings (used at the start and exit)
-	Base   CfgRelOnOffIntervalArr `json:"Base"`   // array of the point relay setting sequences (used between the start and exit)
-	Finish CfgRelOnOffIntervalArr `json:"Finish"` // array of the point relay setting sequences (used between the start and exit)
+type CfgRelIntervalStruct struct {
+	Start  CfgRelIntervalArr `json:"Start"`  // array of the point relay default settings (used at the start and exit)
+	Base   CfgRelIntervalArr `json:"Base"`   // array of the point relay setting sequences (used between the start and exit)
+	Finish CfgRelIntervalArr `json:"Finish"` // array of the point relay setting sequences (used between the start and exit)
 }
 
-type CfgRelOnOffIntervalPoints map[string]CfgRelOnOffIntervalStruct
+type CfgRelIntervalPoints map[string]CfgRelIntervalStruct

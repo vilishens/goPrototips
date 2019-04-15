@@ -47,14 +47,14 @@ func preparePointCfg(doneCh chan bool, errCh chan error) {
 }
 
 func (d CfgJSONData) putCfg4Run() (err error) {
-	if err = d.RelOnOffIntervalJSON.putCfg4Run(); nil != err {
+	if err = d.RelIntervalJSON.putCfg4Run(); nil != err {
 		return
 	}
 
 	return
 }
 
-func (d CfgRelOnOffIntervalPoints) putCfg4Run() (err error) {
+func (d CfgRelIntervalPoints) putCfg4Run() (err error) {
 
 	for k, _ := range d {
 

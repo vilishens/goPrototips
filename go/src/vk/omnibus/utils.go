@@ -8,7 +8,7 @@ func init() {
 	stepList = make(map[string]bool)
 }
 
-func StepInList(step string) {
+func AddStepInList(step string) {
 	stepList[step] = true
 }
 
