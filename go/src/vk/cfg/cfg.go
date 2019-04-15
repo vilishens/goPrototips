@@ -36,28 +36,8 @@ func init() {
 	Final.IPExternalAddressCmds = []string{}
 	Final.NetExternalRequirement = -1
 
-	/*
-		Final.LogMainFile = ""
-		Final.PointDefaultCfgFile = ""
-		Final.PointCfgFile = ""
-		Final.PointLogPath = ""
-
-		Final.RotateMainCfg = ""
-		Final.RotatePointCfg = ""
-		Final.RotateRunCfg = ""
-
-		Final.InternalPort = -5
-		Final.InternalIP = ""
-		Final.ExternalPort = -11
-		Final.WebEmail = ""
-		Final.WebAliveInterval = -7
-		Final.ScriptPath = ""
-		Final.LogPath = ""
-		Final.WebPort = -11
-		Final.TemplatePath = ""
-		Final.TemplateExt = ""
-		Final.ErrorPath = ""
-	*/
+	Final.PointConfigOriginalFile = ""
+	Final.PointConfigFile = ""
 }
 
 func Cfg(chDone chan bool, chErr chan error) {
@@ -207,6 +187,14 @@ func (c *CfgData) Put() (err error) {
 	}
 	if (nil == err) && ("" != c.NetExternalRequirement) {
 		Final.NetExternalRequirement, err = strconv.Atoi(c.NetExternalRequirement)
+	}
+
+	// Point configuration file
+	if (nil == err) && ("" != c.PointConfigOriginalFile) {
+		Final.PointConfigOriginalFile = c.PointConfigOriginalFile
+	}
+	if (nil == err) && ("" != c.PointConfigFile) {
+		Final.PointConfigFile = c.PointConfigFile
 	}
 
 	return

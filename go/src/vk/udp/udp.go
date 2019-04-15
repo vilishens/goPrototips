@@ -16,7 +16,7 @@ func Server(chGoOn chan bool, chDone chan int, chErr chan error) {
 
 	addr := net.UDPAddr{
 		Port: vparams.Params.PortUDPInternal,
-		IP:   net.ParseIP(vparams.Params.InternalIPv4),
+		IP:   net.ParseIP(vparams.Params.IPAddressInternal),
 	}
 
 	conn, err := net.ListenUDP("udp", &addr)
@@ -111,8 +111,9 @@ func sendMessages(done chan int, chErr chan error) {
 					fmt.Println("###*************************************************### Paddington")
 				}
 
+				vutils.LogInfo(fmt.Sprintf("Deleted message #%d due to the exceeded send repeat limit", vmsg.MessageList2Send[i].MessageNbr))
+
 				go vmsg.MessageList2Send.MinusIndex(i, chDone)
-				vutils.LogInfo(fmt.Sprintf("Deleted message #%d due to the exceeded repeat limit"))
 				<-chDone
 				continue
 			}

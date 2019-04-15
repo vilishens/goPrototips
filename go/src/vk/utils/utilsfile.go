@@ -2,6 +2,7 @@ package utils
 
 import (
 	"fmt"
+	"io"
 	"os"
 	"path/filepath"
 	vomni "vk/omnibus"
@@ -50,7 +51,10 @@ func FileAbsPath(fPath string, file string) (full string) {
 }
 
 func PathExists(full string) (exists bool, err error) {
-	if _, err = os.Stat(full); os.IsNotExist(err) {
+
+	pathStr := FileAbsPath(full, "")
+
+	if _, err = os.Stat(pathStr); os.IsNotExist(err) {
 		return false, nil
 	}
 
@@ -82,4 +86,35 @@ func FileAppend(fullPath string, strAdd string) (err error) {
 	_, err = f.WriteString(strAdd)
 
 	return
+}
+
+func FileCopy(src string, dst string) (err error) {
+
+	var srcF, dstF *os.File
+
+	fullSrc := FileAbsPath(src, "")
+
+	if srcF, err = os.Open(fullSrc); nil != err {
+		return
+	}
+	defer srcF.Close()
+
+	fullDst := FileAbsPath(dst, "")
+
+	dirOnly := filepath.Dir(fullDst)
+
+	if err = os.MkdirAll(dirOnly, vomni.DirPermissions); nil != err {
+		return
+	}
+
+	if dstF, err = os.Create(fullDst); nil != err { // creates if file doesn't exist
+		return
+	}
+	defer dstF.Close()
+
+	if _, err = io.Copy(dstF, srcF); nil != err { // check first var for number of bytes copied
+		return
+	}
+
+	return dstF.Sync()
 }

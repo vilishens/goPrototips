@@ -65,16 +65,17 @@ const (
 )
 
 const (
-	StepNameConfig     = "step-config"
-	StepNameMessages   = "step-messages"
-	StepNameNetInfo    = "step-net-info"
-	StepNameNetScan    = "step-net-scan"
-	StepNameParams     = "step-params"
-	StepNamePointRun   = "step-point-run"
-	StepNameRotateMain = "step-rotate-main"
-	StepNameStart      = "step-start"
-	StepNameUDP        = "step-udp"
-	StepNameWeb        = "step-web"
+	StepNameConfig      = "step-config"
+	StepNameMessages    = "step-messages"
+	StepNameNetInfo     = "step-net-info"
+	StepNameNetScan     = "step-net-scan"
+	StepNameParams      = "step-params"
+	StepNamePointConfig = "step-point-cfg"
+	StepNamePointRun    = "step-point-run"
+	StepNameRotateMain  = "step-rotate-main"
+	StepNameStart       = "step-start"
+	StepNameUDP         = "step-udp"
+	StepNameWeb         = "step-web"
 )
 
 const (
