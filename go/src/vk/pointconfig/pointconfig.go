@@ -27,6 +27,8 @@ func GetPointCfg(chGoOn chan bool, chDone chan int, chErr chan error) {
 	case <-locDone:
 		chGoOn <- true
 	}
+
+	fmt.Println(PointsAllData.String())
 }
 
 func preparePointCfg(doneCh chan bool, errCh chan error) {

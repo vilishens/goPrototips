@@ -1,7 +1,6 @@
 package pointconfig
 
 import (
-	"fmt"
 	"strconv"
 	vparams "vk/params"
 	vutils "vk/utils"
@@ -28,7 +27,6 @@ func (d CfgRelIntervalPoints) putCfg4Run() (err error) {
 		PointsAllData[k] = tmpD
 	}
 
-	err = fmt.Errorf("Bambarbiya!")
 	return
 }
 
