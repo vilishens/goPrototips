@@ -2,17 +2,16 @@ package pointconfig
 
 import (
 	"fmt"
-	vparams "vk/params"
 	vutils "vk/utils"
 )
 
-var PointsCfgJSON CfgJSONData
-var PointsCfgData AllPointCfgData
+var PointsAllJSON CfgJSONData
+var PointsAllData AllPointCfgData
 
 func init() {
 
-	PointsCfgData = make(map[string]PointCfgData)
-	PointsCfgJSON = CfgJSONData{}
+	PointsAllData = make(map[string]PointCfgData)
+	PointsAllJSON = CfgJSONData{}
 }
 
 func GetPointCfg(chGoOn chan bool, chDone chan int, chErr chan error) {
@@ -34,8 +33,8 @@ func preparePointCfg(doneCh chan bool, errCh chan error) {
 
 	var err error
 
-	if PointsCfgJSON, err = loadPointCfg(); nil == err {
-		err = PointsCfgJSON.putCfg4Run()
+	if PointsAllJSON, err = loadPointCfg(); nil == err {
+		err = PointsAllJSON.putCfg4Run()
 	}
 
 	if nil != err {
@@ -47,33 +46,10 @@ func preparePointCfg(doneCh chan bool, errCh chan error) {
 }
 
 func (d CfgJSONData) putCfg4Run() (err error) {
+	// prepare Relay On/Off Interval configuration
 	if err = d.RelIntervalJSON.putCfg4Run(); nil != err {
+		err = vutils.ErrFuncLine(fmt.Errorf("Relay Interval configuration Error - %s", err.Error()))
 		return
-	}
-
-	return
-}
-
-func (d CfgRelIntervalPoints) putCfg4Run() (err error) {
-
-	for k, _ := range d {
-
-		fmt.Println("RelOnOffInterval", k)
-	}
-
-	return fmt.Errorf("Bambarbiya!")
-}
-
-func loadPointCfg() (data CfgJSONData, err error) {
-
-	if has, _ := vutils.PathExists(vparams.Params.PointConfigFile); !has {
-		if err := vutils.FileCopy(vparams.Params.PointConfigOriginalFile, vparams.Params.PointConfigFile); nil != err {
-			return CfgJSONData{}, vutils.ErrFuncLine(err)
-		}
-	}
-
-	if err = vutils.ReadJson(vparams.Params.PointConfigFile, &data); nil != err {
-		return CfgJSONData{}, vutils.ErrFuncLine(err)
 	}
 
 	return

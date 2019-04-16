@@ -4,6 +4,11 @@ import (
 	"time"
 )
 
+//##############################################################################
+//######### RELAY ON/OFF INTERVAL ##############################################
+//##############################################################################
+
+//********* Relay On/Off Interval Run Configuration ****************************
 type RelInterval struct {
 	Gpio    int
 	State   int
@@ -23,14 +28,13 @@ type PointCfg struct {
 }
 
 type PointCfgData struct {
-	CfgRun   PointCfg
-	CfgSaved PointCfg
+	CfgRun   PointCfg // configuration to use
+	CfgSaved PointCfg // saved configuration
 }
 
 type AllPointCfgData map[string]PointCfgData
 
-// JSON data
-
+//********* Relay On/Off Interval JSON Configuration ****************************
 type CfgJSONData struct {
 	RelIntervalJSON CfgRelIntervalPoints `json:"RelayOnOffIntervals"`
 }
@@ -41,12 +45,12 @@ type CfgRelInterval struct {
 	Interval string `json:"Interval"`
 }
 
-type CfgRelIntervalArr []CfgRelInterval
+type CfgRelIntervalArray []CfgRelInterval
 
 type CfgRelIntervalStruct struct {
-	Start  CfgRelIntervalArr `json:"Start"`  // array of the point relay default settings (used at the start and exit)
-	Base   CfgRelIntervalArr `json:"Base"`   // array of the point relay setting sequences (used between the start and exit)
-	Finish CfgRelIntervalArr `json:"Finish"` // array of the point relay setting sequences (used between the start and exit)
+	Start  CfgRelIntervalArray `json:"Start"`  // array of the point relay default settings (used at the start and exit)
+	Base   CfgRelIntervalArray `json:"Base"`   // array of the point relay setting sequences (used between the start and exit)
+	Finish CfgRelIntervalArray `json:"Finish"` // array of the point relay setting sequences (used between the start and exit)
 }
 
 type CfgRelIntervalPoints map[string]CfgRelIntervalStruct

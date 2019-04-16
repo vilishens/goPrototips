@@ -136,7 +136,7 @@ func doAllSteps(chanDone chan int) {
 		}
 	}
 
-	fmt.Println("Tagad jābeidz...", vomni.StepCount())
+	fmt.Println("Tagad jābeidz...")
 
 	for count := vomni.StepCount(); count > 0; count-- {
 		// let's do Post of each step starting from the last one
