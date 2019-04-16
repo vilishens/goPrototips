@@ -35,6 +35,36 @@ func ConfInterval2Seconds(str string) (t time.Duration, err error) {
 	return
 }
 
+func Duration2ConfInterval(dur time.Duration, fillZero bool) (str string) {
+
+	form := "%s:%s:%s"
+	if fillZero {
+		form = "%02s:%02s:%02s"
+	}
+
+	t := dur.Round(time.Second).String()
+
+	seq := []string{"h", "m", "s"}
+	vals := []string{"", "", ""}
+
+	var spl []string
+	for i, v := range seq {
+		spl = strings.Split(t, v)
+
+		//		fmt.Printf("STR %s ARR %v\n", t, spl)
+
+		if 2 == len(spl) {
+			vals[i] = spl[0]
+			t = spl[1]
+		}
+	}
+	vals[2] = spl[0]
+
+	str = fmt.Sprintf(form, vals[0], vals[1], vals[2])
+
+	return
+}
+
 /*
 func MansWTicker(d time.Duration) (tick *time.Ticker) {
 	if d <= 0 {
