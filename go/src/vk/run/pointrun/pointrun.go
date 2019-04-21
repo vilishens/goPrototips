@@ -22,7 +22,7 @@ func Run(chGoOn chan bool, chDone chan int, chErr chan error) {
 
 func MessageReceived(msg string, chErr chan error) {
 
-	fmt.Println("vk-xxx @@@@@@ SITKOVETSKY @@@@@ MSG", msg)
+	//fmt.Println("vk-xxx @@@@@@ SITKOVETSKY @@@@@ MSG", msg)
 
 	var err error
 	flds := strings.Split(msg, vomni.UDPMessageSeparator)

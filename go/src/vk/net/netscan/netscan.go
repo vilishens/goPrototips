@@ -29,15 +29,15 @@ func ScanOctet(chGoOn chan bool, chDone chan int, chErr chan error) {
 
 func iterateIP(chDone chan bool, chErr chan error) {
 
-	var ip net.IP
-
-	if ip = net.ParseIP(vparams.Params.IPAddressInternal).To4(); nil == ip {
+	baseIP := net.ParseIP(vparams.Params.IPAddressInternal).To4()
+	if nil == baseIP {
 		chErr <- vutils.ErrFuncLine(fmt.Errorf("The internal IP address is not defined yet"))
 		return
 	}
 
 	for i := IPStart; i <= IPEnd; i++ {
-		ip[3] = byte(i)
+
+		ip := net.IP{baseIP[0], baseIP[1], baseIP[2], byte(i)}
 
 		if ip.String() == vparams.Params.IPAddressInternal {
 			// don't send to the station itself (the same IP address)

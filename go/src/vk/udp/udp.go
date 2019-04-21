@@ -62,9 +62,6 @@ func sendMessages(done chan int, chErr chan error) {
 	for {
 		time.Sleep(vomni.DelaySendMessage)
 
-		// vk-xxx šitas jāaizvāc
-		continue
-
 		if len(vmsg.MessageList2Send) == 0 {
 			// no messages to send
 			time.Sleep(vomni.DelaySendMessageListEmpty)
@@ -106,8 +103,6 @@ func sendMessages(done chan int, chErr chan error) {
 			}
 
 			vmsg.MessageList2Send[i].Last = time.Now()
-
-			// Jāatjauno servera laiks ziņojumā
 
 			if err := SendToAddress(vmsg.MessageList2Send[i].UDPAddr, vmsg.MessageList2Send[i].Msg); nil != err {
 				// write the error in log
