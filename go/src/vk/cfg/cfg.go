@@ -15,7 +15,7 @@ var Final CfgFinalData
 
 func init() {
 
-	Final.Name = ""
+	Final.StationName = ""
 
 	Final.LogMainPath = ""
 
@@ -133,8 +133,8 @@ func readCfg(full string) (data CfgData, err error) {
 
 func (c *CfgData) Put() (err error) {
 
-	if (nil == err) && ("" != c.Name) {
-		Final.Name = c.Name
+	if (nil == err) && ("" != c.StationName) {
+		Final.StationName = c.StationName
 	}
 
 	// hard coded Main log file path
