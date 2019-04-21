@@ -8,11 +8,13 @@
 #include <WiFiUdp.h>
 
 //***** Settings - UDP connection - START
-#define POINT_NAME                      "granato"       // the board name of the link
-#define STATION_NAME                    "SITKO"         // the name of the supervisor station
+#define POINT_NAME                      "meskals"       // the board name of the link
 #define UDP_PORT                        49750           // the predifined UDP port of the link
+#define STATION_NAME                    "SITKO"         // the name of the supervisor station
 #define WIFI_HOTSPOT_NAME               "bazargans"     // the WiFi hotspot name
 #define WIFI_HOTSPOT_PASS               "Mi0dirg8ss"    // the WiFi hotspot password
+//#define WIFI_HOTSPOT_NAME               "BMSG2"         // the WiFi hotspot name
+//#define WIFI_HOTSPOT_PASS               "barinu7755"    // the WiFi hotspot password
 //***** Settings - UDP connection - END
 
 //***** Settings - unified UDP messages - START
@@ -121,8 +123,6 @@ void setup() {
             // Wait before the next attempt
             delay(10 * ONE_SECOND);
             
-            Serial.println();
-            Serial.println();
             Serial.println();
         }
     }        
@@ -513,7 +513,7 @@ int connectClient() {
 }
 
 void msgSetupFailed() {
-    Serial.println("Board Setup Failure!\n\n\n");
+    Serial.println("Board Setup Failure!");
 }
 
 void msgSetupOk() {
