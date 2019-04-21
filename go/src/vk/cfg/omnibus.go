@@ -1,7 +1,7 @@
 package cfg
 
 type CfgData struct {
-	Name string `json:"Name"`
+	StationName string `json:"StationName"`
 
 	RotateMainCfg        string `json:"RotateMainCfg"`
 	RotatePointCfg       string `json:"RotatePointCfg"`
@@ -25,7 +25,7 @@ type CfgData struct {
 }
 
 type CfgFinalData struct {
-	Name        string
+	StationName string
 	LogMainPath string
 
 	RotateMainCfg        string
