@@ -2,6 +2,7 @@ package omnibus
 
 import (
 	"fmt"
+	"sync"
 )
 
 func init() {
@@ -31,7 +32,11 @@ func StepCount() (count int) {
 	return len(stepList)
 }
 
-func MessageNumberNext() (nbr int) {
+func MessageNumberNext() {
+
+	lock := new(sync.Mutex)
+	lock.Lock()
+	defer lock.Unlock()
+
 	MessageNumber++
-	return MessageNumber
 }
