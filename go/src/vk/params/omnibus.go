@@ -1,7 +1,7 @@
 package params
 
 type ParamData struct {
-	Name string
+	StationName string
 
 	LogMainPath string
 

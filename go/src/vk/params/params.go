@@ -10,7 +10,7 @@ func init() {
 
 	Params = ParamData{}
 
-	Params.Name = ""
+	Params.StationName = ""
 
 	Params.LogMainPath = ""
 
@@ -44,8 +44,8 @@ func Put(chDone chan bool, chErr chan error) {
 
 	data := vconf.Final
 
-	if "" != data.Name {
-		Params.Name = data.Name
+	if "" != data.StationName {
+		Params.StationName = data.StationName
 	}
 
 	if "" != data.LogMainPath {
