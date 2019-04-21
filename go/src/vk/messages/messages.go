@@ -37,10 +37,10 @@ func message2SendAdd(addr net.UDPAddr, msg string) {
 
 func message2SendNew(msgCd int, data []string) (msg string) {
 
-	vomni.MessageNumber++
+	vomni.MessageNumberNext()
 
 	msg = ""
-	msg += vparams.Params.Name + vomni.UDPMessageSeparator
+	msg += vparams.Params.StationName + vomni.UDPMessageSeparator
 	msg += strconv.Itoa(msgCd) + vomni.UDPMessageSeparator
 	msg += strconv.Itoa(vomni.MessageNumber)
 
@@ -93,7 +93,7 @@ func (d SendMsgArray) MinusNbr(nbr int) {
 
 func TryHello(dst net.UDPAddr, chDone chan bool) {
 
-	msgData := stationHelloData()
+	msgData := msgStationHello()
 
 	Message2SendPlus(dst, vomni.MsgCdOutputHelloFromStation, msgData)
 
@@ -103,7 +103,7 @@ func TryHello(dst net.UDPAddr, chDone chan bool) {
 
 }
 
-func stationHelloData() (d []string) {
+func msgStationHello() (d []string) {
 
 	_, tzSecs := time.Now().Zone()
 
