@@ -7,7 +7,7 @@ import (
 )
 
 func stationName() string {
-	return vparam.Params.Name
+	return vparam.Params.StationName
 }
 
 func webPrefix() (prefix string) {
