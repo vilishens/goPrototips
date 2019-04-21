@@ -62,6 +62,9 @@ func sendMessages(done chan int, chErr chan error) {
 	for {
 		time.Sleep(vomni.DelaySendMessage)
 
+		// vk-xxx šitas jāaizvāc
+		continue
+
 		if len(vmsg.MessageList2Send) == 0 {
 			// no messages to send
 			time.Sleep(vomni.DelaySendMessageListEmpty)
@@ -70,8 +73,6 @@ func sendMessages(done chan int, chErr chan error) {
 
 		for i := 0; i < len(vmsg.MessageList2Send); i++ {
 			time.Sleep(vomni.DelaySendMessage)
-
-			radit := "192.168.0.182" == vmsg.MessageList2Send[i].UDPAddr.IP.String()
 
 			if i >= len(vmsg.MessageList2Send) {
 				// verify the index isn't out of the list
@@ -93,23 +94,9 @@ func sendMessages(done chan int, chErr chan error) {
 				continue
 			}
 
-			if radit {
-				fmt.Println("###### PIRMS ", vmsg.MessageList2Send[i].Repeat)
-			}
-
-			was := vmsg.MessageList2Send[i].Repeat
-
 			vmsg.MessageList2Send[i].Repeat++
 
-			if radit {
-				fmt.Println("###### Process  ", vmsg.MessageList2Send[i].Repeat, " WAS ", was, " NOW ", vmsg.MessageList2Send[i].Repeat)
-			}
-
-			if vmsg.MessageList2Send[i].Repeat >= vomni.MessageSendRepeatLimit {
-
-				if radit {
-					fmt.Println("###*************************************************### Paddington")
-				}
+			if vmsg.MessageList2Send[i].Repeat > vomni.MessageSendRepeatLimit {
 
 				vutils.LogInfo(fmt.Sprintf("Deleted message #%d due to the exceeded send repeat limit", vmsg.MessageList2Send[i].MessageNbr))
 
@@ -120,9 +107,7 @@ func sendMessages(done chan int, chErr chan error) {
 
 			vmsg.MessageList2Send[i].Last = time.Now()
 
-			if radit {
-				fmt.Println("***** mizandarI  ", vmsg.MessageList2Send[i].Repeat)
-			}
+			// Jāatjauno servera laiks ziņojumā
 
 			if err := SendToAddress(vmsg.MessageList2Send[i].UDPAddr, vmsg.MessageList2Send[i].Msg); nil != err {
 				// write the error in log
