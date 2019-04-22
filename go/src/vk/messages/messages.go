@@ -178,7 +178,7 @@ func msgFields(msg string) (flds []string, err error) {
 
 func msgCode(msg string) (cd int, err error) {
 
-	parts := strings.SplitAfterN(msg, vomni.UDPMessageSeparator, vomni.MsgIndexPrefixCd+2)
+	parts := strings.SplitAfterN(msg, vomni.UDPMessageSeparator, vomni.MsgPrefixLen+1)
 
 	cdStr := strings.Replace(parts[vomni.MsgIndexPrefixCd], vomni.UDPMessageSeparator, "", -1)
 
