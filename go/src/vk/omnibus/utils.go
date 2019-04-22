@@ -7,6 +7,10 @@ import (
 
 func init() {
 	stepList = make(map[string]bool)
+
+	AllMessages = make(map[int]MessageData)
+
+	AllMessages[MsgCdOutputHelloFromStation] = MessageData{FieldCount: MsgPrefixLen + MsgHelloFromStationLen}
 }
 
 func AddStepInList(step string) {

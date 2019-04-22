@@ -93,6 +93,12 @@ func sendMessages(done chan int, chErr chan error) {
 
 			vmsg.MessageList2Send[i].Repeat++
 
+			// Need to update the station time if it is the repeated message and 'Hello From Station'
+			if err := updateMessageStationTime(i); nil != err {
+				chErr <- err
+				return
+			}
+
 			if vmsg.MessageList2Send[i].Repeat > vomni.MessageSendRepeatLimit {
 
 				vutils.LogInfo(fmt.Sprintf("Deleted message #%d due to the exceeded send repeat limit", vmsg.MessageList2Send[i].MessageNbr))
@@ -110,6 +116,30 @@ func sendMessages(done chan int, chErr chan error) {
 			}
 		}
 	}
+}
+
+// Need to update the station time if it is the reeated message and 'Hello From Station'
+func updateMessageStationTime(i int) (err error) {
+
+	if 1 < vmsg.MessageList2Send[i].Repeat {
+		// it is the repeated message
+
+		var isStationHello bool
+		isStationHello, err = vmsg.CheckMessageCode(vmsg.MessageList2Send[i].Msg, vomni.MsgCdOutputHelloFromStation)
+
+		if nil != err {
+			return
+		}
+
+		if isStationHello {
+			// this message is 'Hello From Station'
+			strTime := strconv.Itoa(int(time.Now().Unix()))
+
+			vmsg.UpdateField(&vmsg.MessageList2Send[i].Msg, vomni.MsgPrefixLen+vomni.MsgIndexHelloFromStationTime, strTime)
+		}
+	}
+
+	return
 }
 
 func SendToAddress(addr net.UDPAddr, msg string) (err error) {

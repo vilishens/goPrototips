@@ -27,7 +27,7 @@ func MessageReceived(msg string, chErr chan error) {
 	var err error
 	flds := strings.Split(msg, vomni.UDPMessageSeparator)
 
-	msgNbr, err := strconv.Atoi(flds[vomni.MsgIndexNbr])
+	msgNbr, err := strconv.Atoi(flds[vomni.MsgIndexPrefixNbr])
 	if nil != err {
 		vutils.LogErr(fmt.Errorf("The Msg Number error of Msg %q", msg))
 		chErr <- vutils.ErrFuncLine(err)
@@ -53,7 +53,7 @@ func messageReceived(flds []string, chDelete chan bool, chErr chan error) {
 	var err error
 	msgCd := -1
 
-	if msgCd, err = strconv.Atoi(flds[vomni.MsgIndexCd]); nil != err {
+	if msgCd, err = strconv.Atoi(flds[vomni.MsgIndexPrefixCd]); nil != err {
 		vutils.LogErr(fmt.Errorf("The Msg Code error of Msg %v", flds))
 		chErr <- vutils.ErrFuncLine(err)
 	}

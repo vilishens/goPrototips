@@ -97,6 +97,12 @@ const (
 
 var MessageNumber int // unique message number (starting from the application launch)
 
+var AllMessages map[int]MessageData
+
+type MessageData struct {
+	FieldCount int
+}
+
 const (
 	MsgCdOutputHelloFromStation = 0x00000001 // Output <station name><msgCd><msgNbr><station UTC seconds><station time offset><stationIP><stationPort>
 	MsgCdInputHelloFromPoint    = 0x00000002 // Input  <point name><msgCd><msgNbr><pointIP><pointPort>
@@ -106,9 +112,9 @@ const (
 const (
 	UDPMessageSeparator = ":::"
 
-	MsgIndexSender = 0
-	MsgIndexCd     = 1
-	MsgIndexNbr    = 2
+	MsgIndexPrefixSender = 0
+	MsgIndexPrefixCd     = 1
+	MsgIndexPrefixNbr    = 2
 
 	MsgPrefixLen = 3
 )
@@ -119,11 +125,13 @@ const (
 	MsgIndexHelloFromStationOffset = 1
 	MsgIndexHelloFromStationIP     = 2
 	MsgIndexHelloFromStationPort   = 3
-	MsgHelloFromStationLen         = 4
+
+	MsgHelloFromStationLen = 4
 )
 
 const (
 	indexHelloFromPointIP   = 3
 	indexHelloFromPointPort = 4
-	lenHelloFromPoint       = 5
+
+	lenHelloFromPoint = 5
 )

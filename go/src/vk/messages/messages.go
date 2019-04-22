@@ -4,10 +4,12 @@ import (
 	"fmt"
 	"net"
 	"strconv"
+	"strings"
 	"sync"
 	"time"
 	vomni "vk/omnibus"
 	vparams "vk/params"
+	vutils "vk/utils"
 )
 
 var MessageList2Send SendMsgArray
@@ -113,6 +115,112 @@ func msgStationHello() (d []string) {
 	d[vomni.MsgIndexHelloFromStationOffset] = strconv.Itoa(tzSecs)
 	d[vomni.MsgIndexHelloFromStationIP] = vparams.Params.IPAddressInternal
 	d[vomni.MsgIndexHelloFromStationPort] = strconv.Itoa(vparams.Params.PortUDPInternal)
+
+	return
+}
+
+func CheckFieldValue(msg string, index int, value string) (hasValue bool, err error) {
+
+	var msgCd int
+
+	if msgCd, err = msgCode(msg); nil != err {
+		err = vutils.ErrFuncLine(err)
+		return
+	}
+
+	if index >= vomni.AllMessages[msgCd].FieldCount {
+		err = vutils.ErrFuncLine(fmt.Errorf("The index %d of the message %#x exceeds the number of fields %d",
+			index, msgCd, vomni.AllMessages[msgCd].FieldCount))
+		return
+	}
+
+	var msgValue string
+
+	if msgValue, err = msgFieldValue(msg, index); nil != err {
+		err = vutils.ErrFuncLine(err)
+		return
+	}
+
+	hasValue = msgValue == value
+
+	return
+}
+
+func msgFields(msg string) (flds []string, err error) {
+
+	msgCd, err := msgCode(msg)
+	if nil != err {
+		err = vutils.ErrFuncLine(err)
+		return
+	}
+
+	flds = strings.SplitAfterN(msg, vomni.UDPMessageSeparator, vomni.AllMessages[msgCd].FieldCount)
+
+	return
+}
+
+func msgCode(msg string) (cd int, err error) {
+
+	parts := strings.SplitAfterN(msg, vomni.UDPMessageSeparator, vomni.MsgIndexPrefixCd+2)
+
+	cdStr := strings.Replace(parts[vomni.MsgIndexPrefixCd], vomni.UDPMessageSeparator, "", -1)
+
+	if cd, err = strconv.Atoi(cdStr); nil != err {
+		return cd, vutils.ErrFuncLine(err)
+	}
+
+	if _, has := vomni.AllMessages[cd]; !has {
+		return cd, vutils.ErrFuncLine(fmt.Errorf("Not defined Message CD %#x", cd))
+	}
+
+	return
+}
+
+func msgFieldValue(msg string, index int) (value string, err error) {
+
+	var flds []string
+
+	if flds, err = msgFields(msg); nil != err {
+		err = vutils.ErrFuncLine(err)
+		return
+	}
+
+	value = strings.Replace(flds[index], vomni.UDPMessageSeparator, "", -1)
+
+	return
+}
+
+func UpdateField(msg *string, index int, newValue string) (err error) {
+
+	flds, err := msgFields(*msg)
+	if nil != err {
+		return vutils.ErrFuncLine(err)
+	}
+
+	flds[index] = newValue + vomni.UDPMessageSeparator
+
+	*msg = strings.Join(flds, "")
+
+	return
+}
+
+func CheckMessageCode(msg string, cd int) (theSame bool, err error) {
+
+	flds, err := msgFields(msg)
+	if nil != err {
+		err = vutils.ErrFuncLine(err)
+		return
+	}
+
+	strCd := strings.ReplaceAll(flds[vomni.MsgIndexPrefixCd], vomni.UDPMessageSeparator, "")
+
+	thisCd, err := strconv.Atoi(strCd)
+	if nil != err {
+		err = vutils.ErrFuncLine(err)
+		return
+	}
+
+	theSame = thisCd == cd
 
 	return
 }
