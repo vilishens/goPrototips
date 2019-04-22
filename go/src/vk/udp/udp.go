@@ -198,7 +198,10 @@ func waitMsg(conn *net.UDPConn, done chan int, chErr chan error) {
 
 		locErr := make(chan error)
 		go vpointrun.MessageReceived(msg, locErr)
-		err = <-locErr
+		if err = <-locErr; nil != err {
+			chErr <- vutils.ErrFuncLine(err)
+			return
+		}
 
 		if err != nil {
 			vutils.LogErr(fmt.Errorf("The received message %q (address %s:%d) %error %q", msg,

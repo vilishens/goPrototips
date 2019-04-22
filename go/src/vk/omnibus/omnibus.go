@@ -129,9 +129,10 @@ const (
 	MsgHelloFromStationLen = 4
 )
 
+// Hello From Point
 const (
-	indexHelloFromPointIP   = 3
-	indexHelloFromPointPort = 4
+	MsgIndexHelloFromPointIP   = 0
+	MsgIndexHelloFromPointPort = 1
 
-	lenHelloFromPoint = 5
+	MsgHelloFromPointLen = 2
 )

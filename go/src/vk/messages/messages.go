@@ -146,6 +146,23 @@ func CheckFieldValue(msg string, index int, value string) (hasValue bool, err er
 	return
 }
 
+func MessageFields(msg string) (flds []string, err error) {
+
+	if flds, err = msgFields(msg); nil != err {
+		err = vutils.ErrFuncLine(err)
+		return
+	}
+
+	for k, v := range flds {
+		newStr := strings.ReplaceAll(v, vomni.UDPMessageSeparator, "")
+		if k < (len(flds) - 1) {
+			flds[k] = newStr
+		}
+	}
+
+	return
+}
+
 func msgFields(msg string) (flds []string, err error) {
 
 	msgCd, err := msgCode(msg)
@@ -174,6 +191,11 @@ func msgCode(msg string) (cd int, err error) {
 	}
 
 	return
+}
+
+func FieldValue(msg string, index int) (value string, err error) {
+
+	return msgFieldValue(msg, index)
 }
 
 func msgFieldValue(msg string, index int) (value string, err error) {

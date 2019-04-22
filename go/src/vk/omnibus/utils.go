@@ -11,6 +11,7 @@ func init() {
 	AllMessages = make(map[int]MessageData)
 
 	AllMessages[MsgCdOutputHelloFromStation] = MessageData{FieldCount: MsgPrefixLen + MsgHelloFromStationLen}
+	AllMessages[MsgCdInputHelloFromPoint] = MessageData{FieldCount: MsgPrefixLen + MsgHelloFromPointLen}
 }
 
 func AddStepInList(step string) {
