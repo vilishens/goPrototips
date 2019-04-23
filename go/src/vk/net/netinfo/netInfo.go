@@ -51,6 +51,7 @@ func netInfo(chGoOn chan bool, chDone chan int, chErr chan error) {
 		intIP, extIP, errCd, err := getIPv4Addrs()
 
 		if 0 != (vomni.NoNetInternal & errCd) {
+			// no sense to continue if there is no the internal net
 			err = vutils.ErrFuncLine(fmt.Errorf("Couldn't find the internal IP - %s", err.Error()))
 
 			chErr <- err
@@ -58,24 +59,26 @@ func netInfo(chGoOn chan bool, chDone chan int, chErr chan error) {
 		} else if 0 != (vomni.NoNetExternal & errCd) {
 			repeat++
 
+			err = vutils.ErrFuncLine(fmt.Errorf("Couldn't find the external IP (attempt #%d) - %s", repeat, err.Error()))
+
 			if repeat <= repeatMax {
-				err = vutils.ErrFuncLine(fmt.Errorf("Couldn't get the external IP (attempt #%d) - %s", repeat, err.Error()))
 				vutils.LogErr(err)
 				continue
 			}
 
-			err := vutils.ErrFuncLine(fmt.Errorf("Couldn't find IP (int \"%s\", ext \"%s\", reapeat number %d)",
-				intIP, extIP, repeat))
-
 			if 0 != (vomni.NetExternalRequired & vparams.Params.NetExternalRequirement) {
+				// in case of absence of the required external net stop with error
 				chErr <- err
 				return
 			}
 		}
 
 		repeat = 0
-		if setCurrentNet(intIP, extIP) {
+		if setCurrentNet(intIP, extIP) && (0 < (vparams.Params.NetExternalRequirement & vomni.NetExternalBits)) {
+			// send IP email only if the external net required or nice to have
+
 			// Ko darīt ja nevajag ārējo IP adresi? vai jāsūta emails?
+			// Liekas, ka nevajag sūtīt email, ja nevajag ārejo tīklu
 			// Jāņem vērā arī NetExternalTreatment
 			/*
 				if err = sendNetInfov4(); nil != err {
