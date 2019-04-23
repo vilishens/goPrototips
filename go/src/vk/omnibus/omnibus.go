@@ -93,6 +93,12 @@ const (
 	LogRotateStatusFile = "logStatus.status"
 )
 
+//################################################# Net Info parameters (net/netinfo.go) ####################
+const (
+	NetInfoRepeats  = 3
+	NetInfoInterval = 15 * time.Second
+)
+
 //################################################# Message ####################
 
 var MessageNumber int // unique message number (starting from the application launch)

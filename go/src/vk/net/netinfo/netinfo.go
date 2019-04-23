@@ -41,10 +41,9 @@ func NetInfo(chGoOn chan bool, chDone chan int, chErr chan error) {
 
 func netInfo(chGoOn chan bool, chDone chan int, chErr chan error) {
 
-	netDuration := netInfoInterval
 	first := true
-
-	repeatMax := netInfoRepeats
+	repeatMax := vomni.NetInfoRepeats
+	netDuration := vomni.NetInfoInterval
 
 	repeat := 0
 	for {
