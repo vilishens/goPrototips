@@ -2,6 +2,7 @@ package pointconfig
 
 import (
 	"strconv"
+	vomni "vk/omnibus"
 	vparams "vk/params"
 	vutils "vk/utils"
 )
@@ -22,7 +23,8 @@ func (d CfgRelIntervalPoints) putCfg4Run() (err error) {
 		}
 
 		tmpD := PointsAllData[k]
-		tmpD.CfgRun.RelInterv = newD
+		tmpD.List |= vomni.CfgTypeRelayInterval
+		tmpD.Cfg.RelInterv = newD
 		tmpD.CfgSaved.RelInterv = newD
 		PointsAllData[k] = tmpD
 	}

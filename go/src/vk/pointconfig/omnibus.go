@@ -28,7 +28,8 @@ type PointCfg struct {
 }
 
 type PointCfgData struct {
-	CfgRun   PointCfg // configuration to use
+	List     int      // a field contains bits of available configurations of the point
+	Cfg      PointCfg // configuration to use
 	CfgSaved PointCfg // saved configuration
 }
 

@@ -71,6 +71,7 @@ const (
 	StepNameNetScan     = "step-net-scan"
 	StepNameParams      = "step-params"
 	StepNamePointConfig = "step-point-cfg"
+	StepNamePointReady  = "step-point-ready"
 	StepNamePointRun    = "step-point-run"
 	StepNameRotateMain  = "step-rotate-main"
 	StepNameStart       = "step-start"
@@ -91,6 +92,16 @@ const (
 	CfgDefaultPath      = "../cfg/app/default.cfg"
 	CliCfgPathFld       = "path"
 	LogRotateStatusFile = "logStatus.status"
+)
+
+//################################################# Point run state codes ####################
+const (
+	PointStateUnknown = 0x000000
+)
+
+//################################################# Configuration parameters ####################
+const (
+	CfgTypeRelayInterval = 0x000001
 )
 
 //################################################# Net Info parameters (net/netinfo.go) ####################

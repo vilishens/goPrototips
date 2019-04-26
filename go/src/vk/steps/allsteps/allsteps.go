@@ -20,6 +20,7 @@ import (
 	snetinfo "vk/steps/stepnet/stepnetinfo"
 	snetscan "vk/steps/stepnet/stepnetscan"
 	spointcfg "vk/steps/steppointconfig"
+	spointready "vk/steps/steppointready"
 	spointrun "vk/steps/steppointrun"
 	srotatemain "vk/steps/steprotatemain"
 	sstart "vk/steps/stepstart"
@@ -43,6 +44,7 @@ func initSteps() {
 	addStep(&(sweb.ThisStep))        // start WEB server
 	addStep(&(smsg.ThisStep))        // messages
 	addStep(&(spointcfg.ThisStep))   // point configuration
+	addStep(&(spointready.ThisStep)) // point configuration preparing to run
 	addStep(&(spointrun.ThisStep))   // runpoints
 	addStep(&(sudp.ThisStep))        // starts UDP
 	addStep(&(snetscan.ThisStep))    // scan all IP addresses of the last IPv4 segment
