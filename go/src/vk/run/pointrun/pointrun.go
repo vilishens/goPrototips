@@ -6,10 +6,28 @@ import (
 	"time"
 	vmsg "vk/messages"
 	vomni "vk/omnibus"
+	vrunrelayinterval "vk/run/relayinterval"
 	vutils "vk/utils"
 )
 
+var Points map[string]PointRunners
+
 func init() {
+	Points = make(map[string]PointRunners)
+}
+
+func Runners() {
+	relayIntervalRunners()
+}
+
+func relayIntervalRunners() {
+	for k, v := range vrunrelayinterval.RunningPoints {
+		if _, has := Points[k]; !has {
+			Points[k] = make(map[int]Runner)
+		}
+
+		Points[k][v.Type] = v
+	}
 }
 
 func Run(chGoOn chan bool, chDone chan int, chErr chan error) {
@@ -63,11 +81,29 @@ func messageReceived(flds []string, chDelete chan bool, chErr chan error) {
 		chErr <- vutils.ErrFuncLine(err)
 	}
 
-	_ = msgCd
+	locErr := make(chan error)
+	locDone := make(chan bool)
+	locDelete := make(chan bool)
+
+	switch msgCd {
+	case vomni.MsgCdInputHelloFromPoint:
+		fmt.Println("RUNNING HELLO!")
+		go handleHelloFromPoint(flds, locDone, locErr)
+	default:
+		fmt.Println("Eduards")
+
+	}
+
+	select {
+	case <-locDone:
+
+	case err = <-locErr:
+		chErr <- err
+		return
+	case <-locDelete:
+		chDelete <- true
+	}
 	/*
-		locErr := make(chan error)
-		locDone := make(chan bool)
-		locDelete := make(chan bool)
 
 		if msgCd == vomni.MsgCdInputHelloFromPoint {
 
@@ -109,5 +145,50 @@ func messageReceived(flds []string, chDelete chan bool, chErr chan error) {
 		//		break
 		//	}
 	*/
-	chErr <- err
+}
+
+func handleHelloFromPoint(flds []string, chDone chan bool, chErr chan error) {
+	point := flds[vomni.MsgIndexPrefixSender]
+
+	item, ok := Points[point]
+
+	_ = item
+	if ok {
+		/*
+			newItem := false
+			if item.GetUDPAddr().IP == nil {
+				newItem = true
+			}
+
+			portStr := flds[indexHelloFromPointPort]
+			ipStr := flds[indexHelloFromPointIP]
+			port, err := strconv.Atoi(portStr)
+			if ip := net.ParseIP(ipStr); nil == ip {
+				//		if nil != err {
+				err = fmt.Errorf("Wrong port '%s' in the message --- %s", portStr, err.Error())
+				chErr <- vutils.ErrFuncLine(err)
+				return
+			}
+
+			if newItem {
+				item.SetUDPAddr(ipStr, port)
+
+				//			chMsg := make(chan string)
+
+				fmt.Println("@@@@@@@@@@@@@@@@@@@ VILODJA MOSSABIT @@@@@@@@@@@@@@@@@@@@@@@@@@@")
+
+				chGoOn := make(chan bool)
+
+				go item.LetsGo(chGoOn, vomni.RootErr)
+				<-chGoOn
+
+			} else {
+				item.SetUDPAddr(ipStr, port)
+			}
+		*/
+		chDone <- true
+	} else {
+		err := vutils.ErrFuncLine(fmt.Errorf("Received message from the unknown point '%s'", point))
+		vutils.LogErr(err)
+	}
 }

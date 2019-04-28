@@ -27,6 +27,9 @@ func (s *thisStep) stepDo() {
 	chDone := make(chan int)
 	chGoOn := make(chan bool)
 
+	// collect all point configurations
+	vpointrun.Runners()
+	// start all points
 	go vpointrun.Run(chGoOn, chDone, chErr) // put the right call here
 
 	for {
