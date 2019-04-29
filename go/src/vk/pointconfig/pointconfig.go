@@ -48,11 +48,35 @@ func preparePointCfg(doneCh chan bool, errCh chan error) {
 }
 
 func (d CfgJSONData) putCfg4Run() (err error) {
-	// prepare Relay On/Off Interval configuration
-	if err = d.RelIntervalJSON.putCfg4Run(); nil != err {
-		err = vutils.ErrFuncLine(fmt.Errorf("Relay Interval configuration Error - %s", err.Error()))
-		return
+
+	for k, v := range d {
+		if _, has := PointsAllData[k]; !has {
+			PointsAllData[k] = PointCfgData{}
+		}
+
+		if v.RelIntervalJSON.hasCfgRelInterval() {
+			if err = v.RelIntervalJSON.putCfg4Run(k); nil != err {
+				err = vutils.ErrFuncLine(fmt.Errorf("Relay Interval configuration Error - %s", err.Error()))
+				return
+			}
+		}
 	}
 
 	return
+}
+
+func (d CfgRelIntervalStruct) hasCfgRelInterval() (has bool) {
+	if 0 < len(d.Start) {
+		return true
+	}
+
+	if 0 < len(d.Base) {
+		return true
+	}
+
+	if 0 < len(d.Finish) {
+		return true
+	}
+
+	return false
 }

@@ -7,38 +7,29 @@ import (
 	vutils "vk/utils"
 )
 
-func (d CfgRelIntervalPoints) putCfg4Run() (err error) {
+func (d CfgRelIntervalStruct) putCfg4Run(point string) (err error) {
 
-	for k, v := range d {
-
-		var newD RelIntervalStruct
-
-		if newD, err = v.putCfg4Run(); nil != err {
-			err = vutils.ErrFuncLine(err)
-			return
-		}
-
-		if _, has := PointsAllData[k]; !has {
-			PointsAllData[k] = PointCfgData{}
-		}
-
-		tmpD := PointsAllData[k]
-		tmpD.List |= vomni.CfgTypeRelayInterval
-		tmpD.Cfg.RelInterv = newD
-		tmpD.CfgSaved.RelInterv = newD
-		PointsAllData[k] = tmpD
-	}
-
-	return
-}
-
-func (d CfgRelIntervalStruct) putCfg4Run() (newD RelIntervalStruct, err error) {
-
-	newD = RelIntervalStruct{}
+	newD := RelIntervalStruct{}
 	if newD.Start, err = d.Start.putCfg4Run(); nil != err {
 		err = vutils.ErrFuncLine(err)
 		return
 	}
+
+	if newD.Base, err = d.Base.putCfg4Run(); nil != err {
+		err = vutils.ErrFuncLine(err)
+		return
+	}
+
+	if newD.Finish, err = d.Finish.putCfg4Run(); nil != err {
+		err = vutils.ErrFuncLine(err)
+		return
+	}
+
+	tmpD := PointsAllData[point]
+	tmpD.List |= vomni.CfgTypeRelayInterval
+	tmpD.Cfg.RelInterv = newD
+	tmpD.CfgSaved.RelInterv = newD
+	PointsAllData[point] = tmpD
 
 	return
 }
