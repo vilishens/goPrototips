@@ -91,7 +91,6 @@ func messageReceived(flds []string, chDelete chan bool, chErr chan error) {
 		go handleHelloFromPoint(flds, locDone, locErr)
 	default:
 		fmt.Println("Eduards")
-
 	}
 
 	select {
@@ -103,6 +102,7 @@ func messageReceived(flds []string, chDelete chan bool, chErr chan error) {
 	case <-locDelete:
 		chDelete <- true
 	}
+
 	/*
 
 		if msgCd == vomni.MsgCdInputHelloFromPoint {
@@ -152,8 +152,17 @@ func handleHelloFromPoint(flds []string, chDone chan bool, chErr chan error) {
 
 	item, ok := Points[point]
 
-	_ = item
 	if ok {
+		for k, v := range item {
+			fmt.Println("=== KOVuktorska ", k)
+
+			locGoOn := make(chan bool)
+			locErr := make(chan error)
+
+			v.Starter(locGoOn, locErr)
+
+		}
+
 		/*
 			newItem := false
 			if item.GetUDPAddr().IP == nil {

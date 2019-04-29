@@ -1,5 +1,7 @@
 package runrelayinterval
 
+import "fmt"
+
 var RunningPoints map[string]RunData
 
 func init() {
@@ -7,5 +9,5 @@ func init() {
 }
 
 func (d RunData) Starter(chGoOn chan bool, chErr chan error) {
-
+	fmt.Println("============ XXXXX ====================")
 }
