@@ -97,6 +97,7 @@ const (
 //################################################# Point run state codes ####################
 const (
 	PointStateUnknown = 0x000000
+	PointStateActive  = 0x000001
 )
 
 //################################################# Configuration parameters ####################

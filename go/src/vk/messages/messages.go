@@ -246,3 +246,7 @@ func CheckMessageCode(msg string, cd int) (theSame bool, err error) {
 
 	return
 }
+
+func MessageMinusByNbr(nbr int) {
+	MessageList2Send.MinusNbr(nbr)
+}

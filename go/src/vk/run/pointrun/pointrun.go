@@ -153,14 +153,25 @@ func handleHelloFromPoint(flds []string, chDone chan bool, chErr chan error) {
 	item, ok := Points[point]
 
 	if ok {
-		for k, v := range item {
-			fmt.Println("=== KOVuktorska ", k)
 
-			locGoOn := make(chan bool)
-			locErr := make(chan error)
+		if addr, ok := pointUDPAddr(); ok {
 
-			v.Starter(locGoOn, locErr)
+			for k, v := range item {
 
+				locGoOn := make(chan bool)
+				locErr := make(chan error)
+
+				v.Starter(flds, locGoOn, locErr)
+
+				select {
+				case <-locGoOn:
+				case err := <-locErr:
+					chErr <- vutils.ErrFuncLine(fmt.Errorf("Couldn't handle Starter of point %q - %s",
+						flds[vomni.MsgIndexPrefixSender], err.Error()))
+					return
+				}
+
+			}
 		}
 
 		/*
@@ -197,7 +208,7 @@ func handleHelloFromPoint(flds []string, chDone chan bool, chErr chan error) {
 		*/
 		chDone <- true
 	} else {
-		err := vutils.ErrFuncLine(fmt.Errorf("Received message from the unknown point '%s'", point))
+		err := vutils.ErrFuncLine(fmt.Errorf("Received message from the unknown point %q", point))
 		vutils.LogErr(err)
 	}
 }
