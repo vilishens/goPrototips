@@ -4,8 +4,10 @@ import (
 	"fmt"
 	"net"
 	"strconv"
+	"time"
 	vmsg "vk/messages"
 	vomni "vk/omnibus"
+	vcfg "vk/pointconfig"
 	vutils "vk/utils"
 )
 
@@ -15,9 +17,11 @@ func init() {
 	RunningPoints = make(map[string]RunData)
 }
 
-func (d RunData) Starter(flds []string, chGoOn chan bool, chErr chan error) {
+func (d RunData) LetsGo(addr net.UDPAddr, flds []string, chGoOn chan bool, chDone chan int, chErr chan error) {
 
-	fmt.Println("$$$$$$$$$$$$$$$$ FINAL $$$$$$$$$$$$$$$$$")
+	fmt.Println("$$$$$$$$$$$$$$$$ FINAL $$$$$$$$$$$$$$$$$", d.UDPAddr)
+
+	d.UDPAddr = addr
 
 	intNbr, err := strconv.Atoi(flds[vomni.MsgIndexPrefixNbr])
 	if nil != err {
@@ -32,72 +36,110 @@ func (d RunData) Starter(flds []string, chGoOn chan bool, chErr chan error) {
 	if nil == err {
 		vmsg.MessageMinusByNbr(intNbr)
 
-		if d.PointUDPAddr(flds) && (0 == (d.State & vomni.PointStateActive)) {
+		if 0 == (d.State & vomni.PointStateSigned) {
 			fmt.Printf("============ UDPAddr %+v NBR %d\n", d.UDPAddr, intNbr)
 
+			d.Index = AllIndex{Start: -1, Base: -1, Finish: -1}
+
+			locGoOn := make(chan bool)
+			locDone := make(chan int)
+			locErr := make(chan error)
+			go d.run(locGoOn, locDone, locErr)
+
+			<-locGoOn
+
 			d.State |= vomni.PointStateActive
+			d.State |= vomni.PointStateSigned
 		}
 	}
 
+	fmt.Println("Kaišerodis", d.UDPAddr)
 	chGoOn <- true
 }
 
-func (d *RunData) PointUDPAddr(flds []string) (ok bool) {
+func (d RunData) run(chGoOn chan bool, chDone chan int, chErr chan error) {
 
-	intPort, err := strconv.Atoi(flds[vomni.MsgPrefixLen+vomni.MsgIndexHelloFromPointPort])
-	if nil != err {
-		err = vutils.ErrFuncLine(fmt.Errorf("Point %q received a message (%v) with the wrong Port format %q - %s",
-			d.Point,
-			flds,
-			flds[vomni.MsgPrefixLen+vomni.MsgIndexHelloFromPointPort],
-			err.Error()))
-		vutils.LogErr(err)
-	}
+	fmt.Printf("Point %q Addr %+v Index %+v\n", d.Point, d.UDPAddr, d.Index)
 
-	netIP := net.ParseIP(flds[vomni.MsgPrefixLen+vomni.MsgIndexHelloFromPointIP])
-	if nil == netIP {
-		err = vutils.ErrFuncLine(fmt.Errorf("Point %q received a message (%v) with the invalid IP %q",
-			d.Point,
-			flds,
-			flds[vomni.MsgPrefixLen+vomni.MsgIndexHelloFromPointIP]))
-		vutils.LogErr(err)
-	}
+	chGoOn <- true
 
-	if nil != err {
-		return false
-	}
+	locDone := make(chan int)
+	once := true
 
-	d.UDPAddr = net.UDPAddr{IP: netIP, Port: intPort}
+	fmt.Println("#################")
+	fmt.Println("#################")
+	fmt.Println("#################")
+	fmt.Println("################# RUN ===> START")
+	fmt.Println("#################")
+	fmt.Println("#################")
+	fmt.Println("#################")
 
-	return true
+	go d.runArray(d.Cfg.Start, locDone, &d.Index.Start, once)
+	rc := <-locDone
+	once = false
+	fmt.Println("#################")
+	fmt.Println("#################")
+	fmt.Println("#################")
+	fmt.Println("################# RUN ===> BASE")
+	fmt.Println("#################")
+	fmt.Println("#################")
+	fmt.Println("#################")
+	go d.runArray(d.Cfg.Base, locDone, &d.Index.Base, once)
+	rc = <-locDone
+	once = true
+	fmt.Println("#################")
+	fmt.Println("#################")
+	fmt.Println("#################")
+	fmt.Println("################# RUN ===> FINISH")
+	fmt.Println("#################")
+	fmt.Println("#################")
+	fmt.Println("#################")
+	go d.runArray(d.Cfg.Finish, locDone, &d.Index.Finish, once)
+	rc = <-locDone
+
+	_ = rc
 }
 
-func (d RunData) PointUDPAddrY(flds []string) (addr net.UDPAddr) {
+func (d RunData) runArray(arr vcfg.RelIntervalArray, chDone chan int, index *int, once bool) {
 
-	intPort, err := strconv.Atoi(flds[vomni.MsgPrefixLen+vomni.MsgIndexHelloFromPointPort])
-	if nil != err {
-		err = vutils.ErrFuncLine(fmt.Errorf("Point %q received a message (%v) with the wrong Port format %q - %s",
-			d.Point,
-			flds,
-			flds[vomni.MsgPrefixLen+vomni.MsgIndexHelloFromPointPort],
-			err.Error()))
-		vutils.LogErr(err)
+	if 0 == len(arr) {
+		chDone <- vomni.DoneStop
+		return
 	}
 
-	netIP := net.ParseIP(flds[vomni.MsgPrefixLen+vomni.MsgIndexHelloFromPointIP])
-	if nil == netIP {
-		err = vutils.ErrFuncLine(fmt.Errorf("Point %q received a message (%v) with the invalid IP %q",
-			d.Point,
-			flds,
-			flds[vomni.MsgPrefixLen+vomni.MsgIndexHelloFromPointIP]))
-		vutils.LogErr(err)
+	*index = nextIndex(*index, len(arr))
+
+	for {
+		tick := time.NewTicker(arr[*index].Seconds)
+
+		t := time.Now()
+
+		fmt.Println(d.Point, "@@@@@@@@@@@@@@@@", t.Format(vomni.TimeFormat1), "*************** INDEX ", *index, "JĀSŪTA CMD PIRMS INTERVALA", arr[*index].Seconds.Seconds())
+
+		select {
+		case <-tick.C:
+			*index = nextIndex(*index, len(arr))
+
+			if once && 0 == *index {
+				chDone <- vomni.DoneStop
+				return
+			}
+		}
+
+	}
+	chDone <- vomni.DoneStop
+
+}
+
+func nextIndex(ind int, count int) (index int) {
+
+	index = ind + 1
+
+	if (index < 0) || (index >= count) {
+		index = 0
 	}
 
-	if nil != err {
-		return //false
-	}
+	fmt.Println("<<<<>>>>> NEW INDEX ", index)
 
-	return net.UDPAddr{IP: netIP, Port: intPort}
-
-	//	return //true
+	return
 }

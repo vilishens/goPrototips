@@ -8,7 +8,7 @@
 #include <WiFiUdp.h>
 
 //***** Settings - UDP connection - START
-#define POINT_NAME                      "meskals"       // the board name of the link
+#define POINT_NAME                      "granato"       // the board name of the link
 #define UDP_PORT                        49750           // the predifined UDP port of the link
 #define STATION_NAME                    "SITKO"         // the name of the supervisor station
 #define WIFI_HOTSPOT_NAME               "bazargans"     // the WiFi hotspot name

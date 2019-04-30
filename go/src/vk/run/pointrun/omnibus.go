@@ -1,5 +1,7 @@
 package pointrun
 
+import "net"
+
 type Runner interface {
 	//	GetUDPAddr() (addr net.UDPAddr)
 	//	IsActive() (active bool)
@@ -11,7 +13,7 @@ type Runner interface {
 	//	WebPointData() (v omnibus.WPointData)
 	//	ReceivedWebMsg(msg string, data interface{})
 	//	Finish(done chan bool)
-	Starter(flds []string, chGoOn chan bool, chErr chan error)
+	LetsGo(addr net.UDPAddr, flds []string, chGoOn chan bool, chDone chan int, chErr chan error)
 }
 
 type PointRunners map[int]Runner

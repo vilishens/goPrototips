@@ -2,6 +2,7 @@ package pointrun
 
 import (
 	"fmt"
+	"net"
 	"strconv"
 	"time"
 	vmsg "vk/messages"
@@ -83,7 +84,6 @@ func messageReceived(flds []string, chDelete chan bool, chErr chan error) {
 
 	locErr := make(chan error)
 	locDone := make(chan bool)
-	locDelete := make(chan bool)
 
 	switch msgCd {
 	case vomni.MsgCdInputHelloFromPoint:
@@ -97,54 +97,9 @@ func messageReceived(flds []string, chDelete chan bool, chErr chan error) {
 	case <-locDone:
 
 	case err = <-locErr:
-		chErr <- err
+		vomni.RootErr <- err
 		return
-	case <-locDelete:
-		chDelete <- true
 	}
-
-	/*
-
-		if msgCd == vomni.MsgCdInputHelloFromPoint {
-
-			fmt.Println("RUNNING HELLO")
-
-			go handleHelloFromPoint(flds, locDone, locErr)
-
-			fmt.Println("RUNNING TI KUDA???")
-
-			select {
-			case <-locDone:
-				//
-			case err = <-locErr:
-				chErr <- err
-				return
-			}
-		}
-
-		point := flds[vomni.MsgIndexMsgSender]
-		item, ok := Points[point]
-		if !ok {
-			chErr <- vutils.ErrFuncLine(fmt.Errorf("\nThe message received from the unknown point %q", point))
-			return
-		}
-
-		go item.Response(flds, locDelete, locErr)
-
-		select {
-		case <-locDelete:
-			chDelete <- true
-			return
-		case err = <-locErr:
-			chErr <- vutils.ErrFuncLine(err)
-			return
-		}
-
-		//	default:
-		//		err = fmt.Errorf("\nNo logic for the received message code 0x%08X\n", msgCd)
-		//		break
-		//	}
-	*/
 }
 
 func handleHelloFromPoint(flds []string, chDone chan bool, chErr chan error) {
@@ -153,62 +108,67 @@ func handleHelloFromPoint(flds []string, chDone chan bool, chErr chan error) {
 	item, ok := Points[point]
 
 	if ok {
-
-		if addr, ok := pointUDPAddr(); ok {
-
+		if addr, ok := getUDPAddr(flds, vomni.MsgPrefixLen+vomni.MsgIndexHelloFromPointIP, vomni.MsgPrefixLen+vomni.MsgIndexHelloFromPointPort); ok {
 			for k, v := range item {
 
+				_ = k
+
 				locGoOn := make(chan bool)
+				locDone := make(chan int)
 				locErr := make(chan error)
 
-				v.Starter(flds, locGoOn, locErr)
+				go v.LetsGo(addr, flds, locGoOn, locDone, locErr)
 
+				<-locGoOn
 				select {
 				case <-locGoOn:
+
+					fmt.Println("Ronny O'Sullivan")
+					chDone <- true
+				case rc := <-locDone:
+					fmt.Println("################################################ Sa")
+					fmt.Printf("################################################ Saņēmu RC %d no %q\n", rc, flds[0])
+					fmt.Println("################################################ Sa")
+
 				case err := <-locErr:
 					chErr <- vutils.ErrFuncLine(fmt.Errorf("Couldn't handle Starter of point %q - %s",
 						flds[vomni.MsgIndexPrefixSender], err.Error()))
 					return
 				}
-
 			}
 		}
 
-		/*
-			newItem := false
-			if item.GetUDPAddr().IP == nil {
-				newItem = true
-			}
-
-			portStr := flds[indexHelloFromPointPort]
-			ipStr := flds[indexHelloFromPointIP]
-			port, err := strconv.Atoi(portStr)
-			if ip := net.ParseIP(ipStr); nil == ip {
-				//		if nil != err {
-				err = fmt.Errorf("Wrong port '%s' in the message --- %s", portStr, err.Error())
-				chErr <- vutils.ErrFuncLine(err)
-				return
-			}
-
-			if newItem {
-				item.SetUDPAddr(ipStr, port)
-
-				//			chMsg := make(chan string)
-
-				fmt.Println("@@@@@@@@@@@@@@@@@@@ VILODJA MOSSABIT @@@@@@@@@@@@@@@@@@@@@@@@@@@")
-
-				chGoOn := make(chan bool)
-
-				go item.LetsGo(chGoOn, vomni.RootErr)
-				<-chGoOn
-
-			} else {
-				item.SetUDPAddr(ipStr, port)
-			}
-		*/
 		chDone <- true
 	} else {
 		err := vutils.ErrFuncLine(fmt.Errorf("Received message from the unknown point %q", point))
 		vutils.LogErr(err)
 	}
+}
+
+func getUDPAddr(flds []string, ipInd int, portInd int) (addr net.UDPAddr, ok bool) {
+
+	intPort, err := strconv.Atoi(flds[portInd])
+	if nil != err {
+		err = vutils.ErrFuncLine(fmt.Errorf("A message received (%v) with the wrong Port format %q - %s",
+			flds,
+			flds[portInd],
+			err.Error()))
+		vutils.LogErr(err)
+	}
+
+	netIP := net.ParseIP(flds[ipInd])
+	if nil == netIP {
+		err = vutils.ErrFuncLine(fmt.Errorf("A message received (%v) with the invalid IP %q",
+			flds,
+			flds[ipInd]))
+		vutils.LogErr(err)
+	}
+
+	if nil != err {
+		return
+	}
+
+	addr = net.UDPAddr{IP: netIP, Port: intPort}
+
+	return addr, true
 }

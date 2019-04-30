@@ -98,6 +98,7 @@ const (
 const (
 	PointStateUnknown = 0x000000
 	PointStateActive  = 0x000001
+	PointStateSigned  = 0x000002
 )
 
 //################################################# Configuration parameters ####################
