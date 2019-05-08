@@ -8,11 +8,11 @@
 #include <WiFiUdp.h>
 
 //***** Settings - UDP connection - START
-#define POINT_NAME                      "granato"       // the board name of the link
-#define UDP_PORT                        49750           // the predifined UDP port of the link
-#define STATION_NAME                    "SITKO"         // the name of the supervisor station
+#define POINT_NAME                      "Red"           // the board name of the link
+#define STATION_NAME                    "MONORI"        // the name of the supervisor station
 #define WIFI_HOTSPOT_NAME               "bazargans"     // the WiFi hotspot name
 #define WIFI_HOTSPOT_PASS               "Mi0dirg8ss"    // the WiFi hotspot password
+#define UDP_PORT                        49750           // the predifined UDP port of the link
 //#define WIFI_HOTSPOT_NAME               "BMSG2"         // the WiFi hotspot name
 //#define WIFI_HOTSPOT_PASS               "barinu7755"    // the WiFi hotspot password
 //***** Settings - UDP connection - END
