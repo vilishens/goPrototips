@@ -27,4 +27,7 @@ type ParamData struct {
 
 	PointConfigOriginalFile string
 	PointConfigFile         string
+
+	SendGridKey         string
+	MessageEmailAddress string
 }

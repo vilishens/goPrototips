@@ -9,6 +9,7 @@ import (
 
 	//	vsgrid "vk/sendgrid"
 	vparams "vk/params"
+	vsgrid "vk/sendgrid"
 	vutils "vk/utils"
 )
 
@@ -76,19 +77,38 @@ func netInfo(chGoOn chan bool, chDone chan int, chErr chan error) {
 		if setCurrentNet(intIP, extIP) && (0 < (vparams.Params.NetExternalRequirement & vomni.NetExternalBits)) {
 			// send IP email only if the external net required or nice to have
 
-			// Ko darīt ja nevajag ārējo IP adresi? vai jāsūta emails?
-			// Liekas, ka nevajag sūtīt email, ja nevajag ārejo tīklu
-			// Jāņem vērā arī NetExternalTreatment
-			/*
+			if "" == vparams.Params.SendGridKey || "" == vparams.Params.MessageEmailAddress {
+				// there is no SendGrid key or the receiver email address
+				str := fmt.Sprintf("Couldn't send new IPv4 due to abscense of ")
+				str1 := ""
+				if "" == vparams.Params.SendGridKey {
+					str1 = fmt.Sprintf("the SendGrid key")
+				}
+				if "" == vparams.Params.MessageEmailAddress {
+					if "" != str1 {
+						str += " and "
+					}
+					str1 += fmt.Sprintf("the receiver email address")
+				}
+
+				str += str1
+
+				err = vutils.ErrFuncLine(fmt.Errorf(str))
+			} else {
+				// Ko darīt ja nevajag ārējo IP adresi? vai jāsūta emails?
+				// Liekas, ka nevajag sūtīt email, ja nevajag ārejo tīklu
+				// Jāņem vērā arī NetExternalTreatment
 				if err = sendNetInfov4(); nil != err {
 					err = vutils.ErrFuncLine(fmt.Errorf("Couldn't send new IPv4 - %v", err))
-
-					vomni.LogFatal.Println(err)
-
-					vomni.RootErr <- err
-					done <- vomni.DoneOK
 				}
-			*/
+			}
+
+			if nil != err {
+				vomni.LogFatal.Println(err)
+
+				vomni.RootErr <- err
+				chDone <- vomni.DoneStop
+			}
 		}
 
 		str := `=== Iternal IP "` + vparams.Params.IPAddressInternal + `" External IP "` + vparams.Params.IPAddressExternal + `"`
@@ -131,22 +151,32 @@ func setCurrentNet(intIP string, extIP string) (newIP bool) {
 	return
 }
 
-/*
 func sendNetInfov4() (err error) {
 
-	emails := vparam.Params.WebEmail
+	extWeb := 50155 //	50177
+	extSSH := 50310 //	50354
+	intWeb := 49955
+	intSSH := 22
 
-	subj := vparam.Params.Name + " --- " + vutils.TimeNow(vomni.TimeFormat1) + " --- NET"
-	msg_txt := fmt.Sprintf("WEB: %s:%d\nSSH: %s:%d\n\n",
-		vparam.Params.ExternalIPv4, 50177,
-		vparam.Params.ExternalIPv4, 50354)
-	msg_html := fmt.Sprintf("</h2>WEB: <strong>%s:%d</strong><br />SSH: <strong>%s:%d<strong><br /><br /></h2>",
-		vparam.Params.ExternalIPv4, 50177, //vparam.Params.InternalPort,
-		vparam.Params.ExternalIPv4, 50354) //vparam.Params.ExternalPort)
+	email := vparams.Params.MessageEmailAddress
+	key := vparams.Params.SendGridKey
 
-	return vsgrid.Send(emails, subj, msg_txt, msg_html)
+	subj := vparams.Params.StationName + " --- " + vutils.TimeNow(vomni.TimeFormat1) + " --- NET"
+
+	msgTxt := fmt.Sprintf("EXTERNAL:\nWEB: %s:%d\nSSH: %s:%d\nINTERNAL:\nWEB: %s:%d\nSSH: %s:%d\n\n",
+		vparams.Params.IPAddressExternal, extWeb,
+		vparams.Params.IPAddressExternal, extSSH,
+		vparams.Params.IPAddressInternal, intWeb,
+		vparams.Params.IPAddressInternal, intSSH)
+
+	msgHTML := fmt.Sprintf("<!DOCTYPE html><html><body><h1>EXTERNAL:</h1><br />")
+	msgHTML += fmt.Sprintf("<h2><code>WEB:</code> %s:%d</h2><br />", vparams.Params.IPAddressExternal, extWeb)
+	msgHTML += fmt.Sprintf("<h2><code>SSH:</code> %s:%d</h2><br />", vparams.Params.IPAddressExternal, extSSH)
+	msgHTML += fmt.Sprintf("<h1>INTERNAL:</h1><br /><h2><code>WEB:</code> %s:%d</h2><br />", vparams.Params.IPAddressInternal, intWeb)
+	msgHTML += fmt.Sprintf("<h2><code>SSH:</code> %s:%d</h2><br /><br /></body></html>", vparams.Params.IPAddressInternal, intSSH)
+
+	return vsgrid.Send(email, subj, key, msgTxt, msgHTML)
 }
-*/
 
 func getIPv4Addrs() (intIP string, extIP string, errCd int, err error) {
 	if intIP, err = vutils.InternalIPv4(); nil != err {

@@ -38,6 +38,9 @@ func init() {
 
 	Final.PointConfigOriginalFile = ""
 	Final.PointConfigFile = ""
+
+	Final.SendGridKey = ""
+	Final.MessageEmailAddress = ""
 }
 
 func Cfg(chDone chan bool, chErr chan error) {
@@ -195,6 +198,13 @@ func (c *CfgData) Put() (err error) {
 	}
 	if (nil == err) && ("" != c.PointConfigFile) {
 		Final.PointConfigFile = c.PointConfigFile
+	}
+
+	if (nil == err) && ("" != c.SendGridKey) {
+		Final.SendGridKey = c.SendGridKey
+	}
+	if (nil == err) && ("" != c.MessageEmailAddress) {
+		Final.MessageEmailAddress = c.MessageEmailAddress
 	}
 
 	return

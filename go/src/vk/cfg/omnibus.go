@@ -21,7 +21,10 @@ type CfgData struct {
 	NetExternalRequirement string   `json:"NetExternalRequired"`
 
 	PointConfigOriginalFile string `json:"PointConfigOriginalFile"`
-	PointConfigFile         string `json:"PointConfigFile`
+	PointConfigFile         string `json:"PointConfigFile"`
+
+	SendGridKey         string `json:"SendGridKey"`
+	MessageEmailAddress string `json:"MessageEmailAddress"`
 }
 
 type CfgFinalData struct {
@@ -47,4 +50,7 @@ type CfgFinalData struct {
 
 	PointConfigOriginalFile string
 	PointConfigFile         string
+
+	SendGridKey         string
+	MessageEmailAddress string
 }

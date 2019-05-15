@@ -36,6 +36,9 @@ func init() {
 
 	Params.PointConfigOriginalFile = ""
 	Params.PointConfigFile = ""
+
+	Params.SendGridKey = ""
+	Params.MessageEmailAddress = ""
 }
 
 func Put(chDone chan bool, chErr chan error) {
@@ -106,6 +109,14 @@ func Put(chDone chan bool, chErr chan error) {
 	}
 	if (nil == err) && ("" != data.PointConfigFile) {
 		Params.PointConfigFile = data.PointConfigFile
+	}
+
+	// SendGrid key and email address
+	if (nil == err) && ("" != data.SendGridKey) {
+		Params.SendGridKey = data.SendGridKey
+	}
+	if (nil == err) && ("" != data.MessageEmailAddress) {
+		Params.MessageEmailAddress = data.MessageEmailAddress
 	}
 
 	if nil != err {

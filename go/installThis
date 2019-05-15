@@ -2,7 +2,7 @@
 
 #go get -u -v github.com/apexskier/httpauth
 go get -u -v github.com/gorilla/mux
-#go get -u -v github.com/sendgrid/sendgrid-go
+go get -u -v github.com/sendgrid/sendgrid-go
 
 #
 # sākt goArduino ar bootu (pirms tam jābūt - go build goArduino.go)
