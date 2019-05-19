@@ -19,9 +19,11 @@ func init() {
 
 	Final.LogMainPath = ""
 
-	Final.PortSSHInternal = -1
 	Final.PortUDPInternal = -1
+	Final.PortSSHInternal = -1
 	Final.PortWEBInternal = -1
+	Final.PortSSHExternal = -1
+	Final.PortWEBExternal = -1
 
 	Final.RotateMainCfg = ""
 	Final.RotatePointCfg = ""
@@ -161,14 +163,21 @@ func (c *CfgData) Put() (err error) {
 	}
 
 	// internal ports
-	if (nil == err) && ("" != c.PortSSHInternal) {
-		Final.PortSSHInternal, err = strconv.Atoi(c.PortSSHInternal)
-	}
 	if (nil == err) && ("" != c.PortUDPInternal) {
 		Final.PortUDPInternal, err = strconv.Atoi(c.PortUDPInternal)
 	}
+	if (nil == err) && ("" != c.PortSSHInternal) {
+		Final.PortSSHInternal, err = strconv.Atoi(c.PortSSHInternal)
+	}
 	if (nil == err) && ("" != c.PortWEBInternal) {
 		Final.PortWEBInternal, err = strconv.Atoi(c.PortWEBInternal)
+	}
+	// external ports
+	if (nil == err) && ("" != c.PortSSHExternal) {
+		Final.PortSSHExternal, err = strconv.Atoi(c.PortSSHExternal)
+	}
+	if (nil == err) && ("" != c.PortWEBExternal) {
+		Final.PortWEBExternal, err = strconv.Atoi(c.PortWEBExternal)
 	}
 
 	// WEB configuration

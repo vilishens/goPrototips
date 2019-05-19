@@ -153,10 +153,10 @@ func setCurrentNet(intIP string, extIP string) (newIP bool) {
 
 func sendNetInfov4() (err error) {
 
-	extWeb := 50155 //	50177
-	extSSH := 50310 //	50354
-	intWeb := 49955
-	intSSH := 22
+	extWeb := vparams.Params.PortWEBExternal
+	extSSH := vparams.Params.PortSSHExternal
+	intWeb := vparams.Params.PortWEBInternal
+	intSSH := vparams.Params.PortSSHInternal
 
 	email := vparams.Params.MessageEmailAddress
 	key := vparams.Params.SendGridKey

@@ -5,9 +5,11 @@ type ParamData struct {
 
 	LogMainPath string
 
-	PortSSHInternal int
 	PortUDPInternal int
+	PortSSHInternal int
 	PortWEBInternal int
+	PortSSHExternal int
+	PortWEBExternal int
 
 	RotateMainCfg        string
 	RotatePointCfg       string

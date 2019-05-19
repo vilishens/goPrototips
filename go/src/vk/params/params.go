@@ -14,9 +14,11 @@ func init() {
 
 	Params.LogMainPath = ""
 
-	Params.PortSSHInternal = -1
 	Params.PortUDPInternal = -1
+	Params.PortSSHInternal = -1
 	Params.PortWEBInternal = -1
+	Params.PortSSHExternal = -1
+	Params.PortWEBExternal = -1
 
 	Params.RotateMainCfg = ""
 	Params.RotatePointCfg = ""
@@ -55,14 +57,20 @@ func Put(chDone chan bool, chErr chan error) {
 		Params.LogMainPath = data.LogMainPath
 	}
 
-	if 0 <= data.PortSSHInternal {
-		Params.PortSSHInternal = data.PortSSHInternal
-	}
-	if 0 <= data.PortSSHInternal {
+	if 0 <= data.PortUDPInternal {
 		Params.PortUDPInternal = data.PortUDPInternal
 	}
 	if 0 <= data.PortSSHInternal {
+		Params.PortSSHInternal = data.PortSSHInternal
+	}
+	if 0 <= data.PortWEBInternal {
 		Params.PortWEBInternal = data.PortWEBInternal
+	}
+	if 0 <= data.PortSSHExternal {
+		Params.PortSSHExternal = data.PortSSHExternal
+	}
+	if 0 <= data.PortWEBExternal {
+		Params.PortWEBExternal = data.PortWEBExternal
 	}
 
 	if "" != data.RotateMainCfg {
@@ -89,10 +97,6 @@ func Put(chDone chan bool, chErr chan error) {
 	}
 	if "" != data.WebTemplateDir {
 		Params.WebTemplateDir = data.WebTemplateDir
-	}
-
-	if 0 <= data.PortSSHInternal {
-		Params.PortWEBInternal = data.PortWEBInternal
 	}
 
 	if (nil == err) && (0 < len(data.IPExternalAddressCmds)) {
