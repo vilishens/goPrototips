@@ -8,12 +8,13 @@
 #include <WiFiUdp.h>
 
 //***** Settings - UDP connection - START
-#define POINT_NAME                      "zalais"        // the board name of the link
-#define STATION_NAME                    "RASPIS-MANS"   // the name of the supervisor station
-#define WIFI_HOTSPOT_NAME               "bazargans"     // the WiFi hotspot name
-#define WIFI_HOTSPOT_PASS               "Mi0dirg8ss"    // the WiFi hotspot password
-//#define WIFI_HOTSPOT_NAME               "BMSG2"         // the WiFi hotspot name
-//#define WIFI_HOTSPOT_PASS               "barinu7755"    // the WiFi hotspot password
+#define POINT_NAME                      "green"         // the board name of the link
+#define STATION_NAME                    "raspisMelns" // the name of the supervisor station
+//#define STATION_NAME                    "RASPIS-MANS"   // the name of the supervisor station
+//#define WIFI_HOTSPOT_NAME               "bazargans"     // the WiFi hotspot name
+//#define WIFI_HOTSPOT_PASS               "Mi0dirg8ss"    // the WiFi hotspot password
+#define WIFI_HOTSPOT_NAME               "BMSG2"         // the WiFi hotspot name
+#define WIFI_HOTSPOT_PASS               "barinu7755"    // the WiFi hotspot password
 #define UDP_PORT                        49750           // the predifined UDP port of the link
 //***** Settings - UDP connection - END
 
@@ -54,9 +55,6 @@ void msgSetupOk();
 #define UDP_PORT_MIN                    49152
 #define UDP_PORT_MAX                    65535
 
-
-
-
 int string2IP(IPAddress *ip, const char *strIP); 
 int cmdIndex(int cmd);
 int connectClient();
@@ -96,14 +94,15 @@ int stationOffsetSeconds = 0;
 //struct cmdData msgList[MSG_LIST_LAST_INDEX + 1];
 
 void setup() {
-    Ok = 0;
-    
-    Serial.begin(9600); 
-    Serial.println("\n");
 
+    Ok = 0;
     int attempt = 0;
 
     while(!Ok) {
+
+        Serial.begin(9600); 
+        Serial.println("\n");
+        
         wifiInit();
         msgInputListInit();
 
@@ -171,7 +170,6 @@ void loop() {
     // Wait a bit before scanning again
     delay(ONE_SECOND / 10);
 }
-
 
 void responseHelloFromStation() {
     memset(UDPout, 0, sizeof(UDPout));
