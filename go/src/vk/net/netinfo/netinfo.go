@@ -158,22 +158,25 @@ func sendNetInfov4() (err error) {
 	intWeb := vparams.Params.PortWEBInternal
 	intSSH := vparams.Params.PortSSHInternal
 
+	ipInt := vparams.Params.IPAddressInternal
+	ipExt := vparams.Params.IPAddressExternal
+
 	email := vparams.Params.MessageEmailAddress
 	key := vparams.Params.SendGridKey
 
 	subj := vparams.Params.StationName + " --- " + vutils.TimeNow(vomni.TimeFormat1) + " --- NET"
 
-	msgTxt := fmt.Sprintf("EXTERNAL:\nWEB: %s:%d\nSSH: %s:%d\nINTERNAL:\nWEB: %s:%d\nSSH: %s:%d\n\n",
-		vparams.Params.IPAddressExternal, extWeb,
-		vparams.Params.IPAddressExternal, extSSH,
-		vparams.Params.IPAddressInternal, intWeb,
-		vparams.Params.IPAddressInternal, intSSH)
+	msgTxt := fmt.Sprintf("EXTERNAL:\nWEB: %s:%d\nSSH: %s -p %d\nINTERNAL:\nWEB: %s:%d\nSSH: %s -p %d\n\n",
+		ipExt, extWeb,
+		ipExt, extSSH,
+		ipInt, intWeb,
+		ipInt, intSSH)
 
 	msgHTML := fmt.Sprintf("<!DOCTYPE html><html><body><h1>EXTERNAL:</h1><br />")
-	msgHTML += fmt.Sprintf("<h2><code>WEB:</code> %s:%d</h2><br />", vparams.Params.IPAddressExternal, extWeb)
-	msgHTML += fmt.Sprintf("<h2><code>SSH:</code> %s:%d</h2><br />", vparams.Params.IPAddressExternal, extSSH)
-	msgHTML += fmt.Sprintf("<h1>INTERNAL:</h1><br /><h2><code>WEB:</code> %s:%d</h2><br />", vparams.Params.IPAddressInternal, intWeb)
-	msgHTML += fmt.Sprintf("<h2><code>SSH:</code> %s:%d</h2><br /><br /></body></html>", vparams.Params.IPAddressInternal, intSSH)
+	msgHTML += fmt.Sprintf("<h2><code>WEB:</code> %s:%d</h2><br />", ipExt, extWeb)
+	msgHTML += fmt.Sprintf("<h2><code>SSH:</code> %s -p %d</h2><br />", ipExt, extSSH)
+	msgHTML += fmt.Sprintf("<h1>INTERNAL:</h1><br /><h2><code>WEB:</code> %s:%d</h2><br />", ipInt, intWeb)
+	msgHTML += fmt.Sprintf("<h2><code>SSH:</code> %s -p %d</h2><br /><br /></body></html>", ipInt, intSSH)
 
 	return vsgrid.Send(email, subj, key, msgTxt, msgHTML)
 }
