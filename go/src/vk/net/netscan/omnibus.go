@@ -1,6 +1,6 @@
 package netscan
 
 const (
-	IPStart = 180
+	IPStart = 160
 	IPEnd   = 195
 )

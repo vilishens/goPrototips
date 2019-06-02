@@ -53,7 +53,6 @@ func (d RunData) LetsGo(addr net.UDPAddr, flds []string, chGoOn chan bool, chDon
 		}
 	}
 
-	fmt.Println("Kaišerodis", d.UDPAddr)
 	chGoOn <- true
 }
 
@@ -64,36 +63,16 @@ func (d RunData) run(chGoOn chan bool, chDone chan int, chErr chan error) {
 	chGoOn <- true
 
 	locDone := make(chan int)
+
 	once := true
-
-	fmt.Println("#################")
-	fmt.Println("#################")
-	fmt.Println("#################")
-	fmt.Println("################# RUN ===> START")
-	fmt.Println("#################")
-	fmt.Println("#################")
-	fmt.Println("#################")
-
 	go d.runArray(d.Cfg.Start, locDone, &d.Index.Start, once)
 	rc := <-locDone
+
 	once = false
-	fmt.Println("#################")
-	fmt.Println("#################")
-	fmt.Println("#################")
-	fmt.Println("################# RUN ===> BASE")
-	fmt.Println("#################")
-	fmt.Println("#################")
-	fmt.Println("#################")
 	go d.runArray(d.Cfg.Base, locDone, &d.Index.Base, once)
 	rc = <-locDone
+
 	once = true
-	fmt.Println("#################")
-	fmt.Println("#################")
-	fmt.Println("#################")
-	fmt.Println("################# RUN ===> FINISH")
-	fmt.Println("#################")
-	fmt.Println("#################")
-	fmt.Println("#################")
 	go d.runArray(d.Cfg.Finish, locDone, &d.Index.Finish, once)
 	rc = <-locDone
 
@@ -113,7 +92,6 @@ func (d RunData) runArray(arr vcfg.RelIntervalArray, chDone chan int, index *int
 		tick := time.NewTicker(arr[*index].Seconds)
 
 		t := time.Now()
-
 		fmt.Println(d.Point, "@@@@@@@@@@@@@@@@", t.Format(vomni.TimeFormat1), "*************** INDEX ", *index, "JĀSŪTA CMD PIRMS INTERVALA", arr[*index].Seconds.Seconds())
 
 		select {
@@ -138,8 +116,6 @@ func nextIndex(ind int, count int) (index int) {
 	if (index < 0) || (index >= count) {
 		index = 0
 	}
-
-	fmt.Println("<<<<>>>>> NEW INDEX ", index)
 
 	return
 }

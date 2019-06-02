@@ -87,7 +87,9 @@ func messageReceived(flds []string, chDelete chan bool, chErr chan error) {
 
 	switch msgCd {
 	case vomni.MsgCdInputHelloFromPoint:
-		fmt.Println("RUNNING HELLO!")
+		fmt.Println("..............................................................")
+		fmt.Printf("........................ RUNNING HELLO! %s\n", flds[vomni.MsgIndexPrefixSender])
+		fmt.Println("..............................................................")
 		go handleHelloFromPoint(flds, locDone, locErr)
 	default:
 		fmt.Println("Eduards")
@@ -95,11 +97,14 @@ func messageReceived(flds []string, chDelete chan bool, chErr chan error) {
 
 	select {
 	case <-locDone:
-
+		// the done code received
 	case err = <-locErr:
+		// the error received
 		vomni.RootErr <- err
 		return
 	}
+
+	chErr <- err
 }
 
 func handleHelloFromPoint(flds []string, chDone chan bool, chErr chan error) {
@@ -119,17 +124,13 @@ func handleHelloFromPoint(flds []string, chDone chan bool, chErr chan error) {
 
 				go v.LetsGo(addr, flds, locGoOn, locDone, locErr)
 
-				<-locGoOn
 				select {
 				case <-locGoOn:
-
-					fmt.Println("Ronny O'Sullivan")
+					// all done return flag to go on
 					chDone <- true
-				case rc := <-locDone:
-					fmt.Println("################################################ Sa")
-					fmt.Printf("################################################ Saņēmu RC %d no %q\n", rc, flds[0])
-					fmt.Println("################################################ Sa")
-
+				//case rc := <-locDone:
+				case <-locDone:
+					// the done code received
 				case err := <-locErr:
 					chErr <- vutils.ErrFuncLine(fmt.Errorf("Couldn't handle Starter of point %q - %s",
 						flds[vomni.MsgIndexPrefixSender], err.Error()))
@@ -138,7 +139,6 @@ func handleHelloFromPoint(flds []string, chDone chan bool, chErr chan error) {
 			}
 		}
 
-		chDone <- true
 	} else {
 		err := vutils.ErrFuncLine(fmt.Errorf("Received message from the unknown point %q", point))
 		vutils.LogErr(err)

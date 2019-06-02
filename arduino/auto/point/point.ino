@@ -8,7 +8,7 @@
 #include <WiFiUdp.h>
 
 //***** Settings - UDP connection - START
-#define POINT_NAME                      "zalais"         // the board name of the link
+#define POINT_NAME                      "sarkanais"         // the board name of the link
 //#define STATION_NAME                    "raspisMelns" // the name of the supervisor station
 #define STATION_NAME                    "RASPIS-MANS"   // the name of the supervisor station
 #define WIFI_HOTSPOT_NAME               "bazargans"     // the WiFi hotspot name
@@ -99,10 +99,6 @@ void setup() {
     int attempt = 0;
 
     while(!Ok) {
-
-//        ESP.reset();
-//        delay(ONE_SECOND/10);
-
         Serial.begin(9600); 
         Serial.println("\n");
         
