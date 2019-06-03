@@ -98,9 +98,12 @@ func netInfo(chGoOn chan bool, chDone chan int, chErr chan error) {
 				// Ko darīt ja nevajag ārējo IP adresi? vai jāsūta emails?
 				// Liekas, ka nevajag sūtīt email, ja nevajag ārejo tīklu
 				// Jāņem vērā arī NetExternalTreatment
-				if err = sendNetInfov4(); nil != err {
-					err = vutils.ErrFuncLine(fmt.Errorf("Couldn't send new IPv4 - %v", err))
-				}
+
+				// vk-xxx A
+				//if err = sendNetInfov4(); nil != err {
+				//	err = vutils.ErrFuncLine(fmt.Errorf("Couldn't send new IPv4 - %v", err))
+				//}
+				// vk-xxx B
 			}
 
 			if nil != err {

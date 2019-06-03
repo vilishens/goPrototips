@@ -103,7 +103,13 @@ func sendMessages(done chan int, chErr chan error) {
 
 				vutils.LogInfo(fmt.Sprintf("Deleted message #%d due to the exceeded send repeat limit", vmsg.MessageList2Send[i].MessageNbr))
 
-				go vmsg.MessageList2Send.MinusIndex(i, chDone)
+				if point := vpointrun.FindDisconnectedPoint(vmsg.MessageList2Send[i].UDPAddr); "" == point {
+					// the point wasn't found, just delete the message from the list
+					go vmsg.MessageList2Send.MinusIndex(i, chDone)
+				} else {
+					// the point was signed but doesn't have connectivity now
+
+				}
 				<-chDone
 				continue
 			}
@@ -118,7 +124,7 @@ func sendMessages(done chan int, chErr chan error) {
 	}
 }
 
-// Need to update the station time if it is the reeated message and 'Hello From Station'
+// Need to update the station time if it is the repeated message and 'Hello From Station'
 func updateMessageStationTime(i int) (err error) {
 
 	if 1 < vmsg.MessageList2Send[i].Repeat {

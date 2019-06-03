@@ -91,6 +91,10 @@ func messageReceived(flds []string, chDelete chan bool, chErr chan error) {
 		fmt.Printf("........................ RUNNING HELLO! %s\n", flds[vomni.MsgIndexPrefixSender])
 		fmt.Println("..............................................................")
 		go handleHelloFromPoint(flds, locDone, locErr)
+	case vomni.MsgCdOutputHelloFromStation:
+		// this is the hello message from another station
+		// just ignore it
+		chErr <- nil
 	default:
 		fmt.Println("Eduards")
 	}
@@ -105,6 +109,10 @@ func messageReceived(flds []string, chDelete chan bool, chErr chan error) {
 	}
 
 	chErr <- err
+}
+
+func FindDisconnectedPoint(addr net.UDPAddr) (point string) {
+	return
 }
 
 func handleHelloFromPoint(flds []string, chDone chan bool, chErr chan error) {
