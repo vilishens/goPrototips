@@ -17,3 +17,15 @@ type Runner interface {
 }
 
 type PointRunners map[int]Runner
+
+type PointRun struct {
+	Point PointData
+	Run   PointRunners
+}
+
+type PointData struct {
+	Point   string
+	UDPAddr net.UDPAddr
+	Type  int
+	State int
+}

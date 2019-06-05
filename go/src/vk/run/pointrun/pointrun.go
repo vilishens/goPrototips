@@ -11,10 +11,11 @@ import (
 	vutils "vk/utils"
 )
 
-var Points map[string]PointRunners
+var Points map[string]PointRun
+var StartCh chan bool
 
 func init() {
-	Points = make(map[string]PointRunners)
+	Points = make(map[string]PointRun)
 }
 
 func Runners() {
@@ -23,11 +24,17 @@ func Runners() {
 
 func relayIntervalRunners() {
 	for k, v := range vrunrelayinterval.RunningPoints {
-		if _, has := Points[k]; !has {
-			Points[k] = make(map[int]Runner)
-		}
+		tPoint := PointData{}
+		tRun := PointRunners{}
 
-		Points[k][v.Type] = v
+		tPoint.Point = v.Point
+		tPoint.UDPAddr = net.UDPAddr{}
+		tPoint.Type |= v.Type //   vomni.CfgTypeRelayInterval
+		tPoint.State = v.State
+
+		tRun[v.Type] = v
+
+		Points[k] = PointRun{Point: tPoint, Run: tRun}
 	}
 }
 
@@ -122,7 +129,7 @@ func handleHelloFromPoint(flds []string, chDone chan bool, chErr chan error) {
 
 	if ok {
 		if addr, ok := getUDPAddr(flds, vomni.MsgPrefixLen+vomni.MsgIndexHelloFromPointIP, vomni.MsgPrefixLen+vomni.MsgIndexHelloFromPointPort); ok {
-			for k, v := range item {
+			for k, v := range item.Run {
 
 				_ = k
 

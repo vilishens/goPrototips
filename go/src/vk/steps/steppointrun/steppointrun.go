@@ -30,8 +30,8 @@ func (s *thisStep) stepDo() {
 	// collect all point configurations
 	vpointrun.Runners()
 	// start all points
-	go vpointrun.Run(chGoOn, chDone, chErr) // put the right call here
-
+	go vpointrun.Run(chGoOn, chDone, chErr) 
+	
 	for {
 		select {
 		case err := <-chErr:
