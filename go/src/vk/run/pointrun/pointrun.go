@@ -12,10 +12,11 @@ import (
 )
 
 var Points map[string]PointRun
-var StartCh chan bool
+var ScanDone bool
 
 func init() {
 	Points = make(map[string]PointRun)
+	ScanDone = false
 }
 
 func Runners() {
@@ -40,7 +41,21 @@ func relayIntervalRunners() {
 
 func Run(chGoOn chan bool, chDone chan int, chErr chan error) {
 	chGoOn <- true
+
+	waitStart()
+
+	fmt.Println("Alex Sitkovetsky")
+
 	for {
+		time.Sleep(vomni.DelayStepExec)
+	}
+}
+
+func waitStart() {
+
+	ScanDone = false
+
+	for !ScanDone {
 		time.Sleep(vomni.DelayStepExec)
 	}
 }
@@ -97,7 +112,12 @@ func messageReceived(flds []string, chDelete chan bool, chErr chan error) {
 		fmt.Println("..............................................................")
 		fmt.Printf("........................ RUNNING HELLO! %s\n", flds[vomni.MsgIndexPrefixSender])
 		fmt.Println("..............................................................")
-		go handleHelloFromPoint(flds, locDone, locErr)
+
+		//go handleHelloFromPoint(flds, locDone, locErr)
+
+		signIn(flds)
+		chErr <- nil
+
 	case vomni.MsgCdOutputHelloFromStation:
 		// this is the hello message from another station
 		// just ignore it
@@ -118,12 +138,44 @@ func messageReceived(flds []string, chDelete chan bool, chErr chan error) {
 	chErr <- err
 }
 
+func signIn(flds []string) {
+
+	fmt.Println(".................................................>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>")
+
+	point := flds[vomni.MsgIndexPrefixSender]
+
+	addr, ok := getUDPAddr(flds, vomni.MsgPrefixLen+vomni.MsgIndexHelloFromPointIP, vomni.MsgPrefixLen+vomni.MsgIndexHelloFromPointPort)
+	if ok {
+
+		newP := PointRun{}
+
+		if _, has := Points[point]; !has {
+
+			newP.Point.Point = point
+			newP.Point.UDPAddr = addr
+
+			Points[point] = newP
+		}
+	}
+
+	//	ip := flds[vomni.MsgPrefixLen+vomni.MsgIndexHelloFromPointIP]
+	//	port := flds[vomni.MsgPrefixLen+vomni.MsgIndexHelloFromPointPort]
+
+	fmt.Printf("PEVICHKA! %+v\nPoint %q UDP %+v\n", flds, Points[point].Point.Point, Points[point].Point.UDPAddr)
+
+	intNbr, _ := strconv.Atoi(flds[vomni.MsgIndexPrefixNbr])
+
+	vmsg.MessageMinusByNbr(intNbr)
+}
+
 func FindDisconnectedPoint(addr net.UDPAddr) (point string) {
 	return
 }
 
 func handleHelloFromPoint(flds []string, chDone chan bool, chErr chan error) {
 	point := flds[vomni.MsgIndexPrefixSender]
+
+	fmt.Println("#### SLUCHAJ #####")
 
 	item, ok := Points[point]
 

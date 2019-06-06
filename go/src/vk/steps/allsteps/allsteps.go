@@ -45,9 +45,9 @@ func initSteps() {
 	addStep(&(smsg.ThisStep))        // messages
 	addStep(&(spointcfg.ThisStep))   // point configuration
 	addStep(&(spointready.ThisStep)) // point configuration preparing to run
-	addStep(&(spointrun.ThisStep))   // runpoints
 	addStep(&(sudp.ThisStep))        // starts UDP
 	addStep(&(snetscan.ThisStep))    // scan all IP addresses of the last IPv4 segment
+	addStep(&(spointrun.ThisStep))   // runpoints
 
 	// seit jaieliek rotateMain solis
 	//	addStep(&(schecknet.ThisStep))

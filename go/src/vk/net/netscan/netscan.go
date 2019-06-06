@@ -8,6 +8,7 @@ import (
 	vmsg "vk/messages"
 	vomni "vk/omnibus"
 	vparams "vk/params"
+	vpointrun "vk/run/pointrun"
 	vutils "vk/utils"
 )
 
@@ -23,6 +24,10 @@ func ScanOctet(chGoOn chan bool, chDone chan int, chErr chan error) {
 	case err := <-locErr:
 		chErr <- vutils.ErrFuncLine(err)
 	case <-locDone:
+
+		fmt.Println("Alex Feinsilber")
+
+		vpointrun.ScanDone = true
 		chGoOn <- true
 	}
 }
