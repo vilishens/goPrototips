@@ -145,6 +145,8 @@ func startSigned(chGoOn chan bool, chErr chan error) {
 			}
 		}
 	}
+
+	chGoOn <- true
 }
 
 func scanNet(chGoOn chan bool, chDone chan int, chErr chan error) {
