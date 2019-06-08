@@ -6,17 +6,16 @@ import (
 	"strconv"
 	"time"
 	vmsg "vk/messages"
+	vnetscan "vk/net/netscan"
 	vomni "vk/omnibus"
 	vrunrelayinterval "vk/run/relayinterval"
 	vutils "vk/utils"
 )
 
 var Points map[string]PointRun
-var ScanDone bool
 
 func init() {
 	Points = make(map[string]PointRun)
-	ScanDone = false
 }
 
 func Runners() {
@@ -39,24 +38,87 @@ func relayIntervalRunners() {
 	}
 }
 
-func Run(chGoOn chan bool, chDone chan int, chErr chan error) {
+func RunStart(chGoOn chan bool, chDone chan int, chErr chan error) {
+
+	locGoOn := make(chan bool)
+	locDone := make(chan int)
+	locErr := make(chan error)
+
+	go scanStationNet(locGoOn, locDone, locErr)
+
+	end := false
+	for !end {
+		select {
+		case err := <-locErr:
+			chErr <- err
+			return
+		case done := <-chDone:
+			chDone <- done
+			return
+		case <-locGoOn:
+			fmt.Println("### Kurtenkov ###")
+			end = true
+
+		}
+	}
+
+	fmt.Println("Alex Sitkovetsky ")
 	chGoOn <- true
-
-	waitStart()
-
-	fmt.Println("Alex Sitkovetsky")
 
 	for {
 		time.Sleep(vomni.DelayStepExec)
 	}
 }
 
-func waitStart() {
+func scanStationNet(chGoOn chan bool, chDone chan int, chErr chan error) {
 
-	ScanDone = false
+	locGoOn := make(chan bool)
+	locDone := make(chan int)
+	locErr := make(chan error)
 
-	for !ScanDone {
-		time.Sleep(vomni.DelayStepExec)
+	go scanNet(locGoOn, locDone, locErr)
+
+	for {
+		select {
+		case err := <-locErr:
+			chErr <- err
+			return
+		case done := <-chDone:
+			chDone <- done
+			return
+		case <-locGoOn:
+
+			fmt.Println("Sakvojaž")
+
+			chGoOn <- true
+			return
+		}
+	}
+}
+
+func scanNet(chGoOn chan bool, chDone chan int, chErr chan error) {
+
+	locGoOn := make(chan bool)
+	locDone := make(chan int)
+	locErr := make(chan error)
+
+	go vnetscan.ScanOctet(locGoOn, locDone, locErr)
+
+	for {
+		select {
+		case err := <-locErr:
+			chErr <- err
+			return
+		case done := <-chDone:
+			chDone <- done
+			return
+		case <-locGoOn:
+
+			fmt.Println("Sihotealin")
+
+			chGoOn <- true
+			return
+		}
 	}
 }
 

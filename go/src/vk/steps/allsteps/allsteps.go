@@ -18,7 +18,6 @@ import (
 	//	srunpoints "vk/steps/steprunpoints"
 	smsg "vk/steps/stepmessages"
 	snetinfo "vk/steps/stepnet/stepnetinfo"
-	snetscan "vk/steps/stepnet/stepnetscan"
 	spointcfg "vk/steps/steppointconfig"
 	spointready "vk/steps/steppointready"
 	spointrun "vk/steps/steppointrun"
@@ -46,16 +45,7 @@ func initSteps() {
 	addStep(&(spointcfg.ThisStep))   // point configuration
 	addStep(&(spointready.ThisStep)) // point configuration preparing to run
 	addStep(&(sudp.ThisStep))        // starts UDP
-	addStep(&(snetscan.ThisStep))    // scan all IP addresses of the last IPv4 segment
 	addStep(&(spointrun.ThisStep))   // runpoints
-
-	// seit jaieliek rotateMain solis
-	//	addStep(&(schecknet.ThisStep))
-	//	addStep(&(sweb.ThisStep)) // WEB step must be before point steps
-	//	addStep(&(spointcfg.ThisStep))
-	//	addStep(&(srunpoints.ThisStep))
-	//	addStep(&(sudp.ThisStep))
-	//	addStep(&(spointscan.ThisStep))
 }
 
 func addStep(s vstep.Step) {
