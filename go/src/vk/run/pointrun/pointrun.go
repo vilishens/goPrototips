@@ -13,9 +13,13 @@ import (
 )
 
 var Points map[string]PointRun
+var listSigned map[string]net.UDPAddr
+var startSequence []int
 
 func init() {
 	Points = make(map[string]PointRun)
+	listSigned = make(map[string]net.UDPAddr)
+	startSequence = []int{vomni.CfgTypeRelayInterval}
 }
 
 func Runners() {
@@ -44,10 +48,12 @@ func RunStart(chGoOn chan bool, chDone chan int, chErr chan error) {
 	locDone := make(chan int)
 	locErr := make(chan error)
 
+	listSigned = map[string]net.UDPAddr{}
+
 	go scanStationNet(locGoOn, locDone, locErr)
 
-	end := false
-	for !end {
+	stop := false
+	for {
 		select {
 		case err := <-locErr:
 			chErr <- err
@@ -57,13 +63,21 @@ func RunStart(chGoOn chan bool, chDone chan int, chErr chan error) {
 			return
 		case <-locGoOn:
 			fmt.Println("### Kurtenkov ###")
-			end = true
+			stop = true
 
 		}
+
+		if stop {
+			break
+		}
+
 	}
 
 	fmt.Println("Alex Sitkovetsky ")
 	chGoOn <- true
+
+	fmt.Println("TAGAD starts", len(listSigned))
+	fmt.Printf("TAGAD oooooo %+v\n", listSigned)
 
 	for {
 		time.Sleep(vomni.DelayStepExec)
@@ -78,20 +92,57 @@ func scanStationNet(chGoOn chan bool, chDone chan int, chErr chan error) {
 
 	go scanNet(locGoOn, locDone, locErr)
 
+	stop := false
 	for {
 		select {
 		case err := <-locErr:
 			chErr <- err
 			return
-		case done := <-chDone:
-			chDone <- done
+		case <-chDone:
+			// the done code received
+			stop = true
+		case <-locGoOn:
+			stop = true
+		}
+		if stop {
+			break
+		}
+	}
+
+	go startSigned(locGoOn, locErr)
+
+	stop = false
+	for {
+		select {
+		case err := <-locErr:
+			chErr <- err
 			return
 		case <-locGoOn:
-
-			fmt.Println("Sakvojaž")
-
 			chGoOn <- true
-			return
+			stop = true
+		}
+		if stop {
+			break
+		}
+	}
+}
+
+func startSigned(chGoOn chan bool, chErr chan error) {
+
+	for _, cfgType := range startSequence {
+
+		for point, addr := range listSigned {
+			if pData, ok := Points[point]; !ok {
+				err := fmt.Errorf("Unknown point %q (%v) sent SignIn message", point, addr)
+				vutils.LogErr(err)
+				chErr <- vutils.ErrFuncLine(err)
+				return
+			} else {
+
+				if 0 != (pData.Point.Type & cfgType) {
+					fmt.Println("SEIT JĀsĀk run ", pData.Point.Point)
+				}
+			}
 		}
 	}
 }
@@ -113,9 +164,6 @@ func scanNet(chGoOn chan bool, chDone chan int, chErr chan error) {
 			chDone <- done
 			return
 		case <-locGoOn:
-
-			fmt.Println("Sihotealin")
-
 			chGoOn <- true
 			return
 		}
@@ -162,12 +210,14 @@ func messageReceived(flds []string, chDelete chan bool, chErr chan error) {
 	msgCd := -1
 
 	if msgCd, err = strconv.Atoi(flds[vomni.MsgIndexPrefixCd]); nil != err {
-		vutils.LogErr(fmt.Errorf("The Msg Code error of Msg %v", flds))
+		err = fmt.Errorf("The Msg Code error of Msg %v", flds)
+		vutils.LogErr(err)
 		chErr <- vutils.ErrFuncLine(err)
 	}
 
 	locErr := make(chan error)
 	locDone := make(chan bool)
+	locDelete := make(chan bool)
 
 	switch msgCd {
 	case vomni.MsgCdInputHelloFromPoint:
@@ -177,20 +227,24 @@ func messageReceived(flds []string, chDelete chan bool, chErr chan error) {
 
 		//go handleHelloFromPoint(flds, locDone, locErr)
 
-		signIn(flds)
-		chErr <- nil
+		go addSignIn(flds, locDelete, locErr)
 
 	case vomni.MsgCdOutputHelloFromStation:
 		// this is the hello message from another station
 		// just ignore it
 		chErr <- nil
+		return
 	default:
+		chErr <- vutils.ErrFuncLine(fmt.Errorf("RECEIVED->RECEIVED->RECEIVED unknowm CMD %d", msgCd))
 		fmt.Println("Eduards")
+		return
 	}
 
 	select {
 	case <-locDone:
 		// the done code received
+	case <-locDelete:
+		chDelete <- true
 	case err = <-locErr:
 		// the error received
 		vomni.RootErr <- err
@@ -200,37 +254,26 @@ func messageReceived(flds []string, chDelete chan bool, chErr chan error) {
 	chErr <- err
 }
 
-func signIn(flds []string) {
+func addSignIn(flds []string, chDelete chan bool, chErr chan error) {
 
 	fmt.Println(".................................................>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>")
 
 	point := flds[vomni.MsgIndexPrefixSender]
-
 	addr, ok := getUDPAddr(flds, vomni.MsgPrefixLen+vomni.MsgIndexHelloFromPointIP, vomni.MsgPrefixLen+vomni.MsgIndexHelloFromPointPort)
+
 	if ok {
-
-		newP := PointRun{}
-
-		if _, has := Points[point]; !has {
-
-			newP.Point.Point = point
-			newP.Point.UDPAddr = addr
-
-			Points[point] = newP
-		}
+		listSigned[point] = addr
 	}
 
-	//	ip := flds[vomni.MsgPrefixLen+vomni.MsgIndexHelloFromPointIP]
-	//	port := flds[vomni.MsgPrefixLen+vomni.MsgIndexHelloFromPointPort]
+	chDelete <- true
 
 	fmt.Printf("PEVICHKA! %+v\nPoint %q UDP %+v\n", flds, Points[point].Point.Point, Points[point].Point.UDPAddr)
-
-	intNbr, _ := strconv.Atoi(flds[vomni.MsgIndexPrefixNbr])
-
-	vmsg.MessageMinusByNbr(intNbr)
 }
 
 func FindDisconnectedPoint(addr net.UDPAddr) (point string) {
+
+	fmt.Println("SITAS VEL JAIZVEIDO!!!! ", addr)
+
 	return
 }
 
