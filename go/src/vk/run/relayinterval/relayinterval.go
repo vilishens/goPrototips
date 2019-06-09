@@ -3,9 +3,7 @@ package runrelayinterval
 import (
 	"fmt"
 	"net"
-	"strconv"
 	"time"
-	vmsg "vk/messages"
 	vomni "vk/omnibus"
 	vcfg "vk/pointconfig"
 	vutils "vk/utils"
@@ -17,41 +15,29 @@ func init() {
 	RunningPoints = make(map[string]RunData)
 }
 
-func (d RunData) LetsGo(addr net.UDPAddr, flds []string, chGoOn chan bool, chDone chan int, chErr chan error) {
+func (d RunData) LogStr(info string, str string) {
+	vutils.LogStr(d.Logs[info], str)
+}
+
+func (d RunData) LetsGo(addr net.UDPAddr, chGoOn chan bool, chDone chan int, chErr chan error) {
 
 	fmt.Println("$$$$$$$$$$$$$$$$ FINAL $$$$$$$$$$$$$$$$$", d.UDPAddr)
 
 	d.UDPAddr = addr
 
-	intNbr, err := strconv.Atoi(flds[vomni.MsgIndexPrefixNbr])
-	if nil != err {
-		err = vutils.ErrFuncLine(fmt.Errorf("Point %q received a message (%v) with the wrong Number string %q - %s",
-			d.Point,
-			flds,
-			flds[vomni.MsgIndexPrefixNbr],
-			err.Error()))
-		vutils.LogErr(err)
-	}
+	fmt.Printf("============ UDPAddr %+v\n", d.UDPAddr)
 
-	if nil == err {
-		vmsg.MessageMinusByNbr(intNbr)
+	d.Index = AllIndex{Start: -1, Base: -1, Finish: -1}
 
-		if 0 == (d.State & vomni.PointStateSigned) {
-			fmt.Printf("============ UDPAddr %+v NBR %d\n", d.UDPAddr, intNbr)
+	locGoOn := make(chan bool)
+	locDone := make(chan int)
+	locErr := make(chan error)
+	go d.run(locGoOn, locDone, locErr)
 
-			d.Index = AllIndex{Start: -1, Base: -1, Finish: -1}
+	<-locGoOn
 
-			locGoOn := make(chan bool)
-			locDone := make(chan int)
-			locErr := make(chan error)
-			go d.run(locGoOn, locDone, locErr)
-
-			<-locGoOn
-
-			d.State |= vomni.PointStateActive
-			d.State |= vomni.PointStateSigned
-		}
-	}
+	d.State |= vomni.PointStateActive
+	d.State |= vomni.PointStateSigned
 
 	chGoOn <- true
 }

@@ -25,6 +25,10 @@ func ScanOctet(chGoOn chan bool, chDone chan int, chErr chan error) {
 	case <-locDone:
 		fmt.Println("Alex Feinsilber")
 
+		// need to wait to be sure all scan messages are done
+		// to be able to make all attempts if necessary
+		time.Sleep((vomni.MessageSendRepeatLimit + 1) * vomni.DelaySendMessageRepeat)
+
 		chGoOn <- true
 	}
 }

@@ -145,6 +145,10 @@ func (c *CfgData) Put() (err error) {
 	// hard coded Main log file path
 	Final.LogMainPath = filepath.Join(vomni.RootPath, vomni.LogMainPath)
 
+	// the point log base path
+	if (nil == err) && ("" != c.LogPointPath) {
+		Final.LogPointPath = c.LogPointPath
+	}
 	// rotation of logs
 	if (nil == err) && ("" != c.RotateMainCfg) {
 		Final.RotateMainCfg = c.RotateMainCfg

@@ -24,6 +24,16 @@ func LogNewPoint(d *os.File) (newLog *log.Logger) {
 }
 */
 
+func LogNewPath(path string, prefix string) (newLog *log.Logger, err error) {
+
+	f, err := OpenFile(path, vomni.LogFileFlags, vomni.LogUserPerms)
+	if nil == err {
+		return LogNew(f, prefix), err
+	}
+
+	return nil, err
+}
+
 func LogErr(err error) {
 
 	LogStr(vomni.LogErr, err.Error())

@@ -13,6 +13,7 @@ func init() {
 	Params.StationName = ""
 
 	Params.LogMainPath = ""
+	Params.LogPointPath = ""
 
 	Params.PortUDPInternal = -1
 	Params.PortSSHInternal = -1
@@ -55,6 +56,9 @@ func Put(chDone chan bool, chErr chan error) {
 
 	if "" != data.LogMainPath {
 		Params.LogMainPath = data.LogMainPath
+	}
+	if "" != data.LogPointPath {
+		Params.LogPointPath = data.LogPointPath
 	}
 
 	if 0 <= data.PortUDPInternal {

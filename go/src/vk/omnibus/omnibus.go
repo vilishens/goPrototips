@@ -31,7 +31,17 @@ const (
 	LogPrefixErr   = "!!! ERROR !!! "
 	LogPrefixInfo  = "**** INFO *** "
 	LogPrefixFatal = "xxx FATAL xxx "
+	LogFileErr     = "err"
+	LogFileInfo    = "info"
+	LogFileData    = "data"
 )
+
+type LogCfg struct {
+	File string
+	List []string
+}
+
+var LogPointInfo map[int]LogCfg
 
 const (
 	DoneError    = 0x0000010
@@ -96,9 +106,10 @@ const (
 
 //################################################# Point run state codes ####################
 const (
-	PointStateUnknown = 0x000000
-	PointStateActive  = 0x000001
-	PointStateSigned  = 0x000002
+	PointStateUnknown      = 0x000000
+	PointStateActive       = 0x000001
+	PointStateSigned       = 0x000002
+	PointStateDisconnected = 0x000004
 )
 
 //################################################# Configuration parameters ####################

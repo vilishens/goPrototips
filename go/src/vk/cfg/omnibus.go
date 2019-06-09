@@ -9,6 +9,8 @@ type CfgData struct {
 	RotateRunSecs        string `json:"RotateRunIntervalSecs"`
 	RotateStatusFileName string `json:"RotateStatusFileName"`
 
+	LogPointPath string `json:"LogPointPath"`
+
 	PortUDPInternal string `json:"PortUDPInternal"`
 	PortSSHInternal string `json:"PortSSHInternal"`
 	PortWEBInternal string `json:"PortWEBInternal"`
@@ -38,6 +40,8 @@ type CfgFinalData struct {
 	RotateRunCfg         string
 	RotateRunSecs        int
 	RotateStatusFileName string
+
+	LogPointPath string
 
 	PortUDPInternal int
 	PortSSHInternal int

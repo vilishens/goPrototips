@@ -109,7 +109,7 @@ func scanStationNet(chGoOn chan bool, chDone chan int, chErr chan error) {
 		}
 	}
 
-	go startSigned(locGoOn, locErr)
+	go startSigned(locGoOn, locDone, locErr)
 
 	stop = false
 	for {
@@ -117,6 +117,9 @@ func scanStationNet(chGoOn chan bool, chDone chan int, chErr chan error) {
 		case err := <-locErr:
 			chErr <- err
 			return
+		case <-locDone:
+			// the done code received
+			stop = true
 		case <-locGoOn:
 			chGoOn <- true
 			stop = true
@@ -127,7 +130,7 @@ func scanStationNet(chGoOn chan bool, chDone chan int, chErr chan error) {
 	}
 }
 
-func startSigned(chGoOn chan bool, chErr chan error) {
+func startSigned(chGoOn chan bool, chDone chan int, chErr chan error) {
 
 	for _, cfgType := range startSequence {
 
@@ -140,6 +143,47 @@ func startSigned(chGoOn chan bool, chErr chan error) {
 			} else {
 
 				if 0 != (pData.Point.Type & cfgType) {
+					pt := Points[point]
+
+					ptPt := pt.Point
+
+					logStr := ""
+					start := false
+					if 0 != (ptPt.State & vomni.PointStateDisconnected) {
+						// this point was disconnected
+						logStr = fmt.Sprintf("Point %q signed in AGAIN", point)
+					} else if 0 == (ptPt.State & vomni.PointStateSigned) {
+						logStr = fmt.Sprintf("Point %q signed in", point)
+						start = true
+					} else {
+						logStr = fmt.Sprintf("Point %q signed in used the new UDP address %s:%d", point, addr.IP.String(), addr.Port)
+					}
+					vutils.LogInfo(logStr)
+
+					ptPt.UDPAddr = addr
+					ptPt.State &^= vomni.PointStateDisconnected
+					ptPt.State |= vomni.PointStateSigned
+
+					pt.Point = ptPt
+					Points[point] = pt
+
+					if start {
+						locGoOn := make(chan bool)
+						locDone := make(chan int)
+						locErr := make(chan error)
+						go Points[point].Run[cfgType].LetsGo(addr, locGoOn, locDone, locErr)
+
+						select {
+						case <-locGoOn:
+						case cd := <-locDone:
+							chDone <- cd
+						case err := <-locErr:
+							chErr <- err
+						}
+					}
+
+					Points[point].Run[cfgType].LogStr(vomni.LogFileInfo, logStr)
+
 					fmt.Println("SEIT JĀsĀk run ", pData.Point.Point)
 				}
 			}
@@ -272,51 +316,28 @@ func addSignIn(flds []string, chDelete chan bool, chErr chan error) {
 	fmt.Printf("PEVICHKA! %+v\nPoint %q UDP %+v\n", flds, Points[point].Point.Point, Points[point].Point.UDPAddr)
 }
 
-func FindDisconnectedPoint(addr net.UDPAddr) (point string) {
+func SetDisconnectedPoint(addr net.UDPAddr) (point string) {
 
-	fmt.Println("SITAS VEL JAIZVEIDO!!!! ", addr)
+	for k, v := range Points {
+		if vutils.Equal(addr, v.Point.UDPAddr) && (0 != v.Point.State&vomni.PointStateSigned) {
 
-	return
-}
+			pt := Points[k]
+			ptPt := Points[k].Point
+			ptPt.State |= vomni.PointStateDisconnected
+			pt.Point = ptPt
+			Points[k] = pt
 
-func handleHelloFromPoint(flds []string, chDone chan bool, chErr chan error) {
-	point := flds[vomni.MsgIndexPrefixSender]
+			str := fmt.Sprintf("Point %q lost connection", k)
 
-	fmt.Println("#### SLUCHAJ #####")
-
-	item, ok := Points[point]
-
-	if ok {
-		if addr, ok := getUDPAddr(flds, vomni.MsgPrefixLen+vomni.MsgIndexHelloFromPointIP, vomni.MsgPrefixLen+vomni.MsgIndexHelloFromPointPort); ok {
-			for k, v := range item.Run {
-
-				_ = k
-
-				locGoOn := make(chan bool)
-				locDone := make(chan int)
-				locErr := make(chan error)
-
-				go v.LetsGo(addr, flds, locGoOn, locDone, locErr)
-
-				select {
-				case <-locGoOn:
-					// all done return flag to go on
-					chDone <- true
-				//case rc := <-locDone:
-				case <-locDone:
-					// the done code received
-				case err := <-locErr:
-					chErr <- vutils.ErrFuncLine(fmt.Errorf("Couldn't handle Starter of point %q - %s",
-						flds[vomni.MsgIndexPrefixSender], err.Error()))
-					return
-				}
+			vutils.LogInfo(str)
+			// send disconnection message to all configurations of the point
+			for _, v := range Points[k].Run {
+				v.LogStr(vomni.LogFileInfo, str)
 			}
 		}
-
-	} else {
-		err := vutils.ErrFuncLine(fmt.Errorf("Received message from the unknown point %q", point))
-		vutils.LogErr(err)
 	}
+
+	return
 }
 
 func getUDPAddr(flds []string, ipInd int, portInd int) (addr net.UDPAddr, ok bool) {

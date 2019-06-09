@@ -13,7 +13,8 @@ type Runner interface {
 	//	WebPointData() (v omnibus.WPointData)
 	//	ReceivedWebMsg(msg string, data interface{})
 	//	Finish(done chan bool)
-	LetsGo(addr net.UDPAddr, flds []string, chGoOn chan bool, chDone chan int, chErr chan error)
+	LetsGo(addr net.UDPAddr, chGoOn chan bool, chDone chan int, chErr chan error)
+	LogStr(info string, str string)
 }
 
 type PointRunners map[int]Runner
@@ -26,6 +27,6 @@ type PointRun struct {
 type PointData struct {
 	Point   string
 	UDPAddr net.UDPAddr
-	Type  int
-	State int
+	Type    int
+	State   int
 }

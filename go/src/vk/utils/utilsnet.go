@@ -24,3 +24,23 @@ func InternalIPv4() (ip string, err error) {
 	}
 	return
 }
+
+func Equal(x net.UDPAddr, y net.UDPAddr) (equal bool) {
+
+	ipX := x.IP
+	ipY := y.IP
+
+	equal = true
+
+	if len(ipX) != len(ipY) {
+		return false
+	}
+
+	for k, v := range ipX {
+		if v != ipY[k] {
+			return false
+		}
+	}
+
+	return (x.Port == y.Port)
+}

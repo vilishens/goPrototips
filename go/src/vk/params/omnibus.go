@@ -3,7 +3,8 @@ package params
 type ParamData struct {
 	StationName string
 
-	LogMainPath string
+	LogMainPath  string
+	LogPointPath string
 
 	PortUDPInternal int
 	PortSSHInternal int
