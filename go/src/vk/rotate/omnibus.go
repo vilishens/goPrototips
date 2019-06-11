@@ -5,8 +5,8 @@ import (
 	"os"
 )
 
-type activeLog struct {
-	path    string
-	file    *os.File
-	loggers []*log.Logger
+type ActiveLog struct {
+	Path    string
+	File    *os.File
+	Loggers []*log.Logger
 }

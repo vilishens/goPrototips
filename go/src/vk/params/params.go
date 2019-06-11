@@ -21,8 +21,9 @@ func init() {
 	Params.PortSSHExternal = -1
 	Params.PortWEBExternal = -1
 
-	Params.RotateMainCfg = ""
-	Params.RotatePointCfg = ""
+	Params.RotateMainTmpl = ""
+	Params.RotatePointDataTmpl = ""
+	Params.RotatePointInfoTmpl = ""
 	Params.RotateRunCfg = ""
 	Params.RotateRunSecs = -1
 	Params.RotateStatusFileName = ""
@@ -77,11 +78,14 @@ func Put(chDone chan bool, chErr chan error) {
 		Params.PortWEBExternal = data.PortWEBExternal
 	}
 
-	if "" != data.RotateMainCfg {
-		Params.RotateMainCfg = data.RotateMainCfg
+	if "" != data.RotateMainTmpl {
+		Params.RotateMainTmpl = data.RotateMainTmpl
 	}
-	if "" != data.RotatePointCfg {
-		Params.RotatePointCfg = data.RotatePointCfg
+	if "" != data.RotatePointDataTmpl {
+		Params.RotatePointDataTmpl = data.RotatePointDataTmpl
+	}
+	if "" != data.RotatePointInfoTmpl {
+		Params.RotatePointInfoTmpl = data.RotatePointInfoTmpl
 	}
 	if "" != data.RotateRunCfg {
 		Params.RotateRunCfg = data.RotateRunCfg

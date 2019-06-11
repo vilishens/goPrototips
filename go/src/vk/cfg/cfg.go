@@ -25,8 +25,9 @@ func init() {
 	Final.PortSSHExternal = -1
 	Final.PortWEBExternal = -1
 
-	Final.RotateMainCfg = ""
-	Final.RotatePointCfg = ""
+	Final.RotateMainTmpl = ""
+	Final.RotatePointDataTmpl = ""
+	Final.RotatePointInfoTmpl = ""
 	Final.RotateRunCfg = ""
 	Final.RotateRunSecs = -1
 	Final.RotateStatusFileName = ""
@@ -150,11 +151,14 @@ func (c *CfgData) Put() (err error) {
 		Final.LogPointPath = c.LogPointPath
 	}
 	// rotation of logs
-	if (nil == err) && ("" != c.RotateMainCfg) {
-		Final.RotateMainCfg = c.RotateMainCfg
+	if (nil == err) && ("" != c.RotateMainTmpl) {
+		Final.RotateMainTmpl = c.RotateMainTmpl
 	}
-	if (nil == err) && ("" != c.RotatePointCfg) {
-		Final.RotatePointCfg = c.RotatePointCfg
+	if (nil == err) && ("" != c.RotatePointDataTmpl) {
+		Final.RotatePointDataTmpl = c.RotatePointDataTmpl
+	}
+	if (nil == err) && ("" != c.RotatePointInfoTmpl) {
+		Final.RotatePointInfoTmpl = c.RotatePointInfoTmpl
 	}
 	if (nil == err) && ("" != c.RotateRunCfg) {
 		Final.RotateRunCfg = c.RotateRunCfg

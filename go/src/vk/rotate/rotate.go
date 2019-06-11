@@ -14,16 +14,16 @@ import (
 	vutils "vk/utils"
 )
 
-var allLoggers []activeLog
+var MyLoggers []ActiveLog
 
 func init() {
-	allLoggers = []activeLog{}
+	MyLoggers = []ActiveLog{}
 }
 
 func addMainLogs() {
 
 	mainList := []*log.Logger{vomni.LogData, vomni.LogErr, vomni.LogFatal, vomni.LogInfo}
-	allLoggers = append(allLoggers, activeLog{path: vparams.Params.LogMainPath, file: vomni.LogMainFile, loggers: mainList})
+	MyLoggers = append(MyLoggers, ActiveLog{Path: vparams.Params.LogMainPath, File: vomni.LogMainFile, Loggers: mainList})
 }
 
 func MainStart(chGoOn chan bool, chDone chan int, chErr chan error) {
@@ -34,7 +34,7 @@ func MainStart(chGoOn chan bool, chDone chan int, chErr chan error) {
 	addMainLogs()
 
 	// start the brand new rotation configuration with the Main Log file
-	err := SetRotateCfg(vparams.Params.LogMainPath, vparams.Params.RotateMainCfg, vparams.Params.RotateRunCfg, true)
+	err := SetRotateCfg(vparams.Params.LogMainPath, vparams.Params.RotateMainTmpl, vparams.Params.RotateRunCfg, true)
 	if nil != err {
 		err = vutils.ErrFuncLine(err)
 		vutils.LogStr(vomni.LogErr, err.Error())
@@ -159,18 +159,18 @@ func rotateFiles() (err error) {
 		return
 	}
 
-	for k, v := range allLoggers {
+	for k, v := range MyLoggers {
 		// set the log file to the original path
 		// as it is renamed in case of rotation
-		if allLoggers[k].file, err = LogReassignFile(v.file, v.path); nil != err {
+		if MyLoggers[k].File, err = LogReassignFile(v.File, v.Path); nil != err {
 			err = vutils.ErrFuncLine(fmt.Errorf("Log file reassign failure -- %s", err.Error()))
 			vutils.LogStr(vomni.LogErr, err.Error())
 			return
 		}
 
 		// link loggers to the log file object
-		for _, v1 := range v.loggers {
-			v1.SetOutput(allLoggers[k].file)
+		for _, v1 := range v.Loggers {
+			v1.SetOutput(MyLoggers[k].File)
 		}
 	}
 

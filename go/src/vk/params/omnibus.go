@@ -12,8 +12,9 @@ type ParamData struct {
 	PortSSHExternal int
 	PortWEBExternal int
 
-	RotateMainCfg        string
-	RotatePointCfg       string
+	RotateMainTmpl       string
+	RotatePointDataTmpl  string
+	RotatePointInfoTmpl  string
 	RotateRunCfg         string
 	RotateRunSecs        int
 	RotateStatusFileName string

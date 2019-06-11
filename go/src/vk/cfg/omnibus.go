@@ -3,8 +3,9 @@ package cfg
 type CfgData struct {
 	StationName string `json:"StationName"`
 
-	RotateMainCfg        string `json:"RotateMainCfg"`
-	RotatePointCfg       string `json:"RotatePointCfg"`
+	RotateMainTmpl       string `json:"RotateMainTmpl"`
+	RotatePointDataTmpl  string `json:"RotatePointDataTmpl"`
+	RotatePointInfoTmpl  string `json:"RotatePointInfoTmpl"`
 	RotateRunCfg         string `json:"RotateRunCfg"`
 	RotateRunSecs        string `json:"RotateRunIntervalSecs"`
 	RotateStatusFileName string `json:"RotateStatusFileName"`
@@ -35,8 +36,9 @@ type CfgFinalData struct {
 	StationName string
 	LogMainPath string
 
-	RotateMainCfg        string
-	RotatePointCfg       string
+	RotateMainTmpl       string
+	RotatePointDataTmpl  string
+	RotatePointInfoTmpl  string
 	RotateRunCfg         string
 	RotateRunSecs        int
 	RotateStatusFileName string
