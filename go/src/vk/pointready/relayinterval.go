@@ -1,7 +1,6 @@
 package pointready
 
 import (
-	"log"
 	vomni "vk/omnibus"
 	vpointconfig "vk/pointconfig"
 	vrunrelayinterval "vk/run/relayinterval"
@@ -23,7 +22,7 @@ func relayInterval() {
 				vomni.RootErr <- err
 			}
 
-			d.Logs = make(map[string]*log.Logger)
+			d.Logs = make(vomni.PointLoggers)
 			d.Logs = logs
 
 			vrunrelayinterval.RunningPoints[k] = d

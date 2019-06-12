@@ -1,8 +1,8 @@
 package runrelayinterval
 
 import (
-	"log"
 	"net"
+	vomni "vk/omnibus"
 	vcfg "vk/pointconfig"
 )
 
@@ -16,7 +16,7 @@ type RunData struct {
 	Point    string
 	State    int
 	Type     int
-	Logs     map[string]*log.Logger
+	Logs     vomni.PointLoggers
 	Index    AllIndex
 	UDPAddr  net.UDPAddr
 	ChError  chan error
