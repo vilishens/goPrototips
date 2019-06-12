@@ -20,8 +20,8 @@ func init() {
 	myLoggers = []ActiveLog{}
 }
 
-func PointLogger(logPath string, f *os.File, logs []*log.Logger) {
-	myLoggers = append(myLoggers, ActiveLog{Path: logPath, File: f, Loggers: logs})
+func PointLogger(logFil string, tmplFile string) {
+	//	myLoggers = append(myLoggers, ActiveLog{Path: logPath, File: f, Loggers: logs})
 }
 
 func addMainLogs() {
