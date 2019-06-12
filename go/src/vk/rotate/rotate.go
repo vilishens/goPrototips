@@ -20,7 +20,7 @@ func init() {
 	myLoggers = []ActiveLog{}
 }
 
-func AddLogger(logPath string, f *os.File, logs []*log.Logger) {
+func PointLogger(logPath string, f *os.File, logs []*log.Logger) {
 	myLoggers = append(myLoggers, ActiveLog{Path: logPath, File: f, Loggers: logs})
 }
 
