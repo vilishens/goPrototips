@@ -27,7 +27,7 @@ func AddLogger(logPath string, f *os.File, logs []*log.Logger) {
 func addMainLogs() {
 
 	mainList := []*log.Logger{vomni.LogData, vomni.LogErr, vomni.LogFatal, vomni.LogInfo}
-	AddLogger(vparams.Params.LogMainPath, vomni.LogMainFile, mainList)
+	myLoggers = append(myLoggers, ActiveLog{Path: vparams.Params.LogMainPath, File: vomni.LogMainFile, Loggers: mainList})
 }
 
 func MainStart(chGoOn chan bool, chDone chan int, chErr chan error) {
