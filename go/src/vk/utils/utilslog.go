@@ -14,7 +14,7 @@ func LogStr(d *log.Logger, str string) {
 
 // Logger with a prefix -- <PREFIX> <SEPARATOR> <DATE+TIME>
 func LogNew(d *os.File, prefix string) (newLog *log.Logger) {
-	return log.New(d, prefix+vomni.UDPMessageSeparator+" ", vomni.LogLoggerFlags)
+	return log.New(d, prefix+" "+vomni.UDPMessageSeparator+" ", vomni.LogLoggerFlags)
 }
 
 /*

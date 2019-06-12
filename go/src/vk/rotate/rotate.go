@@ -14,16 +14,20 @@ import (
 	vutils "vk/utils"
 )
 
-var MyLoggers []ActiveLog
+var myLoggers []ActiveLog
 
 func init() {
-	MyLoggers = []ActiveLog{}
+	myLoggers = []ActiveLog{}
+}
+
+func AddLogger(logPath string, f *os.File, logs []*log.Logger) {
+	myLoggers = append(myLoggers, ActiveLog{Path: logPath, File: f, Loggers: logs})
 }
 
 func addMainLogs() {
 
 	mainList := []*log.Logger{vomni.LogData, vomni.LogErr, vomni.LogFatal, vomni.LogInfo}
-	MyLoggers = append(MyLoggers, ActiveLog{Path: vparams.Params.LogMainPath, File: vomni.LogMainFile, Loggers: mainList})
+	AddLogger(vparams.Params.LogMainPath, vomni.LogMainFile, mainList)
 }
 
 func MainStart(chGoOn chan bool, chDone chan int, chErr chan error) {
@@ -63,7 +67,6 @@ func MainStart(chGoOn chan bool, chDone chan int, chErr chan error) {
 func SetRotateCfg(file2Rotate string, cfgTmpl2Use string, cfg2RunFile string, newRotation bool) (err error) {
 
 	usr := new(user.User)
-
 	/*
 	 * find the current user data (user name and user group)
 	 * to create this particular rotation configuration
@@ -159,10 +162,10 @@ func rotateFiles() (err error) {
 		return
 	}
 
-	for k, v := range MyLoggers {
+	for k, v := range myLoggers {
 		// set the log file to the original path
 		// as it is renamed in case of rotation
-		if MyLoggers[k].File, err = LogReassignFile(v.File, v.Path); nil != err {
+		if myLoggers[k].File, err = LogReassignFile(v.File, v.Path); nil != err {
 			err = vutils.ErrFuncLine(fmt.Errorf("Log file reassign failure -- %s", err.Error()))
 			vutils.LogStr(vomni.LogErr, err.Error())
 			return
@@ -170,7 +173,7 @@ func rotateFiles() (err error) {
 
 		// link loggers to the log file object
 		for _, v1 := range v.Loggers {
-			v1.SetOutput(MyLoggers[k].File)
+			v1.SetOutput(myLoggers[k].File)
 		}
 	}
 

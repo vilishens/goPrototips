@@ -27,10 +27,10 @@ const (
 	LogUserPerms   = os.FileMode(0666)
 	LogMainPath    = "../log/main/logMain.log"
 	LogLoggerFlags = log.LstdFlags | log.LUTC
-	LogPrefixData  = "==== DATA === "
-	LogPrefixErr   = "!!! ERROR !!! "
-	LogPrefixInfo  = "**** INFO *** "
-	LogPrefixFatal = "xxx FATAL xxx "
+	LogPrefixData  = "==== DATA ==="
+	LogPrefixErr   = "!!! ERROR !!!"
+	LogPrefixInfo  = "**** INFO ***"
+	LogPrefixFatal = "xxx FATAL xxx"
 	LogFileErr     = "err"
 	LogFileInfo    = "info"
 	LogFileData    = "data"

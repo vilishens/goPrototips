@@ -38,8 +38,8 @@ func initSteps() {
 	addStep(&(sstart.ThisStep))      // the very first routines: CLI flags, ...
 	addStep(&(scfg.ThisStep))        // application configuration
 	addStep(&(sparams.ThisStep))     // prepare application configuration as parameters
-	addStep(&(srotatemain.ThisStep)) // set rotation of the main (application) log file
 	addStep(&(snetinfo.ThisStep))    // get and check frequently net info, send email about it state if necessary
+	addStep(&(srotatemain.ThisStep)) // set rotation of the main (application) log file
 	addStep(&(sweb.ThisStep))        // start WEB server
 	addStep(&(smsg.ThisStep))        // messages
 	addStep(&(spointcfg.ThisStep))   // point configuration
