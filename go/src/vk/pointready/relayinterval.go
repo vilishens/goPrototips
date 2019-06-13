@@ -17,13 +17,16 @@ func relayInterval() {
 			d.Cfg = v.Cfg.RelInterv
 			d.CfgSaved = v.Cfg.RelInterv
 
+			//logs, err := pointLoggers(d.Point, d.Type)
+			// handle all loggers of the point
 			logs, err := pointLoggers(d.Point, d.Type)
+
 			if nil != err {
 				vomni.RootErr <- err
 			}
 
-			d.Logs = make(vomni.PointLoggers)
-			d.Logs = logs
+			d.Logs = make(map[int]vomni.PointLog)
+			d.Logs[d.Type] = logs
 
 			vrunrelayinterval.RunningPoints[k] = d
 		}

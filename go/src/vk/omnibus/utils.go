@@ -13,9 +13,9 @@ func init() {
 	AllMessages[MsgCdOutputHelloFromStation] = MessageData{FieldCount: MsgPrefixLen + MsgHelloFromStationLen}
 	AllMessages[MsgCdInputHelloFromPoint] = MessageData{FieldCount: MsgPrefixLen + MsgHelloFromPointLen}
 
-	LogPointInfo = make(map[int]LogCfg)
+	//	LogPointInfo = make(map[int]LogCfg)
 
-	LogPointInfo[CfgTypeRelayInterval] = LogCfg{File: "relay-interval", List: []string{LogFileInfo}}
+	//	LogPointInfo[CfgTypeRelayInterval] = LogCfg{File: "relay-interval", List: []string{LogFileInfo}}
 }
 
 func AddStepInList(step string) {

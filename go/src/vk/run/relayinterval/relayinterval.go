@@ -15,8 +15,18 @@ func init() {
 	RunningPoints = make(map[string]RunData)
 }
 
-func (d RunData) LogStr(info string, str string) {
-	vutils.LogStr(d.Logs[info], str)
+func (d RunData) LogStr(infoCd int, str string) {
+
+	for k, v := range d.Logs {
+		if 0 != (k & infoCd) {
+			// this logger has the appropriate logger in its logger list
+			for k1, v1 := range v.Loggers {
+				if k1 == infoCd {
+					vutils.LogStr(v1.Logger, str)
+				}
+			}
+		}
+	}
 }
 
 func (d RunData) LetsGo(addr net.UDPAddr, chGoOn chan bool, chDone chan int, chErr chan error) {

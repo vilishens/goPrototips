@@ -14,7 +14,7 @@ type Runner interface {
 	//	ReceivedWebMsg(msg string, data interface{})
 	//	Finish(done chan bool)
 	LetsGo(addr net.UDPAddr, chGoOn chan bool, chDone chan int, chErr chan error)
-	LogStr(info string, str string)
+	LogStr(info int, str string)
 }
 
 type PointRunners map[int]Runner

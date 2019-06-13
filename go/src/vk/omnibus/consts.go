@@ -36,10 +36,10 @@ const (
 	LogFileData    = 0x00004
 )
 
-type LogCfg struct {
-	File string
-	List []string
-}
+//type LogCfg struct {
+//	File string
+//	List []string
+//}
 
 var LogPointInfo map[int]LogCfg
 
