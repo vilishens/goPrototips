@@ -4,13 +4,18 @@ import (
 	"log"
 )
 
-type PointLogger struct {
+type PointLog struct {
 	LogFile string
 	LogTmpl string
-	LogPrefix string
-	Logger  *log.Logger
+	Loggers map[int]PointLogger
 }
 
-type PointLogs map[string]PointLogger
+type PointLogger struct {
+	LogPrefix string
+	Logger    *log.Logger
+}
 
-type 
+type LogCfg struct {
+	File string
+	List []string
+}

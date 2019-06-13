@@ -16,7 +16,7 @@ type RunData struct {
 	Point    string
 	State    int
 	Type     int
-	Logs     vomni.PointLoggers
+	Logs     map[int]vomni.PointLog
 	Index    AllIndex
 	UDPAddr  net.UDPAddr
 	ChError  chan error

@@ -31,9 +31,9 @@ const (
 	LogPrefixErr   = "!!! ERROR !!!"
 	LogPrefixInfo  = "**** INFO ***"
 	LogPrefixFatal = "xxx FATAL xxx"
-	LogFileErr     = "err"
-	LogFileInfo    = "info"
-	LogFileData    = "data"
+	LogFileErr     = 0x00001
+	LogFileInfo    = 0x00002
+	LogFileData    = 0x00004
 )
 
 type LogCfg struct {
@@ -104,7 +104,9 @@ const (
 	LogRotateStatusFile = "logStatus.status"
 )
 
+//############################################################################################
 //################################################# Point run state codes ####################
+//############################################################################################
 const (
 	PointStateUnknown      = 0x000000
 	PointStateActive       = 0x000001
