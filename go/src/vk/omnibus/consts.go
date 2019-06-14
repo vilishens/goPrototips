@@ -6,42 +6,31 @@ import (
 	"time"
 )
 
-var stepList map[string]bool
-
-var RootErr = make(chan error)
-var RootDone = make(chan int)
-var StepErr = make(chan error)
-
-var (
-	RootPath    string
-	LogMainFile *os.File
-	LogData     *log.Logger
-	LogErr      *log.Logger
-	LogFatal    *log.Logger
-	LogInfo     *log.Logger
-)
-
 // constants for log
 const (
-	LogFileFlags   = os.O_RDWR | os.O_CREATE | os.O_APPEND
-	LogUserPerms   = os.FileMode(0666)
-	LogMainPath    = "../log/main/logMain.log"
-	LogLoggerFlags = log.LstdFlags | log.LUTC
-	LogPrefixData  = "==== DATA ==="
-	LogPrefixErr   = "!!! ERROR !!!"
-	LogPrefixInfo  = "**** INFO ***"
-	LogPrefixFatal = "xxx FATAL xxx"
-	LogFileErr     = 0x00001
-	LogFileInfo    = 0x00002
-	LogFileData    = 0x00004
+	LogFileFlags       = os.O_RDWR | os.O_CREATE | os.O_APPEND
+	LogUserPerms       = os.FileMode(0666)
+	LogMainPath        = "../log/main/logMain.log"
+	LogLoggerFlags     = log.LstdFlags | log.LUTC
+	LogPrefixData      = "==== DATA ==="
+	LogPrefixErr       = "!!! ERROR !!!"
+	LogPrefixInfo      = "**** INFO ***"
+	LogPrefixFatal     = "xxx FATAL xxx"
+	LogFileErr         = 0x00001
+	LogFileInfo        = 0x00002
+	LogFileData        = 0x00004
+	LogFileEndErr      = "err"
+	LogFileEndInfo     = "info"
+	LogFileEndData     = "data"
+	LogPointPrefixData = "data"
+	LogPointPrefixErr  = "err"
+	LogPointPrefixInfo = "info"
 )
 
 //type LogCfg struct {
 //	File string
 //	List []string
 //}
-
-var LogPointInfo map[int]LogCfg
 
 const (
 	DoneError    = 0x0000010

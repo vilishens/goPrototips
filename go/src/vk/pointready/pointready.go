@@ -1,9 +1,7 @@
 package pointready
 
 import (
-	"fmt"
 	vomni "vk/omnibus"
-	vutils "vk/utils"
 )
 
 func Prepare(chGoOn chan bool, chDone chan int, chErr chan error) {
@@ -17,12 +15,6 @@ func Prepare(chGoOn chan bool, chDone chan int, chErr chan error) {
 }
 
 func pointLoggers(point string, pType int) (loggers vomni.PointLog, err error) {
-
-	switch pType {
-	default:
-		err = vutils.ErrFuncLine(fmt.Errorf("Can't handle point type %d loggers", pType))
-		return
-	}
 	/*
 
 		loggers = make(map[int]*log.Logger)
