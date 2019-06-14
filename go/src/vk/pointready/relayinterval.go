@@ -32,7 +32,7 @@ func relayInterval() {
 
 			_ = logs
 			d.Logs = make(map[int]vomni.PointLog)
-			//d.Logs[d.Type] = logs
+			d.Logs = logs
 
 			vrunrelayinterval.RunningPoints[k] = d
 		}
@@ -43,18 +43,24 @@ func relayIntervalPointLoggers(point string, cd int) (logs map[int]vomni.PointLo
 
 	logKey := vomni.LogFileErr | vomni.LogFileInfo
 
+	tmpLog := make(map[int]vomni.PointLogger)
 	i := 0
-	j := 1
+	j := 0
 	ending := ""
-	for i = 0; i < logKey; i++ {
+	for i = 0; j < logKey; i++ {
 
-		j <<= 1
-
+		if 0 == j {
+			j = 1
+		} else {
+			j <<= 1
+		}
 		fmt.Printf("KEY %2d %2d I %2d J%2d\n", logKey, logKey&j, i, j)
 
 		if 0 == logKey&j {
 			continue
 		}
+
+		tmpLog[j] = vomni.PointLogger{LogPrefix: vomni.PointLogData[j].LogPrefix, Logger: nil}
 
 		if "" != ending {
 			ending += "-"
@@ -67,10 +73,14 @@ func relayIntervalPointLoggers(point string, cd int) (logs map[int]vomni.PointLo
 	// rotate configuration template
 	tmplF := vutils.FileAbsPath(vparams.Params.RotatePointInfoTmpl, "")
 	// rotate log file
-	logF := vutils.FileAbsPath(filepath.Join(vparams.Params.LogPointPath, point), vomni.PointCfgData[cd].CfgStr+vomni.LogFileEndInfo)
+	logF := vutils.FileAbsPath(filepath.Join(vparams.Params.LogPointPath, point), vomni.PointCfgData[cd].CfgStr+"."+ending)
 
 	fmt.Printf("%q ***** Folderītis  %q\n", point, tmplF)
 	fmt.Printf("%q ***** File        %q\n", point, logF)
+
+	logs = make(map[int]vomni.PointLog)
+
+	logs[logKey] = vomni.PointLog{LogFile: logF, LogTmpl: tmplF, Loggers: tmpLog}
 
 	return
 }
