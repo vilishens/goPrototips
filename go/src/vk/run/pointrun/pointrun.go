@@ -182,7 +182,7 @@ func startSigned(chGoOn chan bool, chDone chan int, chErr chan error) {
 						}
 					}
 
-					Points[point].Run[cfgType].LogStr(vomni.LogFileInfo, logStr)
+					Points[point].Run[cfgType].LogStr(vomni.LogFileCdInfo, logStr)
 
 					fmt.Println("SEIT JĀsĀk run ", pData.Point.Point)
 				}
@@ -332,7 +332,7 @@ func SetDisconnectedPoint(addr net.UDPAddr) (point string) {
 			vutils.LogInfo(str)
 			// send disconnection message to all configurations of the point
 			for _, v := range Points[k].Run {
-				v.LogStr(vomni.LogFileInfo, str)
+				v.LogStr(vomni.LogFileCdInfo, str)
 			}
 		}
 	}

@@ -225,3 +225,71 @@ func runRotateCmd() (err error) {
 
 	return
 }
+
+func RotatePointFilePath(key int, path string, point string, cfg int) (fPath string) {
+
+	j := 0
+	ending := ""
+	for j <= key {
+
+		if 0 == j {
+			j = 1
+		} else {
+			j <<= 1
+		}
+
+		if 0 == key&j {
+			continue
+		}
+
+		ending += "." + vomni.PointLogData[j].FileEnd
+	}
+
+	// rotate log data file
+	return vutils.FileAbsPath(filepath.Join(path, point), vomni.PointCfgData[cfg].CfgStr+ending)
+
+}
+
+func RotatePointLoggers(key int) (loggers map[int]vomni.PointLogger) {
+
+	j := 0
+	loggers = make(map[int]vomni.PointLogger)
+	for j <= key {
+		if 0 == j {
+			j = 1
+		} else {
+			j <<= 1
+		}
+
+		if 0 == key&j {
+			continue
+		}
+
+		loggers[j] = vomni.PointLogger{LogPrefix: vomni.PointLogData[j].LogPrefix, Logger: nil}
+	}
+
+	return
+}
+
+/*
+loggers := vrotate.RotateLoggers(key)
+
+	tmpLog := make(map[int])
+	i := 0
+	j := 0
+	ending := ""
+	for i = 0; j < logKey; i++ {
+
+		if 0 == j {
+			j = 1
+		} else {
+			j <<= 1
+		}
+		fmt.Printf("KEY %2d %2d I %2d J%2d\n", logKey, logKey&j, i, j)
+
+		if 0 == logKey&j {
+			continue
+		}
+
+		tmpLog[j] = vomni.PointLogger{LogPrefix: vomni.PointLogData[j].LogPrefix, Logger: nil}
+*/

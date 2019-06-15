@@ -16,9 +16,9 @@ const (
 	LogPrefixErr       = "!!! ERROR !!!"
 	LogPrefixInfo      = "**** INFO ***"
 	LogPrefixFatal     = "xxx FATAL xxx"
-	LogFileErr         = 0x00004
-	LogFileInfo        = 0x00001
-	LogFileData        = 0x00002
+	LogFileCdErr       = 0x00004
+	LogFileCdInfo      = 0x00001
+	LogFileCdData      = 0x00002
 	LogFileEndErr      = "err"
 	LogFileEndInfo     = "info"
 	LogFileEndData     = "data"

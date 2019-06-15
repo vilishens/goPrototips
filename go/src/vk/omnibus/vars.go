@@ -29,7 +29,7 @@ func init() {
 	PointCfgData[CfgTypeRelayInterval] = CfgPointData{CfgCd: CfgTypeRelayInterval, CfgStr: "relay-interval"}
 
 	PointLogData = make(map[int]LogPointData)
-	PointLogData[LogFileData] = LogPointData{LogCd: LogFileData, FileEnd: LogFileEndData, LogPrefix: LogPointPrefixData}
-	PointLogData[LogFileErr] = LogPointData{LogCd: LogFileErr, FileEnd: LogFileEndErr, LogPrefix: LogPointPrefixErr}
-	PointLogData[LogFileInfo] = LogPointData{LogCd: LogFileInfo, FileEnd: LogFileEndInfo, LogPrefix: LogPointPrefixInfo}
+	PointLogData[LogFileCdData] = LogPointData{LogCd: LogFileCdData, FileEnd: LogFileEndData, LogPrefix: LogPointPrefixData}
+	PointLogData[LogFileCdErr] = LogPointData{LogCd: LogFileCdErr, FileEnd: LogFileEndErr, LogPrefix: LogPointPrefixErr}
+	PointLogData[LogFileCdInfo] = LogPointData{LogCd: LogFileCdInfo, FileEnd: LogFileEndInfo, LogPrefix: LogPointPrefixInfo}
 }
