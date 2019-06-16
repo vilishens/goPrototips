@@ -64,6 +64,9 @@ func MainStart(chGoOn chan bool, chDone chan int, chErr chan error) {
 	}
 }
 
+// 	file2Rotate - file for log records
+//	cfgTmpl2Use - the rotate configuration template file
+//  cfg2RunFile - the rotation configuration data file (all separate logger configuration in one place - set in app.cfg)
 func SetRotateCfg(file2Rotate string, cfgTmpl2Use string, cfg2RunFile string, newRotation bool) (err error) {
 
 	usr := new(user.User)
@@ -271,25 +274,21 @@ func RotatePointLoggers(key int) (loggers map[int]vomni.PointLogger) {
 	return
 }
 
-/*
-loggers := vrotate.RotateLoggers(key)
+func StartPointLoggers(point string, logs []vomni.PointLog) (err error) {
 
-	tmpLog := make(map[int])
-	i := 0
-	j := 0
-	ending := ""
-	for i = 0; j < logKey; i++ {
-
-		if 0 == j {
-			j = 1
-		} else {
-			j <<= 1
-		}
-		fmt.Printf("KEY %2d %2d I %2d J%2d\n", logKey, logKey&j, i, j)
-
-		if 0 == logKey&j {
-			continue
+	for _, v := range logs {
+		// add the log data file to the running configuration file
+		if err = SetRotateCfg(v.LogFile, v.LogTmpl, vparams.Params.RotateRunCfg, false); nil != err {
+			return vutils.ErrFuncLine(err)
 		}
 
-		tmpLog[j] = vomni.PointLogger{LogPrefix: vomni.PointLogData[j].LogPrefix, Logger: nil}
-*/
+		list := []*log.Logger{}
+		for _, v1 := range v.Loggers {
+			list = append(list, v1.Logger)
+		}
+
+		myLoggers = append(myLoggers, ActiveLog{Path: v.LogFile, File: v.LogFilePtr, Loggers: list})
+	}
+
+	return
+}

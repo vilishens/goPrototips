@@ -15,6 +15,7 @@ type Runner interface {
 	//	Finish(done chan bool)
 	LetsGo(addr net.UDPAddr, chGoOn chan bool, chDone chan int, chErr chan error)
 	LogStr(info int, str string)
+	StartRotate() (err error)
 }
 
 type PointRunners map[int]Runner

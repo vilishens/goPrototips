@@ -2,13 +2,15 @@ package omnibus
 
 import (
 	"log"
+	"os"
 )
 
 // the point log data file configuration
 type PointLog struct {
-	LogFile string              // the full path of the data file
-	LogTmpl string              // the full path of the rotate configuration template file
-	Loggers map[int]PointLogger // all loggers linked to the data file with the key of the logger bitwise code
+	LogFile    string              // the full path of the data file
+	LogTmpl    string              // the full path of the rotate configuration template file
+	LogFilePtr *os.File            // the pointer to the opened data file
+	Loggers    map[int]PointLogger // all loggers linked to the data file with the key of the logger bitwise code
 }
 
 // the logger configuration
