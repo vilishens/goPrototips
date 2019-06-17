@@ -20,7 +20,7 @@
 
 //***** Settings - unified UDP messages - START
 #define MSG_INPUT_HELLO_FROM_STATION        0x00000001  // input    <station name><msgCd><msgNbr><station UTC seconds><station offset seconds><stationIP><stationPort>
-#define MSG_INPUT_SET_RELAY_GPIO            0x00000004  // input    <station name><msgCd><msgNbr><Gpio><set value>
+#define MSG_INPUT_SET_GPIO                  0x00000004  // input    <station name><msgCd><msgNbr><Gpio><set value>
 #define MSG_RESPONSE_HELLO_FROM_POINT       0x00000002  // response <point name><msgCd><pointIP><pointPort>
 #define MSG_RESPONSE_SUCCESS                0x00000008  // response <point name><msgSuccessCd><msgNbr> 
 #define MSG_RESPONSE_FAILED                 0x00000010  // response <point name><msgFailureCd><msgNbr>
@@ -64,7 +64,7 @@ int incommingMsg();
 int outcommingMsg(char *data);
 int sendResponse();
 int msgHelloFromStation(char *msg, int ind);
-int msgSetRelayGpio(char *msg, int ind);
+int msgSetGpio(char *msg, int ind);
 int setWifiClient();
 char *getMsgField(char *msg, int nbr);
 int stationIndex(const char *station);
@@ -297,7 +297,7 @@ int msgHelloFromStation(char *msg, int ind) {
     return rc;    
 }
 
-int msgSetRelayGpio(char *msg, int ind) {
+int msgSetGpio(char *msg, int ind) {
 
     char *str4 = getMsgField(msg,  4);
     char *str5 = getMsgField(msg, -5);
@@ -354,8 +354,8 @@ int handleInput(char *msg, int ind) {
 
             return rc;
             break;
-        case MSG_INPUT_SET_RELAY_GPIO:
-            rc = msgSetRelayGpio(msg, ind);
+        case MSG_INPUT_SET_GPIO:
+            rc = msgSetGpio(msg, ind);
             break;    
         default:
             Serial.print("ERROR --- Input message \"");
@@ -421,7 +421,7 @@ void msgInputListInit() {
     msgInputList[0].msgCd      = MSG_INPUT_HELLO_FROM_STATION;  
     msgInputList[0].fieldCount = 5; 
 
-    msgInputList[1].msgCd      = MSG_INPUT_SET_RELAY_GPIO;
+    msgInputList[1].msgCd      = MSG_INPUT_SET_GPIO;
     msgInputList[1].fieldCount = 4;
     
     msgInputList[MSG_INPUT_LIST_LAST_INDEX].msgCd      = -7;  

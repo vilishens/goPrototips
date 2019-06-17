@@ -250,3 +250,8 @@ func CheckMessageCode(msg string, cd int) (theSame bool, err error) {
 func MessageMinusByNbr(nbr int) {
 	MessageList2Send.MinusNbr(nbr)
 }
+
+func MsgSetGpio(gpio int, set int) {
+
+	
+}
