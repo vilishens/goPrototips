@@ -33,11 +33,12 @@ const (
 //}
 
 const (
-	DoneError    = 0x0000010
-	DoneReboot   = 0x0000020
-	DoneRestart  = 0x0000040
-	DoneStop     = 0x0000080
-	DonePostStop = 0x0000100
+	DoneError        = 0x0000010
+	DoneReboot       = 0x0000020
+	DoneRestart      = 0x0000040
+	DoneStop         = 0x0000080
+	DonePostStop     = 0x0000100
+	DoneDisconnected = 0x0000200
 )
 
 const (
@@ -101,6 +102,8 @@ const (
 	PointStateActive       = 0x000001
 	PointStateSigned       = 0x000002
 	PointStateDisconnected = 0x000004
+
+	PointNonActiveIndex = -1
 )
 
 //################################################# Configuration parameters ####################
@@ -116,10 +119,10 @@ const (
 
 //################################################# Message ####################
 
-var MessageNumber int // unique message number (starting from the application launch)
+//var MessageNumber int // unique message number (starting from the application launch)
 
-var AllMessages map[int]MessageData
+//var AllMessages map[int]MessageData
 
-type MessageData struct {
-	FieldCount int
-}
+//type MessageData struct {
+//	FieldCount int
+//}

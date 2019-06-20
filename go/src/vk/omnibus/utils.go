@@ -13,6 +13,11 @@ func init() {
 	AllMessages[MsgCdOutputHelloFromStation] = MessageData{FieldCount: MsgPrefixLen + MsgHelloFromStationLen}
 	AllMessages[MsgCdInputHelloFromPoint] = MessageData{FieldCount: MsgPrefixLen + MsgHelloFromPointLen}
 
+	// vk-xxx
+	AllMessages[MsgCdOutputGpioSet] = MessageData{FieldCount: MsgPrefixLen + MsgSetGpioLen}
+
+	AllMessages[MsgCdInputSuccess] = MessageData{FieldCount: MsgPrefixLen}
+
 	//	LogPointInfo = make(map[int]LogCfg)
 
 	//	LogPointInfo[CfgTypeRelayInterval] = LogCfg{File: "relay-interval", List: []string{LogFileInfo}}

@@ -1,9 +1,10 @@
 package omnibus
 
 const (
-	MsgCdOutputHelloFromStation = 0x00000001 // Output <station name><msgCd><msgNbr><station UTC seconds><station time offset><stationIP><stationPort>
-	MsgCdInputHelloFromPoint    = 0x00000002 // Input  <point name><msgCd><msgNbr><pointIP><pointPort>
-	MsgCdOutputSetGpio          = 0x00000004 // Output <station name><msgCd><msgNbr><Gpio><set value>
+	MsgCdOutputHelloFromStation = 0x00000001 // Output <station name><MsgCdOutputHelloFromStation><msgNbr><station UTC seconds><station time offset><stationIP><stationPort>
+	MsgCdInputHelloFromPoint    = 0x00000002 // Input  <point name><MsgCdInputHelloFromPoint><msgNbr><pointIP><pointPort>
+	MsgCdOutputGpioSet          = 0x00000004 // Output <station name><MsgCdOutputGpioSet><msgNbr><Gpio><set value>
+	MsgCdInputSuccess           = 0x00000008 // Input  <point name><MsgCdInputSuccess><msgNbr>
 )
 
 const (

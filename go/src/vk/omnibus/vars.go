@@ -23,6 +23,12 @@ var (
 var PointLogData map[int]LogPointData
 var PointCfgData map[int]CfgPointData
 
+var MessageNumber int // unique message number (starting from the application launch)
+
+var AllMessages map[int]MessageData
+
+
+
 func init() {
 
 	PointCfgData = make(map[int]CfgPointData)

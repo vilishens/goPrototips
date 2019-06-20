@@ -49,9 +49,11 @@ func Server(chGoOn chan bool, chDone chan int, chErr chan error) {
 	case cd := <-waitDone:
 		vutils.LogInfo(fmt.Sprintf("UDP finished with Send RC %d", cd))
 	case err := <-sendErr:
+		err = fmt.Errorf("Send Error: %s", err)
 		vutils.LogErr(err)
 		vomni.RootErr <- vutils.ErrFuncLine(err)
 	case err := <-waitErr:
+		fmt.Errorf("Wait Error: %s", err)
 		vutils.LogErr(err)
 		vomni.RootErr <- vutils.ErrFuncLine(err)
 	}
@@ -95,6 +97,9 @@ func sendMessages(done chan int, chErr chan error) {
 
 			// Need to update the station time if it is the repeated message and 'Hello From Station'
 			if err := updateMessageStationTime(i); nil != err {
+
+				fmt.Println("vk-xxx ===================> Veniamin Reshetnikoff")
+
 				chErr <- err
 				return
 			}
@@ -104,10 +109,17 @@ func sendMessages(done chan int, chErr chan error) {
 				vutils.LogInfo(fmt.Sprintf("Deleted message #%d due to the exceeded send repeat limit", vmsg.MessageList2Send[i].MessageNbr))
 
 				// set the point (if it has signed in) as disconnected
+
+				fmt.Println("NO PLACE LIKE ROME", vmsg.MessageList2Send[i].PointDst, " MANGOLDS")
+				fmt.Println("NO PLACE LIKE ROME", vmsg.MessageList2Send[i].PointDst, " MANGOLDS")
+				fmt.Println("NO PLACE LIKE ROME", vmsg.MessageList2Send[i].PointDst, " MANGOLDS")
+				fmt.Println("NO PLACE LIKE ROME", vmsg.MessageList2Send[i].PointDst, " MANGOLDS")
+				fmt.Println("NO PLACE LIKE ROME", vmsg.MessageList2Send[i].PointDst, " MANGOLDS")
+
 				vpointrun.SetDisconnectedPoint(vmsg.MessageList2Send[i].UDPAddr)
 
 				go vmsg.MessageList2Send.MinusIndex(i, chDone)
-				
+
 				<-chDone
 				continue
 			}

@@ -6,6 +6,7 @@ import (
 )
 
 type SendMsg struct {
+	PointDst   string
 	UDPAddr    net.UDPAddr
 	MessageNbr int // if negative, means nothing to send, it must be deleted
 	Repeat     int

@@ -163,7 +163,6 @@ func startSigned(chGoOn chan bool, chDone chan int, chErr chan error) {
 						// the point was signed and not disconnected, to update the address is enough
 						logStr = fmt.Sprintf("Point %q signed in used the new UDP address %s:%d", point, addr.IP.String(), addr.Port)
 					}
-					vutils.LogInfo(logStr)
 
 					ptPt.UDPAddr = addr
 					ptPt.State &^= vomni.PointStateDisconnected
@@ -171,6 +170,13 @@ func startSigned(chGoOn chan bool, chDone chan int, chErr chan error) {
 
 					pt.Point = ptPt
 					Points[point] = pt
+
+					// put messages about signed in into log
+					vutils.LogInfo(logStr)
+					if !start {
+						// rotate files is ready, we can put the message
+						Points[point].Run[cfgType].LogStr(vomni.LogFileCdInfo, logStr)
+					}
 
 					if start {
 						locGoOn := make(chan bool)
@@ -183,6 +189,9 @@ func startSigned(chGoOn chan bool, chDone chan int, chErr chan error) {
 							return
 						}
 
+						// rotate is now ready, let's put the signed in message into log
+						Points[point].Run[cfgType].LogStr(vomni.LogFileCdInfo, logStr)
+
 						go Points[point].Run[cfgType].LetsGo(addr, locGoOn, locDone, locErr)
 
 						select {
@@ -193,8 +202,6 @@ func startSigned(chGoOn chan bool, chDone chan int, chErr chan error) {
 							chErr <- err
 						}
 					}
-
-					Points[point].Run[cfgType].LogStr(vomni.LogFileCdInfo, logStr)
 
 					fmt.Println("SEIT JĀsĀk run ", pData.Point.Point)
 				}
@@ -289,8 +296,15 @@ func messageReceived(flds []string, chDelete chan bool, chErr chan error) {
 
 	case vomni.MsgCdOutputHelloFromStation:
 		// this is the hello message from another station
-		// just ignore it
-		chErr <- nil
+		// just ignore it and send delete it signal
+		chDelete <- true
+		return
+	case vomni.MsgCdInputSuccess:
+		// don't do anything - just send delete it signal
+
+		fmt.Println(flds[vomni.MsgIndexPrefixSender], "@@@@@@@@@@@@@ vk-xxx -------> SUCCESS received")
+
+		chDelete <- true
 		return
 	default:
 		chErr <- vutils.ErrFuncLine(fmt.Errorf("RECEIVED->RECEIVED->RECEIVED unknowm CMD %d", msgCd))
@@ -351,7 +365,8 @@ func SetDisconnectedPoint(addr net.UDPAddr) (point string) {
 			vutils.LogInfo(str)
 			// send disconnection message to all configurations of the point
 			for _, v := range Points[k].Run {
-				v.LogStr(vomni.LogFileCdInfo, str)
+				v.LogStr(vomni.LogFileCdErr, str)
+				v.GetDone(vomni.DoneDisconnected)
 			}
 		}
 	}

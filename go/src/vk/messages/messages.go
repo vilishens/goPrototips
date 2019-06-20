@@ -20,6 +20,61 @@ func init() {
 	vomni.MessageNumber = 0
 }
 
+// GPIO Set
+func QeueuGpioSet(point string, addr net.UDPAddr, gpio int, set int) (msg string) {
+
+	data := dataGpioSet(gpio, set)
+	nbr := -1
+	msg, nbr = dataMsgStr(vomni.MsgCdOutputGpioSet, data)
+
+	msg2SendAdd(point, addr, msg, nbr)
+
+	return
+}
+
+func dataGpioSet(gpio int, set int) (data []string) {
+
+	data = append(data, strconv.Itoa(gpio))
+	data = append(data, strconv.Itoa(set))
+
+	return data
+}
+
+//#######################################################################################
+
+func dataMsgStr(msgCd int, data []string) (msg string, nbr int) {
+
+	vomni.MessageNumberNext()
+	nbr = vomni.MessageNumber
+
+	msg = ""
+	msg += vparams.Params.StationName + vomni.UDPMessageSeparator
+	msg += strconv.Itoa(msgCd) + vomni.UDPMessageSeparator
+	msg += strconv.Itoa(nbr)
+
+	for _, v := range data {
+		msg += vomni.UDPMessageSeparator + v
+	}
+
+	return
+}
+
+func msg2SendAdd(point string, addr net.UDPAddr, msg string, nbr int) {
+
+	d := SendMsg{}
+
+	d.PointDst = point
+	d.UDPAddr = addr
+	d.MessageNbr = nbr
+	d.Msg = msg
+
+	MessageList2Send = append(MessageList2Send, d)
+}
+
+//#######################################################################################
+//#######################################################################################
+//#######################################################################################
+
 func Message2SendPlus(addr net.UDPAddr, msgCd int, data []string) {
 
 	msg := message2SendNew(msgCd, data)
@@ -187,7 +242,7 @@ func msgCode(msg string) (cd int, err error) {
 	}
 
 	if _, has := vomni.AllMessages[cd]; !has {
-		return cd, vutils.ErrFuncLine(fmt.Errorf("Not defined Message CD %#x", cd))
+		return cd, vutils.ErrFuncLine(fmt.Errorf("Not defined Message CD %#x (vk-xxx MSG %q)", cd, msg))
 	}
 
 	return
@@ -253,5 +308,4 @@ func MessageMinusByNbr(nbr int) {
 
 func MsgSetGpio(gpio int, set int) {
 
-	
 }

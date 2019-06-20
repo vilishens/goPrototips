@@ -4,6 +4,7 @@ import (
 	"fmt"
 	"net"
 	"time"
+	vmsg "vk/messages"
 	vomni "vk/omnibus"
 	vcfg "vk/pointconfig"
 	vrotate "vk/rotate"
@@ -35,7 +36,7 @@ func (d RunData) LetsGo(addr net.UDPAddr, chGoOn chan bool, chDone chan int, chE
 
 	fmt.Printf("============ UDPAddr %+v\n", d.UDPAddr)
 
-	d.Index = AllIndex{Start: -1, Base: -1, Finish: -1}
+	d.Index = AllIndex{Start: vomni.PointNonActiveIndex, Base: vomni.PointNonActiveIndex, Finish: vomni.PointNonActiveIndex}
 
 	locGoOn := make(chan bool)
 	locDone := make(chan int)
@@ -50,6 +51,10 @@ func (d RunData) LetsGo(addr net.UDPAddr, chGoOn chan bool, chDone chan int, chE
 	chGoOn <- true
 }
 
+func (d RunData) GetDone(done int) {
+	d.ChDone <- done
+}
+
 func (d RunData) run(chGoOn chan bool, chDone chan int, chErr chan error) {
 
 	fmt.Printf("Point %q Addr %+v Index %+v\n", d.Point, d.UDPAddr, d.Index)
@@ -57,23 +62,42 @@ func (d RunData) run(chGoOn chan bool, chDone chan int, chErr chan error) {
 	chGoOn <- true
 
 	locDone := make(chan int)
+	type stage struct {
+		once  bool
+		index *int
+		cfg   vcfg.RelIntervalArray
+	}
 
-	once := true
-	go d.runArray(d.Cfg.Start, locDone, &d.Index.Start, once)
-	rc := <-locDone
+	allStages := []stage{stage{once: true, index: &d.Index.Start, cfg: d.Cfg.Start},
+		stage{once: false, index: &d.Index.Base, cfg: d.Cfg.Base},
+		stage{once: true, index: &d.Index.Finish, cfg: d.Cfg.Finish}}
 
-	once = false
-	go d.runArray(d.Cfg.Base, locDone, &d.Index.Base, once)
-	rc = <-locDone
+	for _, v := range allStages {
+		go d.runArray(v.cfg, v.index, v.once, locDone)
+		rc := <-locDone
+		if vomni.DoneDisconnected == rc {
+			return
+		}
+	}
 
-	once = true
-	go d.runArray(d.Cfg.Finish, locDone, &d.Index.Finish, once)
-	rc = <-locDone
+	/*
+		once := true
+		go d.runArray(d.Cfg.Start, locDone, &d.Index.Start, once)
+		rc := <-locDone
 
-	_ = rc
+		once = false
+		go d.runArray(d.Cfg.Base, locDone, &d.Index.Base, once)
+		rc = <-locDone
+
+		once = true
+		go d.runArray(d.Cfg.Finish, locDone, &d.Index.Finish, once)
+		rc = <-locDone
+
+		_ = rc
+	*/
 }
 
-func (d RunData) runArray(arr vcfg.RelIntervalArray, chDone chan int, index *int, once bool) {
+func (d RunData) runArray(arr vcfg.RelIntervalArray, index *int, once bool, chDone chan int) {
 
 	if 0 == len(arr) {
 		chDone <- vomni.DoneStop
@@ -83,37 +107,34 @@ func (d RunData) runArray(arr vcfg.RelIntervalArray, chDone chan int, index *int
 	*index = nextIndex(*index, len(arr))
 
 	for {
+		// set the interval for this new state
 		tick := time.NewTicker(arr[*index].Seconds)
+		// put the message in the send queue
+		msg := vmsg.QeueuGpioSet(d.Point, d.UDPAddr, arr[*index].Gpio, arr[*index].State)
 
-		//						t := time.Now()
+		fmt.Println("vk-xxx -------> POINT", d.Point, "Karolina", msg, "ADDR", d.UDPAddr)
 
-		//vk-xxx
-		type dst struct {
-			name string
-			host net.UDPAddr
-		}
+		d.LogStr(vomni.LogFileCdInfo, fmt.Sprintf("Send message: %q", msg))
 
-		pref := dst{name: "BĻITVINGS", host: net.UDPAddr{IP: []byte{192, 168, 7, 15}, Port: 45678}}
-
-		txt := "ZIRGS!!!"
-
-		msg := fmt.Sprintf("DST: %+v, MSG: %q", pref, txt)
-
-		// vk-xxx
-
-		//		dst :=
-		//		fmt.Println(d.Point, "@@@@@@@@@@@@@@@@", t.Format(vomni.TimeFormat1), "*************** INDEX ", *index, "JĀSŪTA CMD PIRMS INTERVALA", arr[*index].Seconds.Seconds())
-
-		d.LogStr(vomni.LogFileCdInfo, msg)
+		done := 0
 
 		select {
+		case done = <-d.ChDone:
+
+			fmt.Println("###\n###\n###\n", d.Point, "*** THREE MAIN SECTIONS\n###\n###\n###")
+
 		case <-tick.C:
 			*index = nextIndex(*index, len(arr))
 
 			if once && 0 == *index {
-				chDone <- vomni.DoneStop
-				return
+				done = vomni.DoneStop
 			}
+		}
+
+		if 0 < done {
+			*index = vomni.PointNonActiveIndex
+			chDone <- done
+			return
 		}
 
 	}
