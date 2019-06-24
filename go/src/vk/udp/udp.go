@@ -108,14 +108,17 @@ func sendMessages(done chan int, chErr chan error) {
 
 				vutils.LogInfo(fmt.Sprintf("Deleted message #%d due to the exceeded send repeat limit", vmsg.MessageList2Send[i].MessageNbr))
 
+				strIP := vmsg.MessageList2Send[i].UDPAddr.IP.String()
+				if strIP == "192.168.0.193" || strIP == "192.168.0.161" {
+
+					fmt.Printf("vk-xxx DELETE IT =======> MSG %s --->\n", vmsg.MessageList2Send[i].Msg)
+					fmt.Printf("vk-xxx DELETE IT =======> MSG %s --->\n", vmsg.MessageList2Send[i].Msg)
+					fmt.Printf("vk-xxx DELETE IT =======> MSG %s --->\n", vmsg.MessageList2Send[i].Msg)
+					fmt.Printf("vk-xxx DELETE IT =======> MSG %s --->\n", vmsg.MessageList2Send[i].Msg)
+					fmt.Printf("vk-xxx DELETE IT =======> MSG %s --->\n", vmsg.MessageList2Send[i].Msg)
+				}
+
 				// set the point (if it has signed in) as disconnected
-
-				fmt.Println("NO PLACE LIKE ROME", vmsg.MessageList2Send[i].PointDst, " MANGOLDS")
-				fmt.Println("NO PLACE LIKE ROME", vmsg.MessageList2Send[i].PointDst, " MANGOLDS")
-				fmt.Println("NO PLACE LIKE ROME", vmsg.MessageList2Send[i].PointDst, " MANGOLDS")
-				fmt.Println("NO PLACE LIKE ROME", vmsg.MessageList2Send[i].PointDst, " MANGOLDS")
-				fmt.Println("NO PLACE LIKE ROME", vmsg.MessageList2Send[i].PointDst, " MANGOLDS")
-
 				vpointrun.SetDisconnectedPoint(vmsg.MessageList2Send[i].UDPAddr)
 
 				go vmsg.MessageList2Send.MinusIndex(i, chDone)
