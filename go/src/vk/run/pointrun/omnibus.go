@@ -17,6 +17,8 @@ type Runner interface {
 	LogStr(info int, str string)
 	StartRotate() (err error)
 	GetDone(done int)
+	SetUDPAddr(addr net.UDPAddr)
+	GetUDPAddr() (addr net.UDPAddr)
 }
 
 type PointMsg struct {

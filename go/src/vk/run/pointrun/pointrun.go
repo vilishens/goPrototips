@@ -144,7 +144,7 @@ func startSigned(chGoOn chan bool, chDone chan int, chErr chan error) {
 				return
 			} else {
 
-				if 0 != (pData.Point.Type & cfgType) {
+			if 0 != (pData.Point.Type & cfgType) {
 					// the point has configuration of this point
 					pt := Points[point]
 					ptPt := pt.Point
@@ -169,7 +169,20 @@ func startSigned(chGoOn chan bool, chDone chan int, chErr chan error) {
 					ptPt.State |= vomni.PointStateSigned
 
 					pt.Point = ptPt
-					Points[point] = pt
+					//					Points[point] = pt
+
+					//Points[point].Point = ptPt
+
+					//					Points[point].Run[cfgType].Logofet(addr)
+
+					//					Points[point].Run[cfgType].SetUDPAddr(addr)
+					//############################
+
+					Points[point].Run[cfgType].SetUDPAddr(addr)
+
+					//############################
+
+					fmt.Println("vk-xxx MIZANDARI ", Points[point].Run[cfgType].GetUDPAddr())
 
 					// put messages about signed in into log
 					vutils.LogInfo(logStr)
@@ -201,6 +214,9 @@ func startSigned(chGoOn chan bool, chDone chan int, chErr chan error) {
 						case err := <-locErr:
 							chErr <- err
 						}
+
+						fmt.Println("vk-xxx LOMBARDS ", Points[point].Run[cfgType].GetUDPAddr())
+
 					}
 
 					fmt.Println("SEIT JĀsĀk run ", pData.Point.Point)
@@ -340,19 +356,17 @@ func addSignIn(flds []string, chDelete chan bool, chErr chan error) {
 	// send back the flag to delete this message
 	chDelete <- true
 
-	fmt.Printf("PEVICHKA! %+v\nPoint %q UDP %+v\n", flds, Points[point].Point.Point, Points[point].Point.UDPAddr)
+	fmt.Printf("vk-xxx PEVICHKA! %+v\nPoint %q UDP %+v\n", flds, Points[point].Point.Point, Points[point].Point.UDPAddr)
 }
 
 func SetDisconnectedPoint(addr net.UDPAddr) (point string) {
-
-	// ????????????????? DISCONNECT POINT vēl jāraksta
-	// ????????????????? DISCONNECT POINT vēl jāraksta
-	// ????????????????? DISCONNECT POINT vēl jāraksta
-	// ????????????????? DISCONNECT POINT vēl jāraksta
-	// ????????????????? DISCONNECT POINT vēl jāraksta
-
 	for k, v := range Points {
-		if vutils.Equal(addr, v.Point.UDPAddr) && (0 != v.Point.State&vomni.PointStateSigned) {
+		if vutils.Equal(addr, v.Point.UDPAddr) &&
+			(0 != v.Point.State&vomni.PointStateSigned) &&
+			(0 == v.Point.State&vomni.PointStateDisconnected) {
+			fmt.Printf("vk-xxx >>>>>>>>>>>>>> %s <<<<<<< need 2 disconnect %+v\n", k, addr)
+			fmt.Printf("vk-xxx >>>>>>>>>>>>>> %s <<<<<<< need 2 disconnect %+v\n", k, addr)
+			fmt.Printf("vk-xxx >>>>>>>>>>>>>> %s <<<<<<< need 2 disconnect %+v\n", k, addr)
 
 			pt := Points[k]
 			ptPt := Points[k].Point
