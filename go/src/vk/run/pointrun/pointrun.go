@@ -12,12 +12,12 @@ import (
 	vutils "vk/utils"
 )
 
-var Points map[string]PointRun
+var Points map[string]*PointRun
 var listSigned map[string]net.UDPAddr
 var startSequence []int
 
 func init() {
-	Points = make(map[string]PointRun)
+	Points = make(map[string]*PointRun)
 	listSigned = make(map[string]net.UDPAddr)
 	startSequence = []int{vomni.CfgTypeRelayInterval}
 }
@@ -38,7 +38,10 @@ func relayIntervalRunners() {
 
 		tRun[v.Type] = v
 
-		Points[k] = PointRun{Point: tPoint, Run: tRun}
+		newPt := new(PointRun)
+		*newPt = PointRun{Point: tPoint, Run: tRun}
+
+		Points[k] = newPt //PointRun{Point: tPoint, Run: tRun}
 	}
 }
 
@@ -143,67 +146,73 @@ func startSigned(chGoOn chan bool, chDone chan int, chErr chan error) {
 				chErr <- vutils.ErrFuncLine(err)
 				return
 			} else {
-
-			if 0 != (pData.Point.Type & cfgType) {
+				if 0 != (pData.Point.Type & cfgType) {
 					// the point has configuration of this point
-					pt := Points[point]
-					ptPt := pt.Point
-
 					logStr := ""
-					start := false
-					if 0 != (ptPt.State & vomni.PointStateDisconnected) {
+					start := 0
+					startRotate := 0x01
+					startRun := 0x02
+
+					if !Points[point].Run[cfgType].Ready() {
+						// the configuration of this point is not ready
+						strSign := "signed"
+						if 0 == pData.Run[cfgType].GetState()&vomni.PointStateSigned {
+							strSign = "not signed yet"
+						}
+						strErr := fmt.Errorf("The point %q (%s) configuration %q is not ready",
+							point,
+							strSign,
+							vomni.PointCfgData[cfgType].CfgStr)
+						vutils.LogErr(strErr)
+						continue
+					}
+
+					if 0 != (pData.Point.State & vomni.PointStateDisconnected) {
 						// this point was signed in, but later disconnected
 						// need to restart again
 						logStr = fmt.Sprintf("Point %q signed in AGAIN", point)
-					} else if 0 == (ptPt.State & vomni.PointStateSigned) {
+						start |= startRun
+					} else if 0 == (pData.Point.State & vomni.PointStateSigned) {
 						// the point wasn't signed in, need to start from scratch
 						logStr = fmt.Sprintf("Point %q signed in", point)
-						start = true
+						start |= startRotate | startRun
 					} else {
 						// the point was signed and not disconnected, to update the address is enough
 						logStr = fmt.Sprintf("Point %q signed in used the new UDP address %s:%d", point, addr.IP.String(), addr.Port)
 					}
 
-					ptPt.UDPAddr = addr
-					ptPt.State &^= vomni.PointStateDisconnected
-					ptPt.State |= vomni.PointStateSigned
+					// put messages about signed in into log
+					vutils.LogInfo(logStr)
 
-					pt.Point = ptPt
-					//					Points[point] = pt
+					// set the current UPD
+					Points[point].setUDPAddr(addr)
 
-					//Points[point].Point = ptPt
+					if 0 == start {
+						// there's nothing to start for this, let's continue with the next configuration
+						continue
+					}
 
-					//					Points[point].Run[cfgType].Logofet(addr)
-
-					//					Points[point].Run[cfgType].SetUDPAddr(addr)
-					//############################
+					Points[point].setState(vomni.PointStateDisconnected, false)
+					Points[point].setState(vomni.PointStateSigned, true)
 
 					Points[point].Run[cfgType].SetUDPAddr(addr)
 
-					//############################
-
-					fmt.Println("vk-xxx MIZANDARI ", Points[point].Run[cfgType].GetUDPAddr())
-
-					// put messages about signed in into log
-					vutils.LogInfo(logStr)
-					if !start {
-						// rotate files is ready, we can put the message
-						Points[point].Run[cfgType].LogStr(vomni.LogFileCdInfo, logStr)
-					}
-
-					if start {
-						locGoOn := make(chan bool)
-						locDone := make(chan int)
-						locErr := make(chan error)
-
+					if 0 < (start & startRotate) {
+						// start rotation of the log files
 						err := Points[point].Run[cfgType].StartRotate()
 						if nil != err {
 							chErr <- err
 							return
 						}
+					}
 
-						// rotate is now ready, let's put the signed in message into log
-						Points[point].Run[cfgType].LogStr(vomni.LogFileCdInfo, logStr)
+					// rotate files is ready, we can put the message into log
+					Points[point].Run[cfgType].LogStr(vomni.LogFileCdInfo, logStr)
+
+					if 0 < (start & startRun) {
+						locGoOn := make(chan bool)
+						locDone := make(chan int)
+						locErr := make(chan error)
 
 						go Points[point].Run[cfgType].LetsGo(addr, locGoOn, locDone, locErr)
 
@@ -332,6 +341,9 @@ func messageReceived(flds []string, chDelete chan bool, chErr chan error) {
 	case <-locDone:
 		// the done code received
 	case <-locDelete:
+
+		fmt.Println("vk-xxx Colombus")
+
 		chDelete <- true
 	case err = <-locErr:
 		// the error received
@@ -364,22 +376,13 @@ func SetDisconnectedPoint(addr net.UDPAddr) (point string) {
 		if vutils.Equal(addr, v.Point.UDPAddr) &&
 			(0 != v.Point.State&vomni.PointStateSigned) &&
 			(0 == v.Point.State&vomni.PointStateDisconnected) {
-			fmt.Printf("vk-xxx >>>>>>>>>>>>>> %s <<<<<<< need 2 disconnect %+v\n", k, addr)
-			fmt.Printf("vk-xxx >>>>>>>>>>>>>> %s <<<<<<< need 2 disconnect %+v\n", k, addr)
-			fmt.Printf("vk-xxx >>>>>>>>>>>>>> %s <<<<<<< need 2 disconnect %+v\n", k, addr)
 
-			pt := Points[k]
-			ptPt := Points[k].Point
-			ptPt.State |= vomni.PointStateDisconnected
-			pt.Point = ptPt
-			Points[k] = pt
-
+			Points[k].setState(vomni.PointStateDisconnected, true)
 			str := fmt.Sprintf("Point %q lost connection", k)
 
 			vutils.LogInfo(str)
-			// send disconnection message to all configurations of the point
+			// send disconnection code to all configurations of the point
 			for _, v := range Points[k].Run {
-				v.LogStr(vomni.LogFileCdErr, str)
 				v.GetDone(vomni.DoneDisconnected)
 			}
 		}
@@ -414,4 +417,18 @@ func getUDPAddr(flds []string, ipInd int, portInd int) (addr net.UDPAddr, ok boo
 	addr = net.UDPAddr{IP: netIP, Port: intPort}
 
 	return addr, true
+}
+
+func (d *PointRun) setState(state int, on bool) {
+	if on {
+		d.Point.State |= state
+	} else {
+		d.Point.State &^= state
+	}
+}
+
+func (d *PointRun) setUDPAddr(addr net.UDPAddr) {
+
+	d.Point.UDPAddr = addr
+
 }

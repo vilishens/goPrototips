@@ -21,8 +21,9 @@ type RunData struct {
 	Logs     []vomni.PointLog
 	Index    AllIndex
 	UDPAddr  net.UDPAddr
-	ChError  chan error
+	ChErr    chan error
 	ChDone   chan int
+	ChMsg    chan string
 	Cfg      vcfg.RelIntervalStruct
 	CfgSaved vcfg.RelIntervalStruct
 }

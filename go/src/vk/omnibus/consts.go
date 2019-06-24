@@ -55,7 +55,7 @@ const (
 	DelayStepExec             = 10 * time.Millisecond
 	DelaySendMessage          = time.Millisecond // time delay between two message send
 	DelaySendMessageListEmpty = 3 * time.Millisecond
-	DelaySendMessageRepeat    = 250 * time.Millisecond // interval between repeated messages
+	DelaySendMessageRepeat    = 500 * time.Millisecond // interval between repeated messages
 
 	DelayWaitMessage = time.Millisecond // time delay between two message waiting
 

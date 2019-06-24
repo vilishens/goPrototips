@@ -3,7 +3,6 @@ package runrelayinterval
 import (
 	"fmt"
 	"net"
-	"reflect"
 	"time"
 	vmsg "vk/messages"
 	vomni "vk/omnibus"
@@ -46,26 +45,28 @@ func (d RunData) LetsGo(addr net.UDPAddr, chGoOn chan bool, chDone chan int, chE
 
 	<-locGoOn
 
-	d.State |= vomni.PointStateActive
-	d.State |= vomni.PointStateSigned
+	d.SetState(vomni.PointStateActive|vomni.PointStateSigned, true)
 
 	chGoOn <- true
 }
 
 func (d RunData) GetDone(done int) {
+	d.ChDone <- done
+}
 
-	ip := d.UDPAddr.IP.String()
+func (d RunData) Ready() (ready bool) {
 
-	if d.UDPAddr.IP == nil {
-		fmt.Println("vk-xxx AKEX->SITKOVE IP nil ################################################")
+	ready = false
+
+	if !ready {
+		str := fmt.Sprintf("Point %q of %q configuration is not ready",
+			d.Point,
+			vomni.PointCfgData[d.Type].CfgStr)
+
+		d.LogStr(vomni.LogFileCdErr, str)
 	}
 
-	fmt.Printf("vk-xxx =======> POINT %s IP %s 0x%04x\n", d.Point, ip, done)
-	fmt.Printf("vk-xxx =======> POINT %s IP %s 0x%04x\n", d.Point, "kira", done)
-	fmt.Printf("vk-xxx =======> POINT %s IP %+v 0x%04x\n", d.Point, d.UDPAddr, done)
-
-	d.ChDone <- done
-
+	return
 }
 
 func (d RunData) run(chGoOn chan bool, chDone chan int, chErr chan error) {
@@ -90,8 +91,12 @@ func (d RunData) run(chGoOn chan bool, chDone chan int, chErr chan error) {
 		go d.runArray(v.cfg, v.index, v.once, locDone)
 		rc := <-locDone
 		if vomni.DoneDisconnected == rc {
+			d.SetState(vomni.DoneDisconnected, true)
+			str := fmt.Sprintf("Point %q lost connection", d.Point)
+			d.LogStr(vomni.LogFileCdErr, str)
 
-			fmt.Printf("vk-xxx ,,,,,,,,,,,,,,,,,,,,,Susuman %+v IZEJU\n", d.UDPAddr)
+			fmt.Printf("***\n***\n*** Nutivara %q \n***\n***\n", d.Point)
+
 			break
 		}
 	}
@@ -112,16 +117,18 @@ func (d RunData) runArray(arr vcfg.RelIntervalArray, index *int, once bool, chDo
 		// put the message in the send queue
 		msg := vmsg.QeueuGpioSet(d.Point, d.UDPAddr, arr[*index].Gpio, arr[*index].State)
 
-		fmt.Printf("vk-xxx -------> POINT %15s ADDR %20s MSG %s\n", d.Point, d.UDPAddr.IP.String(), msg)
+		fmt.Printf("vk-xxx SHADOW *** -------> POINT %15s ADDR %20s MSG %s\n", d.Point, d.UDPAddr.IP.String(), msg)
 
 		d.LogStr(vomni.LogFileCdInfo, fmt.Sprintf("Send message: %q", msg))
 
 		done := 0
 
 		select {
-		case done = <-d.ChDone:
 
-			fmt.Println("vk-xxx ###\n###\n###\n", d.Point, "*** ŅUTA FEDERMESSER saņēmu\n###\n###\n###")
+		case msg := <-d.ChMsg:
+			fmt.Printf("vk-xxx ###\n###\n###\n Point %q received a message %q *** HEAVY METAL\n###\n###\n###\n", d.Point, msg)
+
+		case done = <-d.ChDone:
 
 		case <-tick.C:
 			*index = nextIndex(*index, len(arr))
@@ -132,8 +139,6 @@ func (d RunData) runArray(arr vcfg.RelIntervalArray, index *int, once bool, chDo
 		}
 
 		if 0 < done {
-			fmt.Printf("vk-xxx ***\n***\n***\n %s *** tamara soboļ beidzu %x \n***\n***\n***\n", d.Point, done)
-
 			*index = vomni.PointNonActiveIndex
 
 			chDone <- done
@@ -141,7 +146,7 @@ func (d RunData) runArray(arr vcfg.RelIntervalArray, index *int, once bool, chDo
 		}
 
 	}
-	chDone <- vomni.DoneStop
+	//	chDone <- vomni.DoneStop
 
 }
 
@@ -183,96 +188,39 @@ func (d RunData) prepareRotateLoggers() (err error) {
 }
 
 func (d *RunData) SetUDPAddr(addr net.UDPAddr) {
-
-	fmt.Println("vk-xxx ADDR ", addr)
-
-	adrese := reflect.ValueOf(&d.UDPAddr)
-
-	s := reflect.ValueOf(&d.UDPAddr).Elem()
-	typeOfT := s.Type()
-	for i := 0; i < s.NumField(); i++ {
-		f := s.Field(i)
-		fmt.Printf("gorgonzola %d: %s %s = %v\n", i,
-			typeOfT.Field(i).Name, f.Type(), f.Interface())
-	}
-
-	fmt.Println("ORDENA BY DAL Type:", reflect.TypeOf(d.UDPAddr))
-	fmt.Printf("Ferratum Type: %T\n", adrese)
-
-	sAddr := adrese.Elem()
-	if sAddr.Kind() == reflect.Struct {
-		fmt.Println("ADDRESE ir struktūra")
-		fIP := sAddr.FieldByName("IP")
-		fPort := sAddr.FieldByName("Port")
-		if fIP.IsValid() && fIP.CanSet() && fIP.Kind() == reflect.Slice {
-
-			fIP.SetBytes(addr.IP)
-
-			fmt.Println("ADDRESE ir valida IP")
-
-		}
-
-		if fPort.IsValid() && fPort.CanSet() && fPort.Kind() == reflect.Int {
-
-			fPort.SetInt(int64(addr.Port))
-
-			fmt.Println("ADDRESE ir valida Port")
-
-		}
-	}
-
-	ss := reflect.ValueOf(&d.UDPAddr).Elem()
-	typeOfT = ss.Type()
-	for i := 0; i < ss.NumField(); i++ {
-		f := ss.Field(i)
-		fmt.Printf("orizava %d: %s %s = %v\n", i,
-			typeOfT.Field(i).Name, f.Type(), f.Interface())
-	}
-
-	//	s := a.MapKeys()
 	/*
-	   	s := ps.Elem()
-	       if s.Kind() == reflect.Struct {
-	           // exported field
-	           f := s.FieldByName("N")
-	           if f.IsValid() {
-	               // A Value can be changed only if it is
-	               // addressable and was not obtained by
-	               // the use of unexported struct fields.
-	               if f.CanSet() {
-	                   // change value of N
-	                   if f.Kind() == reflect.Int {
-	                       x := int64(7)
-	                       if !f.OverflowInt(x) {
-	                           f.SetInt(x)
-	                       }
-	                   }
-	               }
-	           }
-	       }
+		fAddr := reflect.ValueOf(&d.UDPAddr)
+
+		elemAddr := fAddr.Elem()
+		if elemAddr.Kind() == reflect.Struct {
+			//		fmt.Println("ADDRESE ir struktūra")
+			fIP := elemAddr.FieldByName("IP")
+			if fIP.IsValid() && fIP.CanSet() && fIP.Kind() == reflect.Slice {
+				fIP.SetBytes(addr.IP)
+			}
+
+			fPort := elemAddr.FieldByName("Port")
+			if fPort.IsValid() && fPort.CanSet() && fPort.Kind() == reflect.Int {
+				fPort.SetInt(int64(addr.Port))
+			}
+		}
 	*/
-
-	//	fmt.Printf("vk-xxx Type %T %T\n %+v\nIP %v\n", ip, port, s, ps)
-
-	//	a. UDPAddr = addr
-	//	fmt.Printf("vk-xxx TIPS %T\nSTRUCTURA %+v\nADRESE %v", a, a, a.UDPAddr)
-
-	//	a := d
-
-	//_ = s
-
-	//a.UDPAddr = addr
-
-	//d = a
-
-	//d.UDPAddr = addr
-
-	fmt.Println("vk-xxx SLOMANNIJ KLINOK ", d.UDPAddr)
+	d.UDPAddr = addr
 }
 
 func (d RunData) GetUDPAddr() (addr net.UDPAddr) {
-
-	fmt.Printf("vk-xxx KVASUBA adrese:\n\tIP   %v\n\tPORT %d\n", d.UDPAddr.IP, d.UDPAddr.Port)
-
 	return d.UDPAddr
+}
+
+func (d *RunData) SetState(state int, on bool) {
+
+	if on {
+		d.State |= state
+	} else {
+		d.State &^= state
+	}
+}
+
+func (d *RunData) GetState() (state int) {
+	return d.State
 }

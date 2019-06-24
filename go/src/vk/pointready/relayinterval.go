@@ -25,6 +25,10 @@ func relayInterval() {
 			// handle all loggers of the point
 			logs, err := relayIntervalPointLoggers(d.Point, d.Type)
 
+			d.ChDone = make(chan int)
+			d.ChErr = make(chan error)
+			d.ChMsg = make(chan string)
+
 			if nil != err {
 				vomni.RootErr <- err
 				return

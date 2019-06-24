@@ -8,8 +8,10 @@ import (
 
 // String into a logger -- <PREFIX> <SEPARATOR> <DATE+TIME> <SEPARATOR> <STR>
 func LogStr(d *log.Logger, str string) {
-	strNew := vomni.UDPMessageSeparator + " " + str
-	d.Println(strNew)
+	if nil != d {
+		strNew := vomni.UDPMessageSeparator + " " + str
+		d.Println(strNew)
+	}
 }
 
 // Logger with a prefix -- <PREFIX> <SEPARATOR> <DATE+TIME>
