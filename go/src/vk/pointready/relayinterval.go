@@ -32,7 +32,7 @@ func relayInterval() {
 
 			d.Logs = logs
 
-			vrunrelayinterval.RunningPoints[k] = d
+			vrunrelayinterval.RunningPoints[k] = &d
 		}
 	}
 }
