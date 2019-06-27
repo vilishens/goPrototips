@@ -58,14 +58,22 @@ func (d RunData) Ready() (ready bool) {
 
 	ready = false
 
-	if !ready {
-		str := fmt.Sprintf("Point %q of %q configuration is not ready",
-			d.Point,
-			vomni.PointCfgData[d.Type].CfgStr)
+	/*
+		if !ready {
+				d.Point,
+				vomni.PointCfgData[d.Type].CfgStr)
 
-		d.LogStr(vomni.LogFileCdErr, str)
-	}
+			d.LogStr(vomni.LogFileCdErr, str)
+		} else {
+			d.SetState(vomni.PointCfgStateReady, true)
 
+			str := fmt.Sprintf("Point %q - %q configuration ready",
+				d.Point,
+				vomni.PointCfgData[d.Type].CfgStr)
+
+			d.LogStr(vomni.LogFileCdInfo, str)
+		}
+	*/
 	return
 }
 

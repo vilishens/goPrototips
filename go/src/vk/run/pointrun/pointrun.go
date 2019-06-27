@@ -34,7 +34,7 @@ func relayIntervalRunners() {
 		tPoint.Point = v.Point
 		tPoint.UDPAddr = net.UDPAddr{}
 		tPoint.Type |= v.Type //   vomni.CfgTypeRelayInterval
-		tPoint.State = v.State
+		tPoint.State = vomni.PointCfgStateUnknown
 
 		tRun[v.Type] = v
 
@@ -153,17 +153,25 @@ func startSigned(chGoOn chan bool, chDone chan int, chErr chan error) {
 					startRotate := 0x01
 					startRun := 0x02
 
+					cfg := Points[point].Run[cfgType]
+
 					if !Points[point].Run[cfgType].Ready() {
 						// the configuration of this point is not ready
 						strSign := "signed"
 						if 0 == pData.Run[cfgType].GetState()&vomni.PointStateSigned {
 							strSign = "not signed yet"
 						}
-						strErr := fmt.Errorf("The point %q (%s) configuration %q is not ready",
+
+						logStr = fmt.Sprintf("The point %q (%s) configuration %q is not ready",
 							point,
 							strSign,
 							vomni.PointCfgData[cfgType].CfgStr)
-						vutils.LogErr(strErr)
+
+						vutils.LogErr(fmt.Errorf("%s", logStr))
+
+						// send log to the point configuration
+						// (it succeeds only if the point configuration was ready (rotate files were started))
+						cfg.LogStr(vomni.LogFileCdInfo, logStr)
 						continue
 					}
 

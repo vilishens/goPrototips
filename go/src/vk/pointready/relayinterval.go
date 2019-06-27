@@ -16,7 +16,7 @@ func relayInterval() {
 		if 0 < (v.List & vomni.CfgTypeRelayInterval) {
 			d := vrunrelayinterval.RunData{}
 			d.Point = k
-			d.State = vomni.PointStateUnknown
+			d.State = vomni.PointCfgStateUnknown
 			d.Type = vomni.CfgTypeRelayInterval
 			d.Cfg = v.Cfg.RelInterv
 			d.CfgSaved = v.Cfg.RelInterv

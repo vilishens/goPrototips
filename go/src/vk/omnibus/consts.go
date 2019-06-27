@@ -103,8 +103,13 @@ const (
 	PointStateSigned       = 0x000002
 	PointStateDisconnected = 0x000004
 
+	PointCfgStateUnknown = 0x000000
+	PointCfgStateReady   = 0x000001
+
 	PointNonActiveIndex = -1
 )
+
+const ()
 
 //################################################# Configuration parameters ####################
 const (
