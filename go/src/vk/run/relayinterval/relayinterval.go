@@ -28,7 +28,7 @@ func (d RunData) LogStr(infoCd int, str string) {
 	}
 }
 
-func (d RunData) LetsGo(addr net.UDPAddr, chGoOn chan bool, chDone chan int, chErr chan error) {
+func (d RunData) LetsGo(chGoOn chan bool, chDone chan int, chErr chan error) {
 
 	//d.UDPAddr = addr vk-xxx
 
@@ -56,7 +56,7 @@ func (d RunData) GetDone(done int) {
 
 func (d RunData) Ready() (ready bool) {
 
-	ready = false
+	ready = true
 
 	/*
 		if !ready {

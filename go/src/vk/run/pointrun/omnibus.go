@@ -13,7 +13,7 @@ type Runner interface {
 	//	WebPointData() (v omnibus.WPointData)
 	//	ReceivedWebMsg(msg string, data interface{})
 	//	Finish(done chan bool)
-	LetsGo(addr net.UDPAddr, chGoOn chan bool, chDone chan int, chErr chan error)
+	LetsGo(chGoOn chan bool, chDone chan int, chErr chan error)
 	LogStr(info int, str string)
 	StartRotate() (err error)
 	GetDone(done int)

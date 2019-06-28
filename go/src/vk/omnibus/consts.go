@@ -103,8 +103,9 @@ const (
 	PointStateSigned       = 0x000002
 	PointStateDisconnected = 0x000004
 
-	PointCfgStateUnknown = 0x000000
-	PointCfgStateReady   = 0x000001
+	PointCfgStateUnknown     = 0x000000
+	PointCfgStateReady       = 0x000001
+	PointCfgStateUnavailable = 0x000002
 
 	PointNonActiveIndex = -1
 )
@@ -113,6 +114,7 @@ const ()
 
 //################################################# Configuration parameters ####################
 const (
+	CfgTypeUnknown       = 0x000000
 	CfgTypeRelayInterval = 0x000001
 )
 
