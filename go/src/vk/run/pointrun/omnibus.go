@@ -13,14 +13,15 @@ type Runner interface {
 	//	WebPointData() (v omnibus.WPointData)
 	//	ReceivedWebMsg(msg string, data interface{})
 	//	Finish(done chan bool)
+	GetDone(done int)
 	LetsGo(chGoOn chan bool, chDone chan int, chErr chan error)
 	LogStr(info int, str string)
-	StartRotate() (err error)
-	GetDone(done int)
-	GetState() (state int)
-	SetUDPAddr(addr net.UDPAddr)
-	GetUDPAddr() (addr net.UDPAddr)
 	Ready() (ready bool)
+	StartRotate() (err error)
+	GetState() (state int)
+	SetState(state int, on bool)
+	GetUDPAddr() (addr net.UDPAddr)
+	SetUDPAddr(addr net.UDPAddr)
 }
 
 type PointMsg struct {

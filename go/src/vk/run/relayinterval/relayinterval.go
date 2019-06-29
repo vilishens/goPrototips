@@ -232,3 +232,11 @@ func (d *RunData) SetState(state int, on bool) {
 func (d *RunData) GetState() (state int) {
 	return d.State
 }
+
+func (d *RunData) setState(state int, on bool) {
+	if on {
+		d.State |= state
+	} else {
+		d.State &^= state
+	}
+}
