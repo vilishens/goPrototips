@@ -202,13 +202,37 @@ func startSigned(chGoOn chan bool, chDone chan int, chErr chan error) {
 
 			if !pCfg.Ready() {
 				// handle non Ready point configuration
-				pData.handleNonReadyConfiguration(cfgType)
+				errStr := pData.handleNonReadyConfiguration(cfgType)
+
+				if errStr != "" {
+					vutils.LogErr(fmt.Errorf("%s", errStr))
+
+					// send log to the point configuration
+					// (it succeeds only if the point configuration was ready (rotate files have been started))
+					pCfg.LogStr(vomni.LogFileCdErr, errStr)
+				}
+
+				pCfg.SetState(vomni.PointCfgStateReady, false)
+				pCfg.SetState(vomni.PointCfgStateUnavailable, false)
+
 				continue
 			} else {
-				if cfgStart, err = pData.handleReadyConfiguration(cfgType); nil != err {
+				if cfgStart, logStr, err = pData.handleReadyConfiguration(cfgType); nil != err {
 					chErr <- err
 					return
 				}
+
+				if logStr != "" {
+					vutils.LogInfo(logStr)
+
+					// send log to the point configuration
+					// (it succeeds only if the point configuration was ready (rotate files were started))
+					pCfg.LogStr(vomni.LogFileCdInfo, logStr)
+				}
+
+				// remember this configuration state
+				pCfg.SetState(vomni.PointCfgStateUnavailable, false)
+				pCfg.SetState(vomni.PointCfgStateReady, true)
 			}
 
 			if pointStart || cfgStart {
@@ -230,335 +254,7 @@ func startSigned(chGoOn chan bool, chDone chan int, chErr chan error) {
 			}
 		}
 	}
-
-	/*
-				#		listHandled := make(map[string]bool) // list of signed already handled points
-				#		listStart := make(map[string]bool)   // list of points in start state
-
-				#		for _, cfgType := range startSequence {
-				#			// start all point configuration, sequence set in startSequence
-				#			// Sequence can be important some times (for instance, to check the point ready state)
-
-							fmt.Println("!!!!!!!!!!!!!!!!!!!!!!!! Nothing will stop them !!!!!!!!!!!!!!!!!!")
-
-				#			for point, addr := range listSigned {
-								logStr := ""
-								pData := new(PointRun)
-								ok := false
-
-				#				if pData, ok = Points[point]; !ok {
-				#					err := fmt.Errorf("The point %q (%v) sent SignIn message, but there is no configuration of this point", point, addr)
-				#					vutils.LogErr(err)
-				#					chErr <- vutils.ErrFuncLine(err)
-				#
-				#					return
-				#				}
-
-								fmt.Printf("!!!!!!!!!!!!!!!!!!!!!!!! %s !!!!!!!!!!!!!!!!!!\n", point)
-
-								// Point handling
-		#						if _, ok := listHandled[point]; !ok {
-		#							// the point isn't handled yet
-		#
-		#							// save the point address
-		#							pData.setUDPAddr(addr)
-		#
-		#							if 0 != (pData.Point.State & vomni.PointStateDisconnected) {
-		#								// this point was signed in, but later disconnected
-		#								// need to restart again
-		#								logStr = fmt.Sprintf("START SIGNED *** Point %q signed in AGAIN", point)
-		#								listStart[point] = true // need to restart
-		#							} else if 0 == (pData.Point.State & vomni.PointStateSigned) {
-		#								// the point wasn't signed in, need to start from scratch
-		#								logStr = fmt.Sprintf("START SIGNED *** Point %q signed in", point)
-		#								listStart[point] = true
-		#							} else {
-		#								// the point was signed and not disconnected, to update the address is enough
-		#								logStr = fmt.Sprintf("START SIGNED *** Point %q (signed in already) saves the new UDP address %s:%d", point, addr.IP.String(), addr.Port)
-		#							}
-		#
-		#							// put messages about signed in into log
-		#							vutils.LogInfo(logStr)
-		#
-		#							// set the clean signed state
-		#							pData.setState(vomni.PointStateDisconnected, false)
-		#							pData.setState(vomni.PointStateSigned, true)
-		#
-		#							listHandled[point] = true
-		#						}
-
-								//#####################################
-
-								if 0 != (pData.Point.Type & cfgType) {
-									pCfg := pData.Run[cfgType]
-									state := pCfg.GetState()
-									startCfg := false // start configuration
-
-									if !pCfg.Ready() {
-										// the configuration of this point is not ready
-										strState := ""
-										if 0 != (vomni.PointCfgStateUnavailable & state) {
-											// this configuration has been unavailable already
-											// no log message required
-										} else if vomni.PointCfgStateUnknown == state {
-											strState = "not started yet"
-										} else if 0 != (vomni.PointCfgStateReady & state) {
-											strState = "was ready"
-										}
-
-										if strState != "" {
-											logStr = fmt.Sprintf("The point %q (%s) configuration %q is not ready",
-												point,
-												strState,
-												vomni.PointCfgData[cfgType].CfgStr)
-
-											vutils.LogErr(fmt.Errorf("%s", logStr))
-
-											// send log to the point configuration
-											// (it succeeds only if the point configuration was ready (rotate files were started))
-											pCfg.LogStr(vomni.LogFileCdErr, logStr)
-										}
-
-										pCfg.SetState(vomni.PointCfgStateReady, false)
-										pCfg.SetState(vomni.PointCfgStateUnavailable, false)
-
-										continue
-									} else {
-										strState := ""
-
-										// the point configuration is ready
-										if vomni.PointCfgStateUnknown == state {
-											// this the very 1st start of the configuration
-											startCfg = true
-											strState = "wasn't started yet"
-
-											// start rotation of the log files
-											if err := pCfg.StartRotate(); nil != err {
-												chErr <- err
-												return
-											}
-										}
-
-										if 0 != (vomni.PointCfgStateUnavailable & state) {
-											startCfg = true
-											strState = "was unavailable"
-										}
-
-										if strState != "" {
-											logStr = fmt.Sprintf("The point %q (%s) configuration %q is ready",
-												point,
-												strState,
-												vomni.PointCfgData[cfgType].CfgStr)
-
-											vutils.LogInfo(logStr)
-
-											// send log to the point configuration
-											// (it succeeds only if the point configuration was ready (rotate files were started))
-											pCfg.LogStr(vomni.LogFileCdInfo, logStr)
-										}
-
-										// remember this configuration state
-										pCfg.SetState(vomni.PointCfgStateUnavailable, false)
-										pCfg.SetState(vomni.PointCfgStateReady, true)
-									}
-
-									fmt.Printf("ooooooooooooooooo Point %q has type 0x%06x ooooooooooooooooooooooo\n", point, cfgType)
-
-									if listStart[point] || startCfg {
-										locGoOn := make(chan bool)
-										locDone := make(chan int)
-										locErr := make(chan error)
-
-										pCfg.SetUDPAddr(addr)
-
-										go pCfg.LetsGo(locGoOn, locDone, locErr)
-
-										select {
-										case <-locGoOn:
-										case cd := <-locDone:
-											chDone <- cd
-										case err := <-locErr:
-											chErr <- err
-										}
-
-										fmt.Println("vk-xxx LOMBARDS ", Points[point].Run[cfgType].GetUDPAddr())
-
-									}
-
-								}
-							}
-						}
-
-	*/
-
 }
-
-//########################################################################
-
-/*
-
-func startSigned(chGoOn chan bool, chDone chan int, chErr chan error) {
-
-	listHandled := make(map[string]bool) // list of signed already handled points
-	listStart := make(map[string]bool)   // list of points in start state
-
-	for _, cfgType := range startSequence {
-		// start all point configuration, sequence set in startSequence
-		// Sequence can be important some times (for instance, to check the point ready state)
-
-		fmt.Println("!!!!!!!!!!!!!!!!!!!!!!!! Nothing will stop them !!!!!!!!!!!!!!!!!!")
-
-		for point, addr := range listSigned {
-			logStr := ""
-			pData := new(PointRun)
-			ok := false
-
-			if pData, ok = Points[point]; !ok {
-				err := fmt.Errorf("The point %q (%v) sent SignIn message, but there is no configuration of this point", point, addr)
-				vutils.LogErr(err)
-				chErr <- vutils.ErrFuncLine(err)
-
-				return
-			}
-
-			fmt.Printf("!!!!!!!!!!!!!!!!!!!!!!!! %s !!!!!!!!!!!!!!!!!!\n", point)
-
-			// Point handling
-			if _, ok := listHandled[point]; !ok {
-				// the point isn't handled yet
-
-				// save the point address
-				pData.setUDPAddr(addr)
-
-				if 0 != (pData.Point.State & vomni.PointStateDisconnected) {
-					// this point was signed in, but later disconnected
-					// need to restart again
-					logStr = fmt.Sprintf("START SIGNED *** Point %q signed in AGAIN", point)
-					listStart[point] = true // need to restart
-				} else if 0 == (pData.Point.State & vomni.PointStateSigned) {
-					// the point wasn't signed in, need to start from scratch
-					logStr = fmt.Sprintf("START SIGNED *** Point %q signed in", point)
-					listStart[point] = true
-				} else {
-					// the point was signed and not disconnected, to update the address is enough
-					logStr = fmt.Sprintf("START SIGNED *** Point %q (signed in already) saves the new UDP address %s:%d", point, addr.IP.String(), addr.Port)
-				}
-
-				// put messages about signed in into log
-				vutils.LogInfo(logStr)
-
-				// set the clean signed state
-				pData.setState(vomni.PointStateDisconnected, false)
-				pData.setState(vomni.PointStateSigned, true)
-
-				listHandled[point] = true
-			}
-
-			//#####################################
-
-			if 0 != (pData.Point.Type & cfgType) {
-				pCfg := pData.Run[cfgType]
-				state := pCfg.GetState()
-				startCfg := false // start configuration
-
-				if !pCfg.Ready() {
-					// the configuration of this point is not ready
-					strState := ""
-					if 0 != (vomni.PointCfgStateUnavailable & state) {
-						// this configuration has been unavailable already
-						// no log message required
-					} else if vomni.PointCfgStateUnknown == state {
-						strState = "not started yet"
-					} else if 0 != (vomni.PointCfgStateReady & state) {
-						strState = "was ready"
-					}
-
-					if strState != "" {
-						logStr = fmt.Sprintf("The point %q (%s) configuration %q is not ready",
-							point,
-							strState,
-							vomni.PointCfgData[cfgType].CfgStr)
-
-						vutils.LogErr(fmt.Errorf("%s", logStr))
-
-						// send log to the point configuration
-						// (it succeeds only if the point configuration was ready (rotate files were started))
-						pCfg.LogStr(vomni.LogFileCdErr, logStr)
-					}
-
-					pCfg.SetState(vomni.PointCfgStateReady, false)
-					pCfg.SetState(vomni.PointCfgStateUnavailable, false)
-
-					continue
-				} else {
-					strState := ""
-
-					// the point configuration is ready
-					if vomni.PointCfgStateUnknown == state {
-						// this the very 1st start of the configuration
-						startCfg = true
-						strState = "wasn't started yet"
-
-						// start rotation of the log files
-						if err := pCfg.StartRotate(); nil != err {
-							chErr <- err
-							return
-						}
-					}
-
-					if 0 != (vomni.PointCfgStateUnavailable & state) {
-						startCfg = true
-						strState = "was unavailable"
-					}
-
-					if strState != "" {
-						logStr = fmt.Sprintf("The point %q (%s) configuration %q is ready",
-							point,
-							strState,
-							vomni.PointCfgData[cfgType].CfgStr)
-
-						vutils.LogInfo(logStr)
-
-						// send log to the point configuration
-						// (it succeeds only if the point configuration was ready (rotate files were started))
-						pCfg.LogStr(vomni.LogFileCdInfo, logStr)
-					}
-
-					// remember this configuration state
-					pCfg.SetState(vomni.PointCfgStateUnavailable, false)
-					pCfg.SetState(vomni.PointCfgStateReady, true)
-				}
-
-				fmt.Printf("ooooooooooooooooo Point %q has type 0x%06x ooooooooooooooooooooooo\n", point, cfgType)
-
-				if listStart[point] || startCfg {
-					locGoOn := make(chan bool)
-					locDone := make(chan int)
-					locErr := make(chan error)
-
-					pCfg.SetUDPAddr(addr)
-
-					go pCfg.LetsGo(locGoOn, locDone, locErr)
-
-					select {
-					case <-locGoOn:
-					case cd := <-locDone:
-						chDone <- cd
-					case err := <-locErr:
-						chErr <- err
-					}
-
-					fmt.Println("vk-xxx LOMBARDS ", Points[point].Run[cfgType].GetUDPAddr())
-
-				}
-
-			}
-		}
-	}
-
-	chGoOn <- true
-}
-*/
 
 func scanNet(chGoOn chan bool, chDone chan int, chErr chan error) {
 
@@ -828,10 +524,9 @@ func (d *PointRun) checkStartCfgExistence(cfg int) (has bool, err error) {
 	return
 }
 
-func (d *PointRun) handleNonReadyConfiguration(cfg int) {
+func (d *PointRun) handleNonReadyConfiguration(cfg int) (errStr string) {
 
 	strState := ""
-	logStr := ""
 	pCfg := d.Run[cfg]
 	state := pCfg.GetState()
 
@@ -845,26 +540,18 @@ func (d *PointRun) handleNonReadyConfiguration(cfg int) {
 	}
 
 	if strState != "" {
-		logStr = fmt.Sprintf("The point %q (%s) configuration %q is not ready",
+		errStr = fmt.Sprintf("The point %q (%s) configuration %q is not ready",
 			d.Point.Point,
 			strState,
 			vomni.PointCfgData[cfg].CfgStr)
-
-		vutils.LogErr(fmt.Errorf("%s", logStr))
-
-		// send log to the point configuration
-		// (it succeeds only if the point configuration was ready (rotate files were started))
-		pCfg.LogStr(vomni.LogFileCdErr, logStr)
 	}
 
-	pCfg.SetState(vomni.PointCfgStateReady, false)
-	pCfg.SetState(vomni.PointCfgStateUnavailable, false)
+	return
 }
 
-func (d *PointRun) handleReadyConfiguration(cfg int) (start bool, err error) {
+func (d *PointRun) handleReadyConfiguration(cfg int) (start bool, logStr string, err error) {
 
 	strState := ""
-	logStr := ""
 	pCfg := d.Run[cfg]
 	state := pCfg.GetState()
 
@@ -889,17 +576,7 @@ func (d *PointRun) handleReadyConfiguration(cfg int) (start bool, err error) {
 			d.Point.Point,
 			strState,
 			vomni.PointCfgData[cfg].CfgStr)
-
-		vutils.LogInfo(logStr)
-
-		// send log to the point configuration
-		// (it succeeds only if the point configuration was ready (rotate files were started))
-		pCfg.LogStr(vomni.LogFileCdInfo, logStr)
 	}
-
-	// remember this configuration state
-	pCfg.SetState(vomni.PointCfgStateUnavailable, false)
-	pCfg.SetState(vomni.PointCfgStateReady, true)
 
 	return
 }
