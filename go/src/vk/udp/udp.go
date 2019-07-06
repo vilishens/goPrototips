@@ -74,25 +74,34 @@ func sendMessages(done chan int, chErr chan error) {
 			time.Sleep(vomni.DelaySendMessage)
 
 			if i >= len(vmsg.MessageList2Send) {
-				// verify the index isn't out of the list
+				// verify the index isn't out of range
 				continue
 			}
 
+			// let's make a copy of the message list
+			// to avoid the disappered item handling
+			copyMsgs := vmsg.MessageList2Send[i]
+
 			chDone := make(chan bool)
 
-			if "" == vmsg.MessageList2Send[i].Msg {
+			// vk-xxx jāpārraksta tā, lai izmanto kopiju saistībā ar sūtāmo sarakstu
+			// (tas vajadzīgs, jo var gadīties, ka apstrādes vidū nodzēš ierakstu,
+			// bet turpina meklēt, neesošu ierakstu)
+
+			if "" == copyMsgs.Msg {
 				// this is the blank message no need to try to send just remove it
-				vutils.LogInfo(fmt.Sprintf("Deleted blank message #%d", vmsg.MessageList2Send[i].MessageNbr))
+				vutils.LogInfo(fmt.Sprintf("Deleted blank message #%d", copyMsgs.MessageNbr))
 				go vmsg.MessageList2Send.MinusIndex(i, chDone)
 				<-chDone
 				continue
 			}
 
-			if !vmsg.MessageList2Send[i].Last.IsZero() && time.Since(vmsg.MessageList2Send[i].Last) < vomni.DelaySendMessageRepeat {
+			if !copyMsgs.Last.IsZero() && time.Since(copyMsgs.Last) < vomni.DelaySendMessageRepeat {
 				// this is a repeated message but the repeat interval isn't passed yet
 				continue
 			}
 
+			// vk-xxx jāpieliek Msg Repeat caur objektu
 			vmsg.MessageList2Send[i].Repeat++
 
 			// Need to update the station time if it is the repeated message and 'Hello From Station'
@@ -104,9 +113,9 @@ func sendMessages(done chan int, chErr chan error) {
 				return
 			}
 
-			if vmsg.MessageList2Send[i].Repeat > vomni.MessageSendRepeatLimit {
+			if copyMsgs.Repeat > vomni.MessageSendRepeatLimit {
 
-				vutils.LogInfo(fmt.Sprintf("Deleted message #%d due to the exceeded send repeat limit", vmsg.MessageList2Send[i].MessageNbr))
+				vutils.LogInfo(fmt.Sprintf("Deleted message #%d due to the exceeded send repeat limit", copyMsgs.MessageNbr))
 
 				// set the point (if it has signed in) as disconnected
 				vpointrun.SetDisconnectedPoint(vmsg.MessageList2Send[i].UDPAddr)

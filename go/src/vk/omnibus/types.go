@@ -34,6 +34,22 @@ type MessageData struct {
 	FieldCount int
 }
 
+type WebAllPointData struct {
+	List []string
+	Data map[string]WebPointData
+}
+
+type WebPointData struct {
+	Point        string
+	State        int
+	Type         int
+	Signed       bool
+	Disconnected bool
+	CfgRun       interface{}
+	CfgSaved     interface{}
+	Index        interface{}
+}
+
 //#################################################################
 //#################################################################
 //#################################################################

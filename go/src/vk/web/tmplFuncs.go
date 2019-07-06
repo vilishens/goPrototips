@@ -1,9 +1,10 @@
 package web
 
 import (
+	"fmt"
 	vparam "vk/params"
 	vparams "vk/params"
-	//xrun "vk/run/a_runningpoints"
+	vrun "vk/run/pointrun"
 )
 
 func stationName() string {
@@ -12,6 +13,15 @@ func stationName() string {
 
 func webPrefix() (prefix string) {
 	return vparams.Params.WebStaticPrefix
+}
+
+func allPointData() (data interface{}) {
+
+	fmt.Println("Mikhails")
+
+	data = vrun.AllPointData()
+
+	return
 }
 
 //########################################

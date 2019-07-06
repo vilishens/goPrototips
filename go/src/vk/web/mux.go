@@ -1,6 +1,7 @@
 package web
 
 import (
+	"fmt"
 	"io"
 	"net/http"
 	"time"
@@ -21,8 +22,9 @@ func setMux() {
 
 	http.Handle("/", rtr)
 
+	rtr.HandleFunc("/pointlist", tmplPointList)
+
 	//	rtr.HandleFunc("/login", pageLogin) //
-	//	rtr.HandleFunc("/pointlist", tmplPointList)
 	//	rtr.HandleFunc("/pointlist/data", tmplPointListData)
 	//	rtr.HandleFunc("/point/{point}/{todo}", pointToDo)
 	//	rtr.HandleFunc("/point/handlecfg/{point}/{todo}", handleCfg)
@@ -63,19 +65,19 @@ func StaticFile(w http.ResponseWriter, req *http.Request) {
 
 //----------------------------------------------------------------------------->
 
-/*
 func tmplPointList(w http.ResponseWriter, r *http.Request) {
-	this_tmpl := "pointlist"
+	thisTmpl := "pointlist"
 
-	fmt.Println("Kiriloff ", this_tmpl, " polina")
+	fmt.Println("Kiriloff ", thisTmpl, " polina")
 
-	err := tmpls.ExecuteTemplate(w, this_tmpl, r)
+	err := tmpls.ExecuteTemplate(w, thisTmpl, r)
 
 	if err != nil {
 		http.Error(w, err.Error(), http.StatusInternalServerError)
 	}
 }
 
+/*
 func tmplPointListData(w http.ResponseWriter, r *http.Request) {
 	//this_tmpl := "pointlist"
 

@@ -8,7 +8,7 @@
 #include <WiFiUdp.h>
 
 //***** Settings - UDP connection - START
-#define POINT_NAME                      "zalais"        // the board name of the link
+#define POINT_NAME                      "divi"          // the board name of the link
 //#define STATION_NAME                    "raspisMelns" // the name of the supervisor station
 #define STATION_NAME                    "RASPIS-MANS"   // the name of the supervisor station
 #define WIFI_HOTSPOT_NAME               "bazargans"     // the WiFi hotspot name

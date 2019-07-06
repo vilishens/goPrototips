@@ -33,6 +33,7 @@ func initTmpls() {
 
 	addPage(&tmplFiles, tmplPath, "home")
 	addPage(&tmplFiles, tmplPath, "about")
+	addPage(&tmplFiles, tmplPath, "points/pointlist")
 	/*
 		addPage(&tmplFiles, tmplPath, "login")
 		addPage(&tmplFiles, tmplPath, "points/pointlist")
@@ -53,7 +54,7 @@ func addPage(files *([]string), path string, page string) {
 func initFuncs() {
 	tmplFuncs = make(map[string]interface{})
 	tmplFuncs["stationName"] = stationName
-	//	tmplFuncs["pointList"] = pointList
+	tmplFuncs["allPointData"] = allPointData
 	//	tmplFuncs["pointCfg"] = pointCfg
 	//	tmplFuncs["increment1"] = increment1
 	//bija	tmplFuncs["pointCfgJsFile"] = pointCfgJsFile

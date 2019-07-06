@@ -1,0 +1,23 @@
+{{define "pointlist"}}
+<!doctype html>
+<html lang="en">
+    <head>
+        {{ template "base-header" }}
+    </head>
+
+    <body onload="makeList();"> 
+     
+        {{ template "base-navigation" }}
+
+        {{ template "pointlist-body" }}   
+   
+        {{ template "base-footer" }}
+
+        {{ template "base-js" }}
+  
+        <script src="{{ webPrefix }}pointList/pointlist.js"></script>
+
+  </body>
+</html>
+
+{{end}}
