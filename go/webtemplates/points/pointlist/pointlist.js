@@ -2,7 +2,7 @@ var POINT_LIST_DATA = 'pointListData';
 var POINT_LIST_ITEM = 'pointListItem';
 var ITEM_CLASS_DEFAULT = 'btn-outline-secondary';
 var ITEM_CLASS_SIGNED = 'btn-outline-success';
-var ITEM_CLASS_DISCONNECTED = 'btn-outline-danger button-blink';
+var ITEM_CLASS_DISCONNECTED = 'btn-outline-secondary button-blink';
 //var CLASS_ITEM_FROZEN = 'outline-danger';
 var ITEM_ID_PREFIX = 'ptItem';
 
@@ -152,7 +152,7 @@ function drawPointListItem(d, cl, name) {
     str += '            role="button" id="'+ptnId+'" data-toggle="dropdown"' 
     str += '            data-toggle="tooltip" data-placement="right" title="'+ptnDscr+'"';
     str += '            aria-haspopup="true" aria-expanded="false">'; 
-    str += '            '+d["Data"][name];
+    str += '            '+name;
     str += '        </a>';
 
 //    var URL_POINT_ITEM_CFG ="/pointlist/act/cfg/"
