@@ -1,0 +1,13 @@
+.button-blink {
+    animation: 1s infinite blink-it;
+    display: inline-block;
+}
+
+@keyframes blink-it {
+    0%, 15% {
+        opacity: 0;
+    }
+    16%, 100% {
+        opacity: 1;
+    }
+}

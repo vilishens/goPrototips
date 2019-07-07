@@ -3,6 +3,9 @@
 <html lang="en">
     <head>
         {{ template "base-header" }}
+    
+        <!-- Custom styles for this template -->
+        <link href="{{ webPrefix }}plus/css/vk-misc.css" rel="stylesheet">
     </head>
 
     <body onload="makeList();"> 
@@ -15,9 +18,8 @@
 
         {{ template "base-js" }}
   
-        <script src="{{ webPrefix }}pointList/pointlist.js"></script>
-
-  </body>
+        <script src="{{ webPrefix }}tmpls/points/pointlist/pointlist.js"></script>
+    </body>
 </html>
 
 {{end}}

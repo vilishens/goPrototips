@@ -1,6 +1,7 @@
 package web
 
 import (
+	"encoding/json"
 	"fmt"
 	"io"
 	"net/http"
@@ -23,6 +24,7 @@ func setMux() {
 	http.Handle("/", rtr)
 
 	rtr.HandleFunc("/pointlist", tmplPointList)
+	rtr.HandleFunc("/pointlist/data", tmplPointListData)
 
 	//	rtr.HandleFunc("/login", pageLogin) //
 	//	rtr.HandleFunc("/pointlist/data", tmplPointListData)
@@ -52,6 +54,8 @@ func pageStatic(tmpl string, w http.ResponseWriter, r *http.Request) {
 func StaticFile(w http.ResponseWriter, req *http.Request) {
 	staticFile := req.URL.Path[len(vparams.Params.WebStaticPrefix):]
 
+	fmt.Println(req.URL.Path, "### Pavel Volya ***", staticFile)
+
 	if len(staticFile) != 0 {
 		f, err := http.Dir(vparams.Params.WebStaticDir).Open(staticFile)
 		if err == nil {
@@ -66,6 +70,7 @@ func StaticFile(w http.ResponseWriter, req *http.Request) {
 //----------------------------------------------------------------------------->
 
 func tmplPointList(w http.ResponseWriter, r *http.Request) {
+
 	thisTmpl := "pointlist"
 
 	fmt.Println("Kiriloff ", thisTmpl, " polina")
@@ -75,6 +80,26 @@ func tmplPointList(w http.ResponseWriter, r *http.Request) {
 	if err != nil {
 		http.Error(w, err.Error(), http.StatusInternalServerError)
 	}
+
+	/*
+		data := allPointData()
+
+		newData, err := json.Marshal(data)
+		if err != nil {
+			http.Error(w, err.Error(), http.StatusInternalServerError)
+		}
+		w.Write(newData)
+	*/
+}
+
+func tmplPointListData(w http.ResponseWriter, r *http.Request) {
+	data := allPointData()
+
+	newData, err := json.Marshal(data)
+	if err != nil {
+		http.Error(w, err.Error(), http.StatusInternalServerError)
+	}
+	w.Write(newData)
 }
 
 /*

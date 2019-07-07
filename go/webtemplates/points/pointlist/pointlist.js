@@ -1,146 +1,174 @@
-var ALL_POINT_LIST = 'allPointList';
-var CLASS_LIST_ITEM = 'pointListItem';
-var CLASS_ITEM_DEFAULT = 'btn-outline-secondary';
-var CLASS_ITEM_ACTIVE = 'btn-outline-success';
-var CLASS_ITEM_FROZEN = 'btn-outline-danger';
-var ID_ITEM_PREFIX = 'ptList';
+var POINT_LIST_DATA = 'pointListData';
+var POINT_LIST_ITEM = 'pointListItem';
+var ITEM_CLASS_DEFAULT = 'btn-outline-secondary';
+var ITEM_CLASS_SIGNED = 'btn-outline-success';
+var ITEM_CLASS_DISCONNECTED = 'btn-outline-danger button-blink';
+//var CLASS_ITEM_FROZEN = 'outline-danger';
+var ITEM_ID_PREFIX = 'ptItem';
+
+var URL_POINT_LIST="/pointlist/data";
+var URL_POINT_ITEM_CFG ="/pointlist/act/cfg/"
+var URL_POINT_ITEM_RESTART ="/pointlist/act/start/"
+var AJAX_DATA={};
 
 function makeList() {
-
     handlePointList()
-
     var nbr = SetInterv(-5, "handlePointList()", 1500);   // 1.5 sec
-
-}
-
-function htmlPointList(d) {
-
-    var obj = $('#allPointList');
-
-    obj.empty()
-
-
 }
 
 function handlePointList() {
  
-    var urlStr =  "/pointlist/data";
-
-//    return;
+    AJAX_DATA = {};
 
     $.ajax({
-        url: urlStr,
+        url: URL_POINT_LIST,
         type: 'post',
-        data: {}, 
+        data: AJAX_DATA, //JSON.stringify(d), 
         dataType: 'json',
-        timeout: 500,
-        success : function(d) {
-
-            var data = d["Data"];
-
-            drawPointList(data)
+        contentType: 'application/json;charset=utf-8',
+        async: true,
+        timeout: 500,   // 0.5 second
+        success : function(data, status, xhr) {
+            drawPointList(data);
+        },
+        error : function(request,error) {
+            alert("Error: "+error);
         },
     });
 }
 
-function emptyList(d) {
-    var obj = $('#'+ALL_POINT_LIST);
-
-    var k = obj.find('.row');
-    var v = obj.find('.row').find('.'+ CLASS_LIST_ITEM);
-
-    var ki = obj.find('.'+ CLASS_LIST_ITEM).length;
-    var ko = Object.keys(d).length;
-
-    if(obj.find('.row').find('.'+ CLASS_LIST_ITEM).length != Object.keys(d).length) {
-        // the current list and data have different count of points, the list needs to be recreated 
-        obj.empty();
-        return true;
-    }
-
-    for(pt in d) {
-        var item = '#'+listItemId(pt);
-        if(0 == obj.find(item).length) {
-            // couldn't find the item in the current list
-            // it means there are different items in data, the list needs to be recreated
-            obj.empty();
-            return true;
-        }
-    }
-
-    return false;
-}
-
-function listItemId(name) {
-    return ID_ITEM_PREFIX+name;
-}
-
-function setItemClass(d) {
-    var obj = $('#'+ALL_POINT_LIST);
-    var item = listItemId(d['Point']);
-
-    var iClass = CLASS_ITEM_DEFAULT;
-    if(IsPointFrozen(d['State'])) {
-        iClass = CLASS_ITEM_FROZEN;
-    } else if (IsPointActive(d['State'])) {
-        iClass = CLASS_ITEM_ACTIVE;
-    }
-
-    if (obj.find('#'+item).hasClass(iClass)) {
-        return;
-    }
-
-    // not the right class let's set the right one
-    obj.find('#'+item).removeClass(CLASS_ITEM_DEFAULT+' '+CLASS_ITEM_FROZEN+' '+CLASS_ITEM_ACTIVE);
-    obj.find('#'+item).addClass(iClass);
-}
 
 function drawPointList(d) {
 
     clean = emptyList(d);
 
     var htmlStr = '';
-    for(ptn in d) {
+    for(ptn in d["List"]) {
+
+        var name = d["List"][ptn];
+        var item = d["Data"][name];
+
+        var cl = itemClass(d["Data"][name]);
+
+        var all = $('#'+POINT_LIST_DATA);
+ 
+        var itObj = all.find("#"+listItemId(name));
+
         if (clean) {
-            htmlStr += drawPointListItem(d[ptn]);
-        } else {
-            setItemClass(d[ptn]);
+            htmlStr += drawPointListItem(d, cl, name);
+        } else if (itObj.length > 0) {
+            setItemClass(itObj, cl);
         }   
     }
 
     if(clean) {
-        var obj = $('#'+ALL_POINT_LIST);
+        var obj = $('#'+POINT_LIST_DATA);
         obj.html(htmlStr);
     }    
 }
 
-function drawPointListItem(d) {
+function emptyList(d) {
+    var obj = $('#'+POINT_LIST_DATA);
 
-    var pClass = CLASS_ITEM_DEFAULT;
-    if(IsPointFrozen(d["State"])) {
-        pClass = CLASS_ITEM_FROZEN;
-    } if(IsPointActive(d["State"])) {
-        pClass = CLASS_ITEM_ACTIVE;
+    var k = obj.find('.row');
+    var v = obj.find('.row').find('.'+ POINT_LIST_ITEM);
+
+//    var ki = obj.find('.'+ POINT_LIST_ITEM).length;
+//    var ko = Object.keys(d).length;
+
+    if(obj.find('.row').find('.'+ POINT_LIST_ITEM).length != Object.keys(d).length) {
+        // the current list and data have different count of points, the list needs to be recreated 
+        obj.empty();
+        return true;
     }
 
-    var ptnDscr = d["Descr"];
-    var ptnId = ID_ITEM_PREFIX+d['Point'];
+    for(ind in d["List"]) {
+        var name = d["List"][ind];
+        var item = '#'+listItemId(name);
+
+        var itemHas = obj.find(item);
+
+        if(0 == itemHas.length) {
+            // couldn't find the item in the current list
+            // it means there are different items in data, the list needs to be recreated
+            obj.empty();
+            return true;
+        } else {
+
+            cl = itemClass(d["Data"][name]);
+
+            if(!itemHas.hasClass(cl)) {
+                // the item doesn't have the received class
+                obj.empty();
+                return true;
+            }    
+        }
+
+    }
+    return false;
+}
+
+function itemClass(item) {
+
+    var cl = ITEM_CLASS_DEFAULT;
+
+    if(item["Signed"] && item["Disconnected"]) {
+        cl = ITEM_CLASS_DISCONNECTED;
+    } else if(item["Signed"]) {
+        cl = ITEM_CLASS_SIGNED;
+    }
+
+    return cl;
+}
+
+function listItemId(name) {
+    return ITEM_ID_PREFIX+name;
+}
+
+//#############################################################
+//#############################################################
+//#############################################################
+
+function setItemClass(obj, cl) {
+    if (obj.hasClass(cl)) {
+        return;
+    }
+
+    // not the right class let's set the right one
+    obj.find('#'+item).removeClass(CLASS_ITEM_DEFAULT+' '+CLASS_ITEM_FROZEN+' '+CLASS_ITEM_ACTIVE);
+    obj.find('#'+item).addClass(cl);
+}
+
+function drawPointListItem(d, cl, name) {
+
+    var ptnDscr = "kiril"; //d["Descr"];
+    var ptnId = ITEM_ID_PREFIX+name;
  
     var str = '';
     str += 
     str += '<div class="row mt-2">'
-    str += '    <div class="btn-group dropright '+CLASS_LIST_ITEM+'">';
-    str += '        <a class="btn '+pClass+' dropdown-toggle" href="#"'; 
+    str += '    <div class="btn-group dropright '+POINT_LIST_ITEM+'">';
+    str += '        <a class="btn '+cl+' dropdown-toggle" href="#"'; 
     str += '            role="button" id="'+ptnId+'" data-toggle="dropdown"' 
     str += '            data-toggle="tooltip" data-placement="right" title="'+ptnDscr+'"';
     str += '            aria-haspopup="true" aria-expanded="false">'; 
-    str += '            '+d["Point"];
+    str += '            '+d["Data"][name];
     str += '        </a>';
 
+//    var URL_POINT_ITEM_CFG ="/pointlist/act/cfg/"
+ //   var URL_POINT_ITEM_RESTART ="/pointlist/act/start/"
+    
+
+
     str += '        <div class="dropdown-menu">';
-    str += '            <a class="dropdown-item" href="point/'+ptn+'/showcfg">Configuration</a>';
-    str += '            <a class="dropdown-item" href="#">Another action</a>';
-    str += '            <a class="dropdown-item" href="#">Something else here</a>';
+    str += '            <a class="dropdown-item" href="'+URL_POINT_ITEM_CFG+name+'">Configuration</a>';
+
+
+    var isDisconn = d["Data"][name]["Disconnected"];
+                    if(isDisconn)
+                    {
+    str += '            <a class="dropdown-item" href="'+URL_POINT_ITEM_RESTART+name+'">Restart</a>';
+                    }    
     str += '        </div>';
 
     str += '    </div>';
