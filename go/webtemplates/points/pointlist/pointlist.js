@@ -139,6 +139,56 @@ function setItemClass(obj, cl) {
     obj.find('#'+item).addClass(cl);
 }
 
+//@@@@@@@@@@@@@@@@@
+
+function drawPointListItemWWW(d, cl, name) {
+
+ //   var name = d["Data"];
+
+  
+    var str = '';
+    str += '<div class="dropdown">';
+    str +=      '<button class="btn btn-secondary dropdown-toggle" type="button" id="dropdownMenuButton" data-toggle="dropdown" aria-haspopup="true" aria-expanded="false">'
+     + name;
+    str +=      '</button>';
+
+    str +=      '<div class="dropdown-menu" aria-labelledby="dropdownMenuButton">';
+
+//#######################
+
+/*    str +=         '<div class="dropdown show">';
+    str +=         '    <a class="btn btn-secondary dropdown-toggle" href="#" role="button" id="dropdownMenuLink" data-toggle="dropdown" aria-haspopup="true" aria-expanded="false">';
+    str +=         '        Dropdown link';
+    str +=         '    </a>';
+
+    str +=         '    <div class="dropdown-menu" aria-labelledby="dropdownMenuLink">';
+    str +=         '        <a class="dropdown-item" href="#">Action</a>';
+    str +=         '        <a class="dropdown-item" href="#">Another action</a>';
+    str +=         '        <a class="dropdown-item" href="#">Something else here</a>';
+    str +=         '    </div>';
+    str +=         '</div>';
+*/
+   // str +=      '  <a class="dropdown-item" href="#">Action</a>';
+
+
+
+//#######################
+
+
+
+
+    str +=      '  <a class="dropdown-item" href="#">Action</a>';
+    str +=      '  <a class="dropdown-item" href="#">Another action</a>';
+    str +=      '  <a class="dropdown-item" href="#">Something else here</a>';
+    str +=      '</div>';
+    str += '</div>';
+
+    return str;
+}
+
+
+//@@@@@@@@@@@@@@@@@@@@@@@@@@@@@
+
 function drawPointListItem(d, cl, name) {
 
     var ptnDscr = "kiril"; //d["Descr"];
