@@ -56,6 +56,10 @@ function drawPointList(d) {
 
         if (clean) {
             htmlStr += drawPointListItem(d, cl, name);
+            htmlStr += drawPointListItemX(d, cl, name);
+
+htmlStr += miklo(d["Data"][name], cl, name);
+
         } else if (itObj.length > 0) {
             setItemClass(itObj, cl);
         }   
@@ -141,7 +145,7 @@ function setItemClass(obj, cl) {
 
 //@@@@@@@@@@@@@@@@@
 
-function drawPointListItemWWW(d, cl, name) {
+function drawPointListItemX(d, cl, name) {
 
  //   var name = d["Data"];
 
@@ -186,8 +190,100 @@ function drawPointListItemWWW(d, cl, name) {
     return str;
 }
 
+function bootstrapa_menu(d, cl, name) {
+/*    
+    <div class="container">
+  	<div class="row">
+        <h2>Multi level dropdown menu in Bootstrap</h2>
+        <hr>
+        <div class="dropdown">
+            <button class="btn btn-secondary dropdown-toggle" type="button" id="dropdownMenu1" data-toggle="dropdown" aria-haspopup="true" aria-expanded="false">
+              Dropdown
+            </button>
+            <ul class="dropdown-menu multi-level" role="menu" aria-labelledby="dropdownMenu">
+                <li class="dropdown-item"><a href="#">Some action</a></li>
+                <li class="dropdown-item"><a href="#">Some other action</a></li>
+                <li class="dropdown-divider"></li>
+                <li class="dropdown-submenu">
+                  <a  class="dropdown-item" tabindex="-1" href="#">Hover me for more options</a>
+                  <ul class="dropdown-menu">
+                    <li class="dropdown-item"><a tabindex="-1" href="#">Second level</a></li>
+                    <li class="dropdown-submenu">
+                      <a class="dropdown-item" href="#">Even More..</a>
+                      <ul class="dropdown-menu">
+                          <li class="dropdown-item"><a href="#">3rd level</a></li>
+                            <li class="dropdown-submenu"><a class="dropdown-item" href="#">another level</a>
+                            <ul class="dropdown-menu">
+                                <li class="dropdown-item"><a href="#">4th level</a></li>
+                                <li class="dropdown-item"><a href="#">4th level</a></li>
+                                <li class="dropdown-item"><a href="#">4th level</a></li>
+                            </ul>
+                          </li>
+                            <li class="dropdown-item"><a href="#">3rd level</a></li>
+                      </ul>
+                    </li>
+                    <li class="dropdown-item"><a href="#">Second level</a></li>
+                    <li class="dropdown-item"><a href="#">Second level</a></li>
+                  </ul>
+                </li>
+              </ul>
+        </div>
+    </div>
+</div>
+*/
+}
+ 
 
 //@@@@@@@@@@@@@@@@@@@@@@@@@@@@@
+
+function miklo(d, cl, name) {
+
+    var str = '';
+
+    str += '<div class="container">';
+  	str += '    <div class="row">';
+    str += '        <div class="dropdown">';
+    str += '            <button class="btn dropdown-toggle '+cl+'" type="button" id="dropdownMenu1" data-toggle="dropdown" aria-haspopup="true" aria-expanded="false">';
+    str += '                '+d["Point"];
+    str += '            </button>';
+    str += '            <ul class="dropdown-menu multi-level" role="menu" aria-labelledby="dropdownMenu">';
+    str += '                <li class="dropdown-item"><a href="#">Some action</a></li>';
+    str += '                <li class="dropdown-item"><a href="#">Some other action</a></li>';
+    str += '                <li class="dropdown-divider"></li>';
+    str += '                <li class="dropdown-submenu">';
+    str += '                    <a  class="dropdown-item" tabindex="-1" href="#">Hover me for more options</a>';
+    str += '                    <ul class="dropdown-menu">';
+    str += '                        <li class="dropdown-item"><a tabindex="-1" href="#">Second level</a></li>';
+    str += '                        <li class="dropdown-submenu">';
+    str += '                            <a class="dropdown-item" href="#">Even More..</a>';
+    str += '                            <ul class="dropdown-menu">';
+    str += '                                <li class="dropdown-item"><a href="#">3rd level</a></li>';
+    str += '                                <li class="dropdown-submenu"><a class="dropdown-item" href="#">another level</a>';
+    str += '                                    <ul class="dropdown-menu">';
+    str += '                                        <li class="dropdown-item"><a href="#">4th level</a></li>';
+    str += '                                        <li class="dropdown-item"><a href="#">4th level</a></li>';
+    str += '                                        <li class="dropdown-item"><a href="#">4th level</a></li>';
+    str += '                                    </ul>';
+    str += '                                </li>';
+    str += '                                <li class="dropdown-item"><a href="#">3rd level</a></li>';
+    str += '                           </ul>';
+    str += '                        </li>';
+    str += '                        <li class="dropdown-item"><a href="#">Second level</a></li>';
+    str += '                        <li class="dropdown-item"><a href="#">Second level</a></li>';
+    str += '                    </ul>';
+    str += '                </li>';
+    str += '            </ul>';           
+    str += '        </div>';
+    str += '    </div>';
+    str += '</div>';
+
+    return str;
+
+}
+
+//@@@@@@@@@@@@@@@@@@@@@@@@@@@@@
+
+
 
 function drawPointListItem(d, cl, name) {
 

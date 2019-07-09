@@ -1,9 +1,9 @@
-.button-blink {
-    animation: 1s infinite blink-it;
+.button-blinkX {
+    animation: 1s infinite blink-itX;
     display: inline-block;
 }
 
-@keyframes blink-it {
+@keyframes blink-itX {
     0%, 15% {
         opacity: 0;
     }
