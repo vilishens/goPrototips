@@ -1,5 +1,6 @@
 var POINT_LIST_DATA = 'pointListData';
-var POINT_LIST_ITEM = 'pointListItem';
+var POINT_LIST_ITEM = 'pointListItem'; //????? vai šito paturēt
+var POINT_LIST_ITEM_OBJ_CLASS = 'pointListItem';    // class to identify 
 var ITEM_CLASS_DEFAULT = 'btn-outline-secondary';
 var ITEM_CLASS_SIGNED = 'btn-outline-success';
 var ITEM_CLASS_DISCONNECTED = 'btn-outline-secondary button-blink';
@@ -9,7 +10,8 @@ var ITEM_ID_PREFIX = 'ptItem';
 var URL_POINT_LIST="/pointlist/data";
 var URL_POINT_ITEM_CFG ="/pointlist/act/cfg/"
 var URL_POINT_ITEM_RESTART ="/pointlist/act/start/"
-var AJAX_DATA={};
+
+var all = {};
 
 function makeList() {
     handlePointList()
@@ -18,17 +20,18 @@ function makeList() {
 
 function handlePointList() {
  
-    AJAX_DATA = {};
+    all = {};
 
     $.ajax({
         url: URL_POINT_LIST,
         type: 'post',
-        data: AJAX_DATA, //JSON.stringify(d), 
+        data: all, //JSON.stringify(d), 
         dataType: 'json',
         contentType: 'application/json;charset=utf-8',
         async: true,
         timeout: 500,   // 0.5 second
         success : function(data, status, xhr) {
+            all = data;
             drawPointList(data);
         },
         error : function(request,error) {
@@ -37,10 +40,9 @@ function handlePointList() {
     });
 }
 
-
 function drawPointList(d) {
-
-    clean = emptyList(d);
+   
+    clean = emptyListObj();
 
     var htmlStr = '';
     for(ptn in d["List"]) {
@@ -48,17 +50,20 @@ function drawPointList(d) {
         var name = d["List"][ptn];
         var item = d["Data"][name];
 
-        var cl = itemClass(d["Data"][name]);
+        var cl = itemDataClass(name);
 
         var all = $('#'+POINT_LIST_DATA);
  
         var itObj = all.find("#"+listItemId(name));
 
-        if (clean) {
-            htmlStr += drawPointListItem(d, cl, name);
-            htmlStr += drawPointListItemX(d, cl, name);
+//        htmlStr += drawPointListItem(d["Data"][name], cl, name);
+ 
 
-htmlStr += miklo(d["Data"][name], cl, name);
+        if (clean) {
+            htmlStr += drawPointListItem(d["Data"][name], cl, name);
+            htmlStr += drawPointListItemZZZ(d, cl, name);
+
+            // htmlStr += miklo(d["Data"][name], cl, name);
 
         } else if (itObj.length > 0) {
             setItemClass(itObj, cl);
@@ -70,6 +75,49 @@ htmlStr += miklo(d["Data"][name], cl, name);
         obj.html(htmlStr);
     }    
 }
+
+function emptyListObj() {
+
+    var obj = $('#'+POINT_LIST_DATA);
+
+    var list = all["List"];
+
+    var haveN = obj.find('.row').find('.' + POINT_LIST_ITEM_OBJ_CLASS).length;
+    var newN = Object.keys(list).length;
+
+    if(haveN != newN) {
+        // number of items on the page and received data isn't the same
+        obj.empty();
+        return true
+    }
+
+    for(ind in list) {
+        var name = d["List"][ind];
+        var item = '#'+listItemId(name);
+
+        var itemFound = obj.find(item);
+
+        if(0 == itemFound.length) {
+            // couldn't find the item in the current list
+            // it means there are different items in data, the list needs to be recreated
+            obj.empty();
+            return true;
+        } else {
+
+            cl = itemDataClass(name);
+
+            if(!itemFound.hasClass(cl)) {
+                // the item doesn't have the received class
+                obj.empty();
+                return true;
+            }    
+        }
+
+    }
+
+
+    return false;
+} 
 
 function emptyList(d) {
     var obj = $('#'+POINT_LIST_DATA);
@@ -99,7 +147,7 @@ function emptyList(d) {
             return true;
         } else {
 
-            cl = itemClass(d["Data"][name]);
+            cl = itemDataClass(name);
 
             if(!itemHas.hasClass(cl)) {
                 // the item doesn't have the received class
@@ -112,7 +160,9 @@ function emptyList(d) {
     return false;
 }
 
-function itemClass(item) {
+function itemDataClass(name) {
+
+    var item = all["Data"][name];
 
     var cl = ITEM_CLASS_DEFAULT;
 
@@ -236,14 +286,16 @@ function bootstrapa_menu(d, cl, name) {
 
 //@@@@@@@@@@@@@@@@@@@@@@@@@@@@@
 
-function miklo(d, cl, name) {
+function drawPointListItem(d, cl, name) {
 
     var str = '';
+
+    var itemIDClass = POINT_LIST_ITEM_OBJ_CLASS;
 
     str += '<div class="container">';
   	str += '    <div class="row">';
     str += '        <div class="dropdown">';
-    str += '            <button class="btn dropdown-toggle '+cl+'" type="button" id="dropdownMenu1" data-toggle="dropdown" aria-haspopup="true" aria-expanded="false">';
+    str += '            <button class="btn dropdown-toggle '+cl+ ' ' + itemIDClass +'" type="button" id="dropdownMenu1" data-toggle="dropdown" aria-haspopup="true" aria-expanded="false">';
     str += '                '+d["Point"];
     str += '            </button>';
     str += '            <ul class="dropdown-menu multi-level" role="menu" aria-labelledby="dropdownMenu">';
@@ -285,7 +337,7 @@ function miklo(d, cl, name) {
 
 
 
-function drawPointListItem(d, cl, name) {
+function drawPointListItemZZZ(d, cl, name) {
 
     var ptnDscr = "kiril"; //d["Descr"];
     var ptnId = ITEM_ID_PREFIX+name;
