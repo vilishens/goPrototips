@@ -60,8 +60,8 @@ function drawPointList(d) {
  
 
         if (clean) {
-            htmlStr += drawPointListItem(d["Data"][name], cl, name);
-            htmlStr += drawPointListItemZZZ(d, cl, name);
+            htmlStr += drawPointListItem(name);
+ //           htmlStr += drawPointListItemZZZ(d, cl, name);
 
             // htmlStr += miklo(d["Data"][name], cl, name);
 
@@ -92,7 +92,7 @@ function emptyListObj() {
     }
 
     for(ind in list) {
-        var name = d["List"][ind];
+        var name = all["List"][ind];
         var item = '#'+listItemId(name);
 
         var itemFound = obj.find(item);
@@ -188,7 +188,7 @@ function setItemClass(obj, cl) {
         return;
     }
 
-    // not the right class let's set the right one
+    // before to set the right class let remove all item classes
     obj.find('#'+item).removeClass(CLASS_ITEM_DEFAULT+' '+CLASS_ITEM_FROZEN+' '+CLASS_ITEM_ACTIVE);
     obj.find('#'+item).addClass(cl);
 }
@@ -286,8 +286,10 @@ function bootstrapa_menu(d, cl, name) {
 
 //@@@@@@@@@@@@@@@@@@@@@@@@@@@@@
 
-function drawPointListItem(d, cl, name) {
+function drawPointListItem(name) {
 
+    var d = all["Data"][name];
+    var cl = itemDataClass(name);
     var str = '';
 
     var itemIDClass = POINT_LIST_ITEM_OBJ_CLASS;
@@ -295,7 +297,7 @@ function drawPointListItem(d, cl, name) {
     str += '<div class="container">';
   	str += '    <div class="row">';
     str += '        <div class="dropdown">';
-    str += '            <button class="btn dropdown-toggle '+cl+ ' ' + itemIDClass +'" type="button" id="dropdownMenu1" data-toggle="dropdown" aria-haspopup="true" aria-expanded="false">';
+    str += '            <button class="btn dropdown-toggle '+cl+ ' ' + itemIDClass +'" type="button" id="'+listItemId(name)+'" data-toggle="dropdown" aria-haspopup="true" aria-expanded="false">';
     str += '                '+d["Point"];
     str += '            </button>';
     str += '            <ul class="dropdown-menu multi-level" role="menu" aria-labelledby="dropdownMenu">';
