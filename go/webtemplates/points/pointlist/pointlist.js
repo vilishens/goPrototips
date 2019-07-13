@@ -1,17 +1,21 @@
-var POINT_LIST_DATA = 'pointListData';
-var POINT_LIST_ITEM = 'pointListItem'; //????? vai šito paturēt
-var POINT_LIST_ITEM_OBJ_CLASS = 'pointListItem';    // class to identify 
+var POINT_LIST_OBJ = 'pointList';
+var ITEM_ID_PREFIX = 'ptItem';
+var ITEM_BUTTON_ID_PREFIX = 'ptBtnItem';
 var ITEM_CLASS_DEFAULT = 'btn-outline-secondary';
 var ITEM_CLASS_SIGNED = 'btn-outline-success';
 var ITEM_CLASS_DISCONNECTED = 'btn-outline-secondary button-blink';
+//#################
+
+var POINT_LIST_DATA = 'pointListData';
+var POINT_LIST_ITEM = 'pointListItem'; //????? vai šito paturēt
+var POINT_LIST_ITEM_OBJ_CLASS = 'pointListItem';    // class to identify 
 //var CLASS_ITEM_FROZEN = 'outline-danger';
-var ITEM_ID_PREFIX = 'ptItem';
 
 var URL_POINT_LIST="/pointlist/data";
 var URL_POINT_ITEM_CFG ="/pointlist/act/cfg/"
 var URL_POINT_ITEM_RESTART ="/pointlist/act/start/"
 
-var all = {};
+var allD = {};
 
 function makeList() {
     handlePointList()
@@ -20,19 +24,20 @@ function makeList() {
 
 function handlePointList() {
  
-    all = {};
+    allD = {};
 
     $.ajax({
         url: URL_POINT_LIST,
         type: 'post',
-        data: all, //JSON.stringify(d), 
+        data: allD, //JSON.stringify(d), 
         dataType: 'json',
         contentType: 'application/json;charset=utf-8',
         async: true,
         timeout: 500,   // 0.5 second
         success : function(data, status, xhr) {
-            all = data;
-            drawPointList(data);
+            allD = data;
+            drawPointList();
+           // drawPointL(data);
         },
         error : function(request,error) {
             alert("Error: "+error);
@@ -40,7 +45,214 @@ function handlePointList() {
     });
 }
 
-function drawPointList(d) {
+function drawPointList() {
+
+    removeListItems();
+
+    var wasName = "";
+
+    for (ind in allD["List"]) {
+        var name = allD["List"][ind];
+
+        var isNew = newItem(name);
+        var isChanged = !isNew && changedItem(name);
+
+        if(isChanged) {
+            var kor = 3;
+        }
+ 
+        var str = "";
+        if(isNew || isChanged) {
+            str = itemDataHTML(name);
+
+            if(isNew) {
+
+                var str1 = '<span id="'+listItemId(name)+'">' + str + '</span>';
+
+                if("" == wasName) {
+
+                    $('#'+POINT_LIST_OBJ).prepend(str1);
+                } else {
+
+                    var dima = $('#'+POINT_LIST_OBJ).find('#' + listItemId(wasName));
+
+                    var ki = dima.length;
+
+                    //dima.before(str1);
+
+                    //$(str1).insertAfter('#'+POINT_LIST_OBJ).find('#' + listItemId(wasName));
+                    //$('#'+POINT_LIST_OBJ).append(str);
+                    //dima.after(str1);
+                    $(str1).insertAfter(dima);
+                }
+            } else {
+
+//                var strX = $('#' + listItemId(name)).html
+
+                $('#' + listItemId(name)).html(str);
+            }
+        }
+
+        wasName = name;
+
+        var ki = 5;
+    }
+}
+
+function hasMyClasses(obj, cl) {
+
+    var arr = cl.split(" ");
+
+    var kama_xxx = obj.attr("class").split(' ');
+
+    for(ind in arr) {
+        if(!obj.hasClass(arr[ind])) {
+
+            var jack_xxx = arr[ind];
+
+            return false;
+        }
+    }
+
+    return true;
+}
+
+
+function itemDataHTML(name) {
+
+    var d = allD["Data"][name];
+    var cl = itemDataClass(name);
+    var str = '';
+
+//    var itemIDClass = POINT_LIST_ITEM_OBJ_CLASS;
+
+//    str += '<span id="'+listItemId(name)+'">'
+    str += '<div class="container">';
+  	str += '    <div class="row">';
+    str += '        <div class="dropdown">';
+    str += '            <button class="btn dropdown-toggle '+cl+'" type="button" id="'+listItemBtnId(name)+'" data-toggle="dropdown" aria-haspopup="true" aria-expanded="false">';
+    str += '                '+d["Point"]+" Botvin!!!";
+    str += '            </button>';
+    str += '            <ul class="dropdown-menu multi-level" role="menu" aria-labelledby="dropdownMenu">';
+    str += '                <li class="dropdown-item"><a href="#">Some action</a></li>';
+    str += '                <li class="dropdown-item"><a href="#">Some other action</a></li>';
+    str += '                <li class="dropdown-divider"></li>';
+    str += '                <li class="dropdown-submenu">';
+    str += '                    <a  class="dropdown-item" tabindex="-1" href="#">Hover me for more options</a>';
+    str += '                    <ul class="dropdown-menu">';
+    str += '                        <li class="dropdown-item"><a tabindex="-1" href="#">Second level</a></li>';
+    str += '                        <li class="dropdown-submenu">';
+    str += '                            <a class="dropdown-item" href="#">Even More..</a>';
+    str += '                            <ul class="dropdown-menu">';
+    str += '                                <li class="dropdown-item"><a href="#">3rd level</a></li>';
+    str += '                                <li class="dropdown-submenu"><a class="dropdown-item" href="#">another level</a>';
+    str += '                                    <ul class="dropdown-menu">';
+    str += '                                        <li class="dropdown-item"><a href="#">4th level</a></li>';
+    str += '                                        <li class="dropdown-item"><a href="#">4th level</a></li>';
+    str += '                                        <li class="dropdown-item"><a href="#">4th level</a></li>';
+    str += '                                    </ul>';
+    str += '                                </li>';
+    str += '                                <li class="dropdown-item"><a href="#">3rd level</a></li>';
+    str += '                            </ul>';
+    str += '                        </li>';
+    str += '                        <li class="dropdown-item"><a href="#">Second level</a></li>';
+    str += '                        <li class="dropdown-item"><a href="#">Second level</a></li>';
+    str += '                    </ul>';
+    str += '                </li>';
+    str += '            </ul>';           
+    str += '        </div>';
+    str += '    </div>';
+    str += '</div>';
+//  str += '</span>'
+
+    return str;
+
+}
+
+function changedItem(name) {
+
+    var item = itemObjectButton(name);
+    var cl = itemDataClass(name);
+
+    var cla_xxx = item;
+
+    return !hasMyClasses(item, cl)
+}
+
+function itemObjectButton(name) {
+    var obj = $('#'+POINT_LIST_OBJ).find("#"+listItemId(name));
+    var btn = obj.find('#'+listItemBtnId(name));
+
+    return btn;
+}
+
+function itemObject(name) {
+    return $('#'+POINT_LIST_OBJ).find("#"+listItemId(name));
+}
+
+function newItem(name) {
+    return 0 == itemObject(name).length; 
+}
+
+function removeListItems() {
+    var obj = $('#'+POINT_LIST_OBJ);
+    var search = '[id^="'+ITEM_ID_PREFIX+'"]';
+    var items = obj.find(search);
+
+    items.each(function(){
+        var id = $(this).attr('id');
+        var name = id.substr(ITEM_ID_PREFIX.length)
+
+        var found = false;
+        for (ind in allD["List"]) {
+            it = allD["List"][ind];
+
+            if(it == name) {
+                found = true;
+                break;
+            }
+        }
+
+        if (!found) {
+            // this item is not in the list of data
+            change = true;
+            $(this).remove();
+        } 
+    });
+}
+
+function listItemId(name) {
+    return prefixNameId(ITEM_ID_PREFIX,name);
+}
+
+function listItemBtnId(name) {
+    return prefixNameId(ITEM_BUTTON_ID_PREFIX,name);
+}
+
+
+function prefixNameId(prefix, name) {
+    return prefix + name;
+}
+
+function itemDataClass(name) {
+
+    var item = allD["Data"][name];
+
+    var cl = ITEM_CLASS_DEFAULT;
+    if(item["Signed"] && item["Disconnected"]) {
+        cl = ITEM_CLASS_DISCONNECTED;
+    } else if(item["Signed"]) {
+        cl = ITEM_CLASS_SIGNED;
+    }
+
+    return cl;
+}
+
+//!!!! ##########################################################################
+//!!!! ##########################################################################
+//!!!! ##########################################################################
+
+function drawPointL(d) {
    
     clean = emptyListObj();
 
@@ -80,7 +292,7 @@ function emptyListObj() {
 
     var obj = $('#'+POINT_LIST_DATA);
 
-    var list = all["List"];
+    var list = allD["List"];
 
     var haveN = obj.find('.row').find('.' + POINT_LIST_ITEM_OBJ_CLASS).length;
     var newN = Object.keys(list).length;
@@ -92,7 +304,7 @@ function emptyListObj() {
     }
 
     for(ind in list) {
-        var name = all["List"][ind];
+        var name = allD["List"][ind];
         var item = '#'+listItemId(name);
 
         var itemFound = obj.find(item);
@@ -158,25 +370,6 @@ function emptyList(d) {
 
     }
     return false;
-}
-
-function itemDataClass(name) {
-
-    var item = all["Data"][name];
-
-    var cl = ITEM_CLASS_DEFAULT;
-
-    if(item["Signed"] && item["Disconnected"]) {
-        cl = ITEM_CLASS_DISCONNECTED;
-    } else if(item["Signed"]) {
-        cl = ITEM_CLASS_SIGNED;
-    }
-
-    return cl;
-}
-
-function listItemId(name) {
-    return ITEM_ID_PREFIX+name;
 }
 
 //#############################################################
@@ -288,7 +481,7 @@ function bootstrapa_menu(d, cl, name) {
 
 function drawPointListItem(name) {
 
-    var d = all["Data"][name];
+    var d = allD["Data"][name];
     var cl = itemDataClass(name);
     var str = '';
 
