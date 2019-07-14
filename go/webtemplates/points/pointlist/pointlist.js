@@ -1,15 +1,3 @@
-//#################
-
-var POINT_LIST_DATA = 'pointListData';
-var POINT_LIST_ITEM = 'pointListItem'; //????? vai šito paturēt
-var POINT_LIST_ITEM_OBJ_CLASS = 'pointListItem';    // class to identify 
-//var CLASS_ITEM_FROZEN = 'outline-danger';
-
-var URL_POINT_ITEM_CFG ="/pointlist/act/cfg/"
-var URL_POINT_ITEM_RESTART ="/pointlist/act/start/"
-
-// @@@@@@@@@@@@@@@@@@@@@@@@ Ed Pulasky
-
 var URL_POINT_LIST="/pointlist/data";
 var POINT_LIST_OBJ = 'pointList';
 var ITEM_ID_PREFIX = 'ptItem';
@@ -128,11 +116,14 @@ function itemDataSpanHTML(name) {
     str += '                '+d["Point"];
     str += '            </button>';
     str += '            <ul class="dropdown-menu multi-level" role="menu" aria-labelledby="dropdownMenu">';
+
+
+
     str += '                <li class="dropdown-item"><a href="#">Some action</a></li>';
     str += '                <li class="dropdown-item"><a href="#">Some other action</a></li>';
     str += '                <li class="dropdown-divider"></li>';
     str += '                <li class="dropdown-submenu">';
-    str += '                    <a  class="dropdown-item" tabindex="-1" href="#">Hover me for more options</a>';
+    str += '                    <a  class="dropdown-item" tabindex="-1" href="#">Configuration</a>';
     str += '                    <ul class="dropdown-menu">';
     str += '                        <li class="dropdown-item"><a tabindex="-1" href="#">Second level</a></li>';
     str += '                        <li class="dropdown-submenu">';
@@ -200,16 +191,27 @@ function prefixNameId(prefix, name) {
 
 function itemDataClass(name) {
 
-    var item = allD["Data"][name];
-
     var cl = ITEM_CLASS_DEFAULT;
-    if(item["Signed"] && item["Disconnected"]) {
+
+    if(isDisconnected(name)) {
         cl = ITEM_CLASS_DISCONNECTED;
-    } else if(item["Signed"]) {
+    } else if(isSigned(name)) {
         cl = ITEM_CLASS_SIGNED;
     }
 
     return cl;
+}
+
+function isDisconnected(name) {
+    var item = allD["Data"][name];
+
+    return (item["Signed"] && item["Disconnected"]);
+}
+
+function isSigned(name) {
+    var item = allD["Data"][name];
+
+    return (item["Signed"] && !item["Disconnected"]);
 }
 
 function hasMyClasses(obj, cl) {
