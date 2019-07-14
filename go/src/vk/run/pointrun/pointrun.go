@@ -137,6 +137,58 @@ func scanStationNet(chGoOn chan bool, chDone chan int, chErr chan error) {
 	}
 }
 
+func RescanPoint(point string) {
+
+	baseIP := Points[point].Point.UDPAddr.IP.To4()
+
+	if nil == baseIP {
+		err := fmt.Errorf("Can't rescan the point %q due to abscense or invalid of IP address", point)
+		vutils.LogErr(err)
+	}
+
+	lastByte := baseIP.To4()[3]
+
+	rescanPoints(lastByte, lastByte)
+}
+
+func RescanWhole() {
+
+	fmt.Println("@@@@\n@@@@\n@@@@@\n@@@@@\n@@@@@")
+
+	rescanPoints(vnetscan.IPStart, vnetscan.IPEnd)
+}
+
+func rescanPoints(first byte, last byte) {
+
+	locGoOn := make(chan bool)
+	locErr := make(chan error)
+	locDone := make(chan int)
+
+	go vnetscan.IterateIP(locGoOn, locErr, first, last)
+
+	select {
+	case err := <-locErr:
+		vutils.LogErr(err)
+		//Points[point].Run.LogStr(vomni.LogFileCdErr, err.String())
+		return
+	case <-locGoOn:
+		fmt.Printf("Alex Feinsilber --- RESCAN --> DONE")
+	}
+
+	go startSigned(locGoOn, locDone, locErr)
+
+	select {
+	case err := <-locErr:
+		vutils.LogErr(err)
+		return
+	case <-locDone:
+		fmt.Printf("Alex Feinsilber --- RESTART SIGN--> šeit")
+	case <-locGoOn:
+		fmt.Printf("Alex Feinsilber --- RESTART GO ON--> šeit")
+	}
+
+}
+
 //#######################################################################
 
 func startSigned(chGoOn chan bool, chDone chan int, chErr chan error) {

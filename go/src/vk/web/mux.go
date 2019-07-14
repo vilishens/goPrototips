@@ -4,7 +4,9 @@ import (
 	"encoding/json"
 	"fmt"
 	"io"
+	"log"
 	"net/http"
+	"strings"
 	"time"
 	vparams "vk/params"
 
@@ -26,11 +28,13 @@ func setMux() {
 	rtr.HandleFunc("/pointlist", tmplPointList)
 	rtr.HandleFunc("/pointlist/data", tmplPointListData)
 
-	//	rtr.HandleFunc("/login", pageLogin) //
+	rtr.HandleFunc("/pointlist/act/{todo}/{point}", handlePointListAction)
 	//	rtr.HandleFunc("/pointlist/data", tmplPointListData)
 	//	rtr.HandleFunc("/point/{point}/{todo}", pointToDo)
 	//	rtr.HandleFunc("/point/handlecfg/{point}/{todo}", handleCfg)
 	//	rtr.HandleFunc("/station/{todo}", handleStation)
+
+	rtr.HandleFunc("/station/act/{todo}", handleStationAction)
 }
 
 func pageAbout(w http.ResponseWriter, r *http.Request) {
@@ -92,6 +96,8 @@ func tmplPointList(w http.ResponseWriter, r *http.Request) {
 	*/
 }
 
+//---------------------------------------------------------------------------->
+
 func tmplPointListData(w http.ResponseWriter, r *http.Request) {
 	data := allPointData()
 
@@ -101,6 +107,88 @@ func tmplPointListData(w http.ResponseWriter, r *http.Request) {
 	}
 	w.Write(newData)
 }
+
+func handlePointListAction(w http.ResponseWriter, r *http.Request) {
+
+	vars := mux.Vars(r)
+
+	todo := strings.ToUpper(vars["todo"])
+	point := vars["point"]
+
+	//	var data interface{}
+
+	switch todo {
+	case "RESCAN":
+		rescanPoint(point)
+	case "LOADCFG", "SAVECFG":
+		/*
+			body, err := ioutil.ReadAll(r.Body)
+			if err != nil {
+				panic(err.Error())
+			}
+			err = json.Unmarshal(body, &data)
+			if err != nil {
+				panic(err.Error())
+			}
+		*/
+	case "FREEZE", "UNFREEZE", "LOADDEFAULTCFG", "LOADSAVEDCFG":
+	default:
+		log.Fatal(fmt.Sprintf("===> Don't know what to do with %q (point %q)", todo, point))
+	}
+
+	responseOK(w)
+	//	xrun.ReceivedWebMsg(point, todo, data)
+}
+
+func handleStationAction(w http.ResponseWriter, r *http.Request) {
+
+	vars := mux.Vars(r)
+
+	todo := strings.ToUpper(vars["todo"])
+
+	//	var data interface{}
+
+	switch todo {
+	case "RESCANWHOLE":
+		rescanWhole()
+	case "LOADCFG", "SAVECFG":
+		/*
+			body, err := ioutil.ReadAll(r.Body)
+			if err != nil {
+				panic(err.Error())
+			}
+			err = json.Unmarshal(body, &data)
+			if err != nil {
+				panic(err.Error())
+			}
+		*/
+	case "FREEZE", "UNFREEZE", "LOADDEFAULTCFG", "LOADSAVEDCFG":
+	default:
+		log.Fatal(fmt.Sprintf("===> Don't know what to do with %q", todo))
+	}
+
+	responseOK(w)
+	//	xrun.ReceivedWebMsg(point, todo, data)
+}
+
+func responseOK(w http.ResponseWriter) {
+	type resp struct {
+		RC string
+	}
+
+	a, err := json.Marshal(resp{RC: "OK"})
+	if nil != err {
+		http.Error(w, err.Error(), http.StatusInternalServerError)
+	}
+
+	w.Write(a)
+}
+
+//---------------------------------------------------------------------------->
+//---------------------------------------------------------------------------->
+//---------------------------------------------------------------------------->
+//---------------------------------------------------------------------------->
+//---------------------------------------------------------------------------->
 
 /*
 func tmplPointListData(w http.ResponseWriter, r *http.Request) {

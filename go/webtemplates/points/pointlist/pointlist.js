@@ -119,9 +119,9 @@ function itemDataSpanHTML(name) {
 
 
 
-    str += '                <li class="dropdown-item"><a href="#">Some action</a></li>';
-    str += '                <li class="dropdown-item"><a href="#">Some other action</a></li>';
-    str += '                <li class="dropdown-divider"></li>';
+//    str += '                <li class="dropdown-item"><a href="#">Some action</a></li>';
+//    str += '                <li class="dropdown-item"><a href="#">Some other action</a></li>';
+//    str += '                <li class="dropdown-divider"></li>';
     str += '                <li class="dropdown-submenu">';
     str += '                    <a  class="dropdown-item" tabindex="-1" href="#">Configuration</a>';
     str += '                    <ul class="dropdown-menu">';
@@ -144,6 +144,10 @@ function itemDataSpanHTML(name) {
     str += '                        <li class="dropdown-item"><a href="#">Second level</a></li>';
     str += '                    </ul>';
     str += '                </li>';
+    if(isDisconnected(name)) {
+    str += '                <li class="dropdown-item"><a href="pointlist/act/rescan/'+name+'">Rescan</a></li>';
+//    str += '                <li class="dropdown-item"><a href="#">Some other action</a></li>';
+    }
     str += '            </ul>';           
     str += '        </div>';
     str += '    </div>';

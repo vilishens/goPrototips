@@ -27,7 +27,7 @@ func ScanOctet(chGoOn chan bool, chDone chan int, chErr chan error) {
 
 		// need to wait to be sure all scan messages are done
 		// to be able to make all attempts if necessary
-		time.Sleep((vomni.MessageSendRepeatLimit + 1) * vomni.DelaySendMessageRepeat)
+		//time.Sleep((vomni.MessageSendRepeatLimit + 1) * vomni.DelaySendMessageRepeat)
 
 		chGoOn <- true
 	}
@@ -74,6 +74,10 @@ func IterateIP(chDone chan bool, chErr chan error, start byte, end byte) {
 	for k, v := range vmsg.MessageList2Send {
 		fmt.Printf("PEC VISIEM SCANIEM %2d --- IP %q NBR %d\n", k, v.UDPAddr.IP.String(), v.MessageNbr)
 	}
+
+	// need to wait to be sure all scan messages are done
+	// to be able to make all attempts if necessary
+	time.Sleep((vomni.MessageSendRepeatLimit + 1) * vomni.DelaySendMessageRepeat)
 
 	chDone <- true
 }
