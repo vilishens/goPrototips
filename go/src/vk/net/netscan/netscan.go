@@ -17,7 +17,7 @@ func ScanOctet(chGoOn chan bool, chDone chan int, chErr chan error) {
 	locDone := make(chan bool)
 	locErr := make(chan error)
 
-	go iterateIP(locDone, locErr)
+	go IterateIP(locDone, locErr, IPStart, IPEnd)
 
 	select {
 	case err := <-locErr:
@@ -33,7 +33,7 @@ func ScanOctet(chGoOn chan bool, chDone chan int, chErr chan error) {
 	}
 }
 
-func iterateIP(chDone chan bool, chErr chan error) {
+func IterateIP(chDone chan bool, chErr chan error, start byte, end byte) {
 
 	baseIP := net.ParseIP(vparams.Params.IPAddressInternal).To4()
 	if nil == baseIP {
@@ -41,7 +41,7 @@ func iterateIP(chDone chan bool, chErr chan error) {
 		return
 	}
 
-	for i := IPStart; i <= IPEnd; i++ {
+	for i := start; i <= end; i++ {
 
 		ip := net.IP{baseIP[0], baseIP[1], baseIP[2], byte(i)}
 
