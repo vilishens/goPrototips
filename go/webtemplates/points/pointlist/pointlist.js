@@ -8,6 +8,7 @@ var ITEM_CLASS_SIGNED = 'btn-outline-success';
 var ITEM_CLASS_DISCONNECTED = 'btn-outline-secondary button-blink';
 
 var allD = {};
+var pointStates = {};
 
 function makeList() {
     handlePointList()
@@ -69,6 +70,13 @@ function drawPointList() {
                 $('#' + listItemId(name)).html(strHtml);
             }
         }
+
+        pointStates[name] = allD["Data"][name]["State"]
+
+//        var vato = !(pointStates[name] == thisState );
+
+//        return  !(pointStates[name] == thisState );
+
 
         wasName = name;
     }
@@ -168,10 +176,25 @@ function itemObject(name) {
 
 function changedItem(name) {
 
-    var item = itemObjectButton(name);
-    var cl = itemDataClass(name);
+    if(name in pointStates) {
+        var now = allD["Data"][name]["State"];
+        var was = pointStates[name]; 
 
-    return !hasMyClasses(item, cl)
+        // šitas lieks
+        if(!(was == now)) {
+            var d = name;
+            var e =5;
+        }
+
+        return !(was == now);
+    }
+
+    return true;
+
+//    var item = itemObjectButton(name);
+//    var cl = itemDataClass(name);
+
+//    return !hasMyClasses(item, cl)
 }
 
 function itemObjectButton(name) {
