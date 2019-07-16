@@ -164,6 +164,12 @@ func rescanPoints(first byte, last byte) {
 	locErr := make(chan error)
 	locDone := make(chan int)
 
+	fmt.Println("RESCAN POINT >>>>>")
+	fmt.Println("RESCAN POINT >>>>>")
+	fmt.Printf("RESCAN POINT >>>>> F %d L %d\n", first, last)
+	fmt.Println("RESCAN POINT >>>>>")
+	fmt.Println("RESCAN POINT >>>>>")
+
 	go vnetscan.IterateIP(locGoOn, locErr, first, last)
 
 	select {
@@ -172,7 +178,7 @@ func rescanPoints(first byte, last byte) {
 		//Points[point].Run.LogStr(vomni.LogFileCdErr, err.String())
 		return
 	case <-locGoOn:
-		fmt.Printf("Alex Feinsilber --- RESCAN --> DONE")
+		fmt.Printf("Alex Feinsilber --- RESCAN --> DONE\n")
 	}
 
 	go startSigned(locGoOn, locDone, locErr)
@@ -196,6 +202,13 @@ func startSigned(chGoOn chan bool, chDone chan int, chErr chan error) {
 	listHandled := make(map[string]bool) // list of signed already and handled points
 	//	listStart := make(map[string]bool)   // list of points in start state
 
+	for k, v := range listSigned {
+		fmt.Printf("POINT %q ADDR %+v LEN %d\n", k, v, len(listSigned))
+	}
+
+	// Vajad izmainīt
+	// vispirms jāapstrādā pats punkts, pec tam jaapstrādā tā konfigurācijas
+
 	for _, cfgType := range startSequence {
 		// start all point configuration, sequence set in startSequence
 		// Sequence can be important some times (for instance, to check the point ready state)
@@ -205,6 +218,14 @@ func startSigned(chGoOn chan bool, chDone chan int, chErr chan error) {
 			hasCfg := false
 
 			err := error(nil)
+
+			delete(listSigned, point)
+
+			fmt.Println("Did I missed???")
+			fmt.Println("Did I missed???")
+			fmt.Printf("Time 2 sign %q\n", point)
+			fmt.Println("Did I missed???")
+			fmt.Println("Did I missed???")
 
 			// check if the point has its object
 			if pData, err = checkStartPointExistence(point, addr); nil == err {
