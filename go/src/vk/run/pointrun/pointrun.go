@@ -54,7 +54,7 @@ func RunStart(chGoOn chan bool, chDone chan int, chErr chan error) {
 	locDone := make(chan int)
 	locErr := make(chan error)
 
-	go scanStationNet(locGoOn, locDone, locErr)
+	go scanOctetAddrs(vnetscan.IPStart, vnetscan.IPEnd, locGoOn, locDone, locErr)
 
 	stop := false
 	for {
@@ -68,13 +68,11 @@ func RunStart(chGoOn chan bool, chDone chan int, chErr chan error) {
 		case <-locGoOn:
 			fmt.Println("### Kurtenkov ###")
 			stop = true
-
 		}
 
 		if stop {
 			break
 		}
-
 	}
 
 	fmt.Println("Alex Sitkovetsky ")
@@ -85,55 +83,6 @@ func RunStart(chGoOn chan bool, chDone chan int, chErr chan error) {
 
 	for {
 		time.Sleep(vomni.DelayStepExec)
-	}
-}
-
-func scanStationNet(chGoOn chan bool, chDone chan int, chErr chan error) {
-
-	locGoOn := make(chan bool)
-	locDone := make(chan int)
-	locErr := make(chan error)
-
-	// prepare storage for signed in points
-	listSigned = map[string]net.UDPAddr{}
-
-	go scanNet(locGoOn, locDone, locErr)
-
-	stop := false
-	for {
-		select {
-		case err := <-locErr:
-			chErr <- err
-			return
-		case <-chDone:
-			// the done code received
-			stop = true
-		case <-locGoOn:
-			stop = true
-		}
-		if stop {
-			break
-		}
-	}
-
-	go startSigned(locGoOn, locDone, locErr)
-
-	stop = false
-	for {
-		select {
-		case err := <-locErr:
-			chErr <- err
-			return
-		case <-locDone:
-			// the done code received
-			stop = true
-		case <-locGoOn:
-			chGoOn <- true
-			stop = true
-		}
-		if stop {
-			break
-		}
 	}
 }
 
@@ -148,17 +97,50 @@ func RescanPoint(point string) {
 
 	lastByte := baseIP.To4()[3]
 
-	rescanPoints(lastByte, lastByte)
+	locGoOn := make(chan bool)
+	locErr := make(chan error)
+	locDone := make(chan int)
+
+	go scanOctetAddrs(lastByte, lastByte, locGoOn, locDone, locErr)
+	select {
+	case err := <-locErr:
+		vutils.LogErr(err)
+		return
+	case <-locDone:
+		fmt.Printf("Alex Feinsilber --- RESTART SIGN--> šeit")
+		return
+	case <-locGoOn:
+		fmt.Printf("Alex Feinsilber --- RESTART GO ON--> šeit")
+		return
+	}
 }
 
 func RescanWhole() {
 
 	fmt.Println("@@@@\n@@@@\n@@@@@\n@@@@@\n@@@@@")
 
-	rescanPoints(vnetscan.IPStart, vnetscan.IPEnd)
+	locGoOn := make(chan bool)
+	locErr := make(chan error)
+	locDone := make(chan int)
+
+	go scanOctetAddrs(vnetscan.IPStart, vnetscan.IPEnd, locGoOn, locDone, locErr)
+	select {
+	case err := <-locErr:
+		vutils.LogErr(err)
+		return
+	case <-locDone:
+		fmt.Printf("Alex Feinsilber --- RESTART SIGN--> šeit")
+		return
+	case <-locGoOn:
+		fmt.Printf("Alex Feinsilber --- RESTART GO ON--> šeit")
+		return
+	}
 }
 
-func rescanPoints(first byte, last byte) {
+func scanOctetAddrs(first byte, last byte, chGoOn chan bool, chDone chan int, chErr chan error) {
+
+	// prepare storage for signed in points
+	listSigned = map[string]net.UDPAddr{}
 
 	locGoOn := make(chan bool)
 	locErr := make(chan error)
@@ -174,7 +156,9 @@ func rescanPoints(first byte, last byte) {
 
 	select {
 	case err := <-locErr:
-		vutils.LogErr(err)
+		chErr <- vutils.ErrFuncLine(err)
+
+		//vutils.LogErr(err)
 		//Points[point].Run.LogStr(vomni.LogFileCdErr, err.String())
 		return
 	case <-locGoOn:
