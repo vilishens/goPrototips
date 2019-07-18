@@ -28,6 +28,9 @@ func AllPointData() (data vomni.WebAllPointData) {
 		d.Signed = 0 != (v.Point.State & vomni.PointStateSigned)
 		d.Disconnected = 0 != (v.Point.State & vomni.PointStateDisconnected)
 
+		d.CfgList = vomni.CfgListSequence
+		d.CfgInfo = webCfgInfo(d.CfgList) //make(map[int]vomni.CfgPlusData)
+
 		fmt.Printf("Point %q Signed %t Disconn %t\n", d.Point, d.Signed, d.Disconnected)
 
 		pts[k] = d
@@ -40,6 +43,21 @@ func AllPointData() (data vomni.WebAllPointData) {
 
 	data.List = list
 	data.Data = pts
+
+	return
+}
+
+func webCfgInfo(list []int) (d map[int]vomni.CfgPlusData) {
+
+	d = make(map[int]vomni.CfgPlusData)
+
+	for _, v := range list {
+		dd := vomni.CfgPlusData{}
+
+		dd.Name = vomni.PointCfgData[v].CfgStr
+
+		d[v] = dd
+	}
 
 	return
 }

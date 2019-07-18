@@ -133,6 +133,25 @@ function itemDataSpanHTML(name) {
     str += '                <li class="dropdown-submenu">';
     str += '                    <a  class="dropdown-item" tabindex="-1" href="#">Configuration</a>';
     str += '                    <ul class="dropdown-menu">';
+
+                                if (name in allD["Data"]) {
+
+                                    var tData = allD["Data"][name];
+
+
+                                    for(k in tData["CfgList"]) {
+                                        var typ = tData["CfgList"][k];
+
+                                        var tName = tData["CfgInfo"][typ]["Name"];
+                                        str += '    <li class="dropdown-item"><a tabindex="-1" href="pointlist/act/cfg/'+name+'/'+Number(typ)+'">' + tName +'</a></li>';
+
+
+
+
+
+
+                                    }
+                                }
     str += '                        <li class="dropdown-item"><a tabindex="-1" href="#">Second level</a></li>';
     str += '                        <li class="dropdown-submenu">';
     str += '                            <a class="dropdown-item" href="#">Even More..</a>';

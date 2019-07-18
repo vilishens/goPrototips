@@ -14,12 +14,10 @@ import (
 
 var Points map[string]*PointRun
 var listSigned map[string]net.UDPAddr
-var startSequence []int
 
 func init() {
 	Points = make(map[string]*PointRun)
 	listSigned = make(map[string]net.UDPAddr)
-	startSequence = []int{vomni.CfgTypeRelayInterval}
 }
 
 func Runners() {
@@ -193,7 +191,7 @@ func startSigned(chGoOn chan bool, chDone chan int, chErr chan error) {
 	// Vajad izmainīt
 	// vispirms jāapstrādā pats punkts, pec tam jaapstrādā tā konfigurācijas
 
-	for _, cfgType := range startSequence {
+	for _, cfgType := range vomni.CfgListSequence {
 		// start all point configuration, sequence set in startSequence
 		// Sequence can be important some times (for instance, to check the point ready state)
 		for point, addr := range listSigned {
@@ -203,7 +201,7 @@ func startSigned(chGoOn chan bool, chDone chan int, chErr chan error) {
 
 			err := error(nil)
 
-			delete(listSigned, point)
+			//delete(listSigned, point)
 
 			fmt.Println("Did I missed???")
 			fmt.Println("Did I missed???")

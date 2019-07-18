@@ -39,15 +39,21 @@ type WebAllPointData struct {
 	Data map[string]WebPointData
 }
 
+type CfgPlusData struct {
+	Name string
+}
+
 type WebPointData struct {
 	Point        string
 	State        int
 	Type         int
 	Signed       bool
 	Disconnected bool
-	CfgRun       interface{}
-	CfgSaved     interface{}
-	Index        interface{}
+	CfgList      []int
+	CfgInfo      map[int]CfgPlusData
+	CfgRun       map[int]interface{}
+	CfgSaved     map[int]interface{}
+	Index        map[int]interface{}
 }
 
 //#################################################################

@@ -27,7 +27,7 @@ var MessageNumber int // unique message number (starting from the application la
 
 var AllMessages map[int]MessageData
 
-
+var CfgListSequence []int
 
 func init() {
 
@@ -38,4 +38,6 @@ func init() {
 	PointLogData[LogFileCdData] = LogPointData{LogCd: LogFileCdData, FileEnd: LogFileEndData, LogPrefix: LogPointPrefixData}
 	PointLogData[LogFileCdErr] = LogPointData{LogCd: LogFileCdErr, FileEnd: LogFileEndErr, LogPrefix: LogPointPrefixErr}
 	PointLogData[LogFileCdInfo] = LogPointData{LogCd: LogFileCdInfo, FileEnd: LogFileEndInfo, LogPrefix: LogPointPrefixInfo}
+
+	CfgListSequence = []int{CfgTypeRelayInterval}
 }
