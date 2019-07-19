@@ -29,6 +29,7 @@ func setMux() {
 	rtr.HandleFunc("/pointlist/data", tmplPointListData)
 
 	rtr.HandleFunc("/pointlist/act/{todo}/{point}", handlePointListAction)
+	rtr.HandleFunc("/pointlist/act/{todo}/{point}/{subtype}", handlePointListActionSubtype)
 	//	rtr.HandleFunc("/pointlist/data", tmplPointListData)
 	//	rtr.HandleFunc("/point/{point}/{todo}", pointToDo)
 	//	rtr.HandleFunc("/point/handlecfg/{point}/{todo}", handleCfg)
@@ -134,6 +135,40 @@ func handlePointListAction(w http.ResponseWriter, r *http.Request) {
 	case "FREEZE", "UNFREEZE", "LOADDEFAULTCFG", "LOADSAVEDCFG":
 	default:
 		log.Fatal(fmt.Sprintf("===> Don't know what to do with %q (point %q)", todo, point))
+	}
+
+	responseOK(w)
+	//	xrun.ReceivedWebMsg(point, todo, data)
+}
+
+func handlePointListActionSubtype(w http.ResponseWriter, r *http.Request) {
+
+	vars := mux.Vars(r)
+
+	todo := strings.ToUpper(vars["todo"])
+	point := vars["point"]
+	subtype := vars["subtype"]
+
+	//	var data interface{}
+
+	switch todo {
+	case "CFG":
+		//rescanPoint(point)
+
+	case "LOADCFG", "SAVECFG":
+		/*
+			body, err := ioutil.ReadAll(r.Body)
+			if err != nil {
+				panic(err.Error())
+			}
+			err = json.Unmarshal(body, &data)
+			if err != nil {
+				panic(err.Error())
+			}
+		*/
+	case "FREEZE", "UNFREEZE", "LOADDEFAULTCFG", "LOADSAVEDCFG":
+	default:
+		log.Fatal(fmt.Sprintf("===> Don't know what to do with %q (point %q with subtype %q )", todo, point, subtype))
 	}
 
 	responseOK(w)

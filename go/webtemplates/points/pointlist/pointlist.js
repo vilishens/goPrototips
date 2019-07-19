@@ -7,6 +7,8 @@ var ITEM_CLASS_DEFAULT = 'btn-outline-secondary';
 var ITEM_CLASS_SIGNED = 'btn-outline-success';
 var ITEM_CLASS_DISCONNECTED = 'btn-outline-secondary button-blink';
 
+var URL_LIST_ACTION_CONFIG = 'pointlist/act/cfg/';
+
 var allD = {};
 var pointStates = {};
 
@@ -118,9 +120,9 @@ function itemDataSpanHTML(name) {
 
 //    str += '<span id="'+listItemId(name)+'">'
     str += '<div class="container">';
-  	str += '    <div class="row">';
-    str += '        <div class="dropdown">';
-    str += '            <button class="btn dropdown-toggle '+cl+'" type="button" id="'+listItemBtnId(name)+'" data-toggle="dropdown" aria-haspopup="true" aria-expanded="false">';
+  	str += '    <div class="row pointListItemDiv">';
+    str += '        <div class="dropright">';
+    str += '            <button class="btn dropdown-toggle '+cl+' pointListItem" type="button" id="'+listItemBtnId(name)+'" data-toggle="dropdown" aria-haspopup="true" aria-expanded="false">';
     str += '                '+d["Point"];
     str += '            </button>';
     str += '            <ul class="dropdown-menu multi-level" role="menu" aria-labelledby="dropdownMenu">';
@@ -133,7 +135,9 @@ function itemDataSpanHTML(name) {
     str += '                <li class="dropdown-submenu">';
     str += '                    <a  class="dropdown-item" tabindex="-1" href="#">Configuration</a>';
     str += '                    <ul class="dropdown-menu">';
+    str += configChoices(name);
 
+    /*
                                 if (name in allD["Data"]) {
 
                                     var tData = allD["Data"][name];
@@ -152,6 +156,8 @@ function itemDataSpanHTML(name) {
 
                                     }
                                 }
+
+*/
     str += '                        <li class="dropdown-item"><a tabindex="-1" href="#">Second level</a></li>';
     str += '                        <li class="dropdown-submenu">';
     str += '                            <a class="dropdown-item" href="#">Even More..</a>';
@@ -260,6 +266,38 @@ function isSigned(name) {
     return (item["Signed"] && !item["Disconnected"]);
 }
 
+function configChoices(name) {
+    var str = "";
+
+    if (name in allD["Data"]) {
+
+        var objCfgCds = allD["Data"][name]["CfgList"];
+        var objCfgItems = allD["Data"][name]["CfgInfo"];
+
+
+        for(k in objCfgCds) {
+            var cfgType = objCfgCds[k];
+
+            var itemName = objCfgItems[cfgType]["Name"].trim();
+            if(0 == itemName.length) {
+                return "";
+            }
+            itemName = itemName.charAt(0).toUpperCase() + itemName.slice(1);
+            
+            str += '<li class="dropdown-item">';
+            str += '    <a tabindex="-1" href="' +URL_LIST_ACTION_CONFIG+name+'/'+Number(cfgType)+'">' + itemName +'</a>';
+            str += '</li>';       
+        }    
+    }
+
+    return str;
+}
+
+//#############################################################
+//#############################################################
+//#############################################################
+
+/*
 function hasMyClasses(obj, cl) {
 
     var arr = cl.split(" ");
@@ -272,10 +310,7 @@ function hasMyClasses(obj, cl) {
 
     return true;
 }
-
-//#############################################################
-//#############################################################
-//#############################################################
+*/
 
 function bootstrapa_menu(d, cl, name) {
 /*    

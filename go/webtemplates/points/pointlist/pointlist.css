@@ -59,3 +59,11 @@
     -moz-border-radius: 6px 0 6px 6px;
     border-radius: 6px 0 6px 6px;
 }
+
+.pointListItem {
+    border-width: 5px;
+}
+
+.pointListItemDiv {
+    margin-top: 5px;
+}
