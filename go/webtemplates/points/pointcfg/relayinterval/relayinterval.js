@@ -1,3 +1,46 @@
+var URL_PAGE_HANDLER="/point/cfg/"; //{point}/{type}";
+
+var THIS_POINT = "";
+var THIS_CFG = 0x000001;
+
+var allD = {}
+
+function makePage(name) {
+    THIS_POINT = name;
+    THIS_CFG = "1";
+    handlePointCfg()
+    var nbr = SetInterv(-5, "handlePointCfg()", 1000);   // 1 sec
+}
+
+function handlePointCfg() {
+ 
+    allD = {};
+
+    var damask =URL_PAGE_HANDLER+THIS_POINT+"/"+THIS_CFG.toString();
+    var tt = 3; 
+
+    $.ajax({
+        url: URL_PAGE_HANDLER+THIS_POINT+"/"+THIS_CFG.toString(),
+        type: 'post',
+        data: allD, //JSON.stringify(d), 
+        dataType: 'json',
+        contentType: 'application/json;charset=utf-8',
+        async: true,
+        timeout: 500,   // 0.5 second
+        success : function(data, status, xhr) {
+            allD = data;
+            //drawPointList();
+        },
+        error : function(request,error) {
+            alert("Error: "+error);
+        },
+    });
+}
+
+
+
+
+/*
 
 var cfgThis = {};
 var cfgHave = {};
@@ -1006,3 +1049,4 @@ function handleCfg() {
         },
     });
 }
+*/

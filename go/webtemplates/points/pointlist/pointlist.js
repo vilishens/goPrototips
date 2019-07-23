@@ -14,7 +14,7 @@ var pointStates = {};
 
 function makeList() {
     handlePointList()
-    var nbr = SetInterv(-5, "handlePointList()", 1500);   // 1.5 sec
+    var nbr = SetInterv(-5, "handlePointList()", 1000);   // 1 sec
 }
 
 function handlePointList() {
