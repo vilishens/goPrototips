@@ -6,8 +6,10 @@ import (
 	"io"
 	"log"
 	"net/http"
+	"strconv"
 	"strings"
 	"time"
+	vomni "vk/omnibus"
 	vparams "vk/params"
 
 	"github.com/gorilla/mux"
@@ -151,9 +153,58 @@ func handlePointListActionSubtype(w http.ResponseWriter, r *http.Request) {
 
 	//	var data interface{}
 
+	fmt.Println("SVIRIDOVS")
+
+	/*
+		tmplStr := "pointcfg"
+		data = pointCfg(point)
+
+		refl := reflect.ValueOf(data)
+
+		zType := refl.FieldByName("Type")
+
+		switch zType.Int() {
+		case vomni.PointTypeRelayOnOffInterval:
+			tmplStr = "cfgrelayonoffinterval"
+		default:
+			tmplStr = "pointcfg"
+		}
+
+		err = tmpls.ExecuteTemplate(w, tmplStr, point)
+
+		if err != nil {
+			http.Error(w, err.Error(), http.StatusInternalServerError)
+		}
+	*/
 	switch todo {
 	case "CFG":
+
+		err := error(nil)
+		tmplStr := ""
+
+		switch subtype {
+
+		case strconv.Itoa(vomni.CfgTypeRelayInterval):
+			tmplStr = "cfgrelayinterval"
+		default:
+			err := fmt.Errorf("Don't have code to handle configuration %q", subtype)
+			http.Error(w, err.Error(), http.StatusInternalServerError)
+			return
+		}
+
 		//rescanPoint(point)
+		//tmplStr := "pointcfg"
+
+		//cfg, _ := strconv.Atoi(subtype)
+
+		fmt.Printf("Kods %q subtype %q\n", strconv.Itoa(vomni.CfgTypeRelayInterval), subtype)
+
+		data := pointData(point)
+
+		err = tmpls.ExecuteTemplate(w, tmplStr, data)
+		if err != nil {
+			http.Error(w, err.Error(), http.StatusInternalServerError)
+		}
 
 	case "LOADCFG", "SAVECFG":
 		/*

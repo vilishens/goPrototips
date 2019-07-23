@@ -1,6 +1,7 @@
 package runrelayinterval
 
 import (
+	"encoding/json"
 	"fmt"
 	"net"
 	"time"
@@ -15,6 +16,19 @@ var RunningPoints map[string]*RunData
 
 func init() {
 	RunningPoints = make(map[string]*RunData)
+}
+
+func (d RunData) GetCfgs() (cfgDefault interface{}, cfgRun interface{}, cfgSaved interface{}) {
+
+	back, err := json.Marshal(d.CfgDefault)
+	if nil != err {
+		panic(err)
+		return
+	}
+
+	json.Unmarshal(back, &cfgDefault)
+
+	return d.CfgDefault, d.CfgRun, d.CfgSaved
 }
 
 func (d RunData) LogStr(infoCd int, str string) {
@@ -91,9 +105,9 @@ func (d RunData) run(chGoOn chan bool, chDone chan int, chErr chan error) {
 	}
 
 	allStages := []stage{
-		stage{once: true, index: &d.Index.Start, cfg: d.Cfg.Start},   // start sequence
-		stage{once: false, index: &d.Index.Base, cfg: d.Cfg.Base},    // base sequence
-		stage{once: true, index: &d.Index.Finish, cfg: d.Cfg.Finish}} // finishe sequence
+		stage{once: true, index: &d.Index.Start, cfg: d.CfgRun.Start},   // start sequence
+		stage{once: false, index: &d.Index.Base, cfg: d.CfgRun.Base},    // base sequence
+		stage{once: true, index: &d.Index.Finish, cfg: d.CfgRun.Finish}} // finishe sequence
 
 	for _, v := range allStages {
 		go d.runArray(v.cfg, v.index, v.once, locDone)

@@ -34,6 +34,8 @@ func initTmpls() {
 	addPage(&tmplFiles, tmplPath, "home")
 	addPage(&tmplFiles, tmplPath, "about")
 	addPage(&tmplFiles, tmplPath, "points/pointlist")
+	addPage(&tmplFiles, tmplPath, "points/pointcfg/relayinterval")
+
 	/*
 		addPage(&tmplFiles, tmplPath, "login")
 		addPage(&tmplFiles, tmplPath, "points/pointlist")
@@ -55,7 +57,7 @@ func initFuncs() {
 	tmplFuncs = make(map[string]interface{})
 	tmplFuncs["stationName"] = stationName
 	tmplFuncs["allPointData"] = allPointData
-	//	tmplFuncs["pointCfg"] = pointCfg
+	tmplFuncs["pointData"] = pointData
 	//	tmplFuncs["increment1"] = increment1
 	//bija	tmplFuncs["pointCfgJsFile"] = pointCfgJsFile
 	tmplFuncs["webPrefix"] = webPrefix

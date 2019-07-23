@@ -2,6 +2,7 @@ package web
 
 import (
 	"fmt"
+	vomni "vk/omnibus"
 	vparam "vk/params"
 	vparams "vk/params"
 	vrun "vk/run/pointrun"
@@ -22,6 +23,20 @@ func allPointData() (data interface{}) {
 	data = vrun.AllPointData()
 
 	return
+}
+
+func pointCfgRelayInterval(point string) (cfg interface{}) {
+
+	return pointData(point)
+}
+
+func pointData(point string) (data interface{}) {
+
+	all := allPointData()
+	ready := all.(vomni.WebAllPointData)
+
+	//fmt.Println("MIMINO DEF ", len(runAct[point].Cfg.Def), "	SEQ ", runAct[point].Cfg.Seq)
+	return ready.Data[point]
 }
 
 //########################################

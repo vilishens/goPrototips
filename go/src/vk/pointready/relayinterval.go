@@ -18,7 +18,11 @@ func relayInterval() {
 			d.Point = k
 			d.State = vomni.PointCfgStateUnknown
 			d.Type = vomni.CfgTypeRelayInterval
-			d.Cfg = v.Cfg.RelInterv
+
+			fmt.Println("Nepiemirsti, ka vajag FACTORY conf!!!")
+
+			d.CfgDefault = v.Cfg.RelInterv
+			d.CfgRun = v.Cfg.RelInterv
 			d.CfgSaved = v.Cfg.RelInterv
 
 			//logs, err := pointLoggers(d.Point, d.Type)

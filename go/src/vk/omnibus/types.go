@@ -53,6 +53,7 @@ type WebPointData struct {
 	CfgInfo      map[int]CfgPlusData
 	CfgRun       map[int]interface{}
 	CfgSaved     map[int]interface{}
+	CfgDefault   map[int]interface{}
 	Index        map[int]interface{}
 }
 
