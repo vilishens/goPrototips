@@ -19,7 +19,7 @@ type Runner interface {
 	Ready() (ready bool)
 	StartRotate() (err error)
 	GetState() (state int)
-	GetCfgs() (cfgDefault interface{}, cfgRun interface{}, cfgSaved interface{})
+	GetCfgs() (cfgDefault interface{}, cfgRun interface{}, cfgSaved interface{}, cfgIndex interface{}, cfgState interface{})
 	SetState(state int, on bool)
 	GetUDPAddr() (addr net.UDPAddr)
 	SetUDPAddr(addr net.UDPAddr)

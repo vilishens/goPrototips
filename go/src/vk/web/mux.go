@@ -26,7 +26,7 @@ func setMux() {
 	http.Handle("/", rtr)
 
 	rtr.HandleFunc("/pointlist", tmplPointList)
-	rtr.HandleFunc("/pointlist/data", tmplPointListData)
+	rtr.HandleFunc("/pointlist/data", handlePointListData)
 
 	rtr.HandleFunc("/pointlist/act/{todo}/{point}", handlePointListAction)
 	rtr.HandleFunc("/pointlist/act/{todo}/{point}/{subtype}", pagePointListActionSubtype)
@@ -35,9 +35,10 @@ func setMux() {
 	//	rtr.HandleFunc("/point/handlecfg/{point}/{todo}", handleCfg)
 	//	rtr.HandleFunc("/station/{todo}", handleStation)
 
-//	rtr.HandleFunc("/point/cfg/{point}/{type}", handlePointCfg)
+	// Point
+	rtr.HandleFunc("/point/cfg/{point}/{cfg}", handlePointCfg)
 
-
+	// Station
 	rtr.HandleFunc("/station/act/{todo}", handleStationAction)
 }
 
@@ -101,16 +102,6 @@ func tmplPointList(w http.ResponseWriter, r *http.Request) {
 }
 
 //---------------------------------------------------------------------------->
-
-func tmplPointListData(w http.ResponseWriter, r *http.Request) {
-	data := allPointData()
-
-	newData, err := json.Marshal(data)
-	if err != nil {
-		http.Error(w, err.Error(), http.StatusInternalServerError)
-	}
-	w.Write(newData)
-}
 
 func handlePointListAction(w http.ResponseWriter, r *http.Request) {
 

@@ -1,5 +1,5 @@
 {{ define "cfgrelayinterval-body" }}
-    <span style="display:none" id="editReturnURL">localhost:49955/point/{{.Point}}</span> 
+{{/*    <span style="display:none" id="editReturnURL">localhost:49955/point/{{.}}/1</span>  */}}
 
     </br></br></br>
     
@@ -13,15 +13,23 @@
     </div>
     
     </br>
-    <h1><span id='pointName'></span></h1>
+    <div class="container">
+        <h1><span id='pointName'>DIMA</span></h1>
+    </div>
     </br>
 
-    <span id='tableStart'>
-    </span>
+    <div class="container">
+        <span id='tableStart'>
+        </span>
+    </div>    
 
-    <span id='tableBase'>
-    </span> 
+    <div class="container">
+        <span id='tableBase'>
+        </span> 
+    </div>    
 
-    <span id='tableFinish'>
-    </span>
+    <div class="container">
+        <span id='tableFinish'>
+        </span>
+    </div>    
 {{ end }}

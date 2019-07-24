@@ -1,43 +1,255 @@
-var URL_PAGE_HANDLER="/point/cfg/"; //{point}/{type}";
+var URL_PAGE_HANDLER="/point/cfg/"; 
 
 var THIS_POINT = "";
-var THIS_CFG = 0x000001;
+var THIS_CFG = 0x000001; //relay intervals
 
-var allD = {}
+var STATE_EDIT = 0x0001;
+
+var BTN_EDIT = "btnEdit";
+var BTN_FREEZE = "btnFreeze";
+var BTN_LOAD = "btnLoad";
+var BTN_LOAD_DEFAULT = "btnLoadDefault";
+var BTN_LOAD_SAVED = "btnLoadSaved";
+var BTN_SAVE = "btnSave";
+
+var BTN_EDIT_TXT = "Edit";
+var BTN_FREEZE_TXT = "Freeze";
+var BTN_LOAD_TXT = "Load";
+var BTN_LOAD_DEFAULT_TXT = "Load default";
+var BTN_LOAD_SAVED_TXT = "Load saved";
+var BTN_SAVE_TXT = "Save";
+
+var BTN_CLASS_ACTIVE = "btn-warning active";
+var BTN_CLASS_INACTIVE = "btn-outline-secondary disabled";
+
+var TABLE_START = "tableStart";
+var TABLE_BASE = "tableBase";
+var TABLE_FINISH = "tableFinish";
+
+var TABLE_START_TEXT = "Start";
+var TABLE_BASE_TEXT = "Base";
+var TABLE_FINISH_TEXT = "Finish";
+
+var TD_CLASS_EDIT_OK = "tdEditOk";
+var TD_CLASS_EDIT_ERROR = "tdEditError";
+var TD_CLASS_EDIT_NONE = "tdEditNone";
+
+var TR_CLASS_HEADER = 'trEditHeader';
+var TR_CLASS_ACTIVE_ROW = 'active-row';
+var TR_CLASS_DRAGGED = "trDragged";
+var TABLE_CLASS_ROW_NEW = "this-is-a-new-row";
+
+var AllD = {};
+var CfgDefault = {};
+var CfgRun = {};
+var CfgSaved = {};
+var CfgIndex = {};
+var CfgState = 0;
+
+var ThisState = 0;
 
 function makePage(name) {
     THIS_POINT = name;
-    THIS_CFG = "1";
     handlePointCfg()
     var nbr = SetInterv(-5, "handlePointCfg()", 1000);   // 1 sec
 }
 
 function handlePointCfg() {
  
-    allD = {};
-
-    var damask =URL_PAGE_HANDLER+THIS_POINT+"/"+THIS_CFG.toString();
-    var tt = 3; 
+    AllD = {};
 
     $.ajax({
         url: URL_PAGE_HANDLER+THIS_POINT+"/"+THIS_CFG.toString(),
         type: 'post',
-        data: allD, //JSON.stringify(d), 
+        data: {}, //JSON.stringify(d), 
         dataType: 'json',
         contentType: 'application/json;charset=utf-8',
         async: true,
         timeout: 500,   // 0.5 second
         success : function(data, status, xhr) {
-            allD = data;
-            //drawPointList();
+            setAllData(data);
+            drawPage();
         },
-        error : function(request,error) {
-            alert("Error: "+error);
-        },
+//        error : function(request,error) {
+//            alert("Error: "+error);
+//        },
     });
 }
 
+function setAllData(data) {
 
+    AllD = data;
+    cfgCd = THIS_CFG.toString();
+
+    CfgDefault = AllD["CfgDefault"][cfgCd];
+    CfgRun = AllD["CfgRun"][cfgCd];
+    CfgSaved = AllD["CfgSaved"][cfgCd];
+    CfgIndex = AllD["CfgIndex"][cfgCd];
+    CfgState = AllD["CfgState"][cfgCd];
+}
+
+function drawPage() {
+    drawTitle();
+    drawButtons();
+    if(!editState()) {
+        drawCfg();
+    }    
+}
+
+function editState() {
+    return !(0 == (ThisState & STATE_EDIT))
+}
+
+function drawTitle() {
+    $('#pointName').text(THIS_POINT);
+}
+
+function drawButtons() {
+    drawBtn(BTN_FREEZE, BTN_FREEZE_TXT);
+    drawBtn(BTN_LOAD, BTN_LOAD_TXT);
+    drawBtn(BTN_SAVE, BTN_SAVE_TXT);
+    drawBtn(BTN_LOAD_DEFAULT, BTN_LOAD_DEFAULT_TXT);
+    drawBtn(BTN_LOAD_SAVED, BTN_LOAD_SAVED_TXT);
+    drawBtn(BTN_EDIT, BTN_EDIT_TXT);
+}
+
+function drawBtn(id, str) {
+    $('#'+id).text(str);
+    setAvailable(id);
+}
+
+function setAvailable(id) {
+    var avail = isAvailable(id);
+    var btn = $('#'+id);
+
+    btn.removeClass(BTN_CLASS_ACTIVE);
+    btn.removeClass(BTN_CLASS_INACTIVE);
+
+    if(!avail) {
+        btn.addClass(BTN_CLASS_INACTIVE);
+    } else {
+        btn.addClass(BTN_CLASS_ACTIVE);
+    }  
+}
+
+function isAvailable(id) {
+    var edit = editState();
+
+    if(edit &&(id != BTN_EDIT)) {
+        return false;
+    }
+
+    return true;
+}
+
+function drawCfg() {
+    drawCfgTable(CfgRun["Start"],TABLE_START, TABLE_START_TEXT, CfgIndex["Start"]);
+    drawCfgTable(CfgRun["Base"],TABLE_BASE, TABLE_BASE_TEXT, CfgIndex["Base"]);
+    drawCfgTable(CfgRun["Finish"],TABLE_FINISH, TABLE_FINISH_TEXT, CfgIndex["Finish"]);
+}
+
+function drawCfgTable(data, table, title, ind) {
+    var obj = $('#' + table);
+    var rowCount = ((null == data) || (0 == data.length)) ? 0 : data.length;
+
+    obj.empty()
+    var str = "";
+
+    str += tableTitle(data, title);
+    
+    str += '<table id="editable-def" dropzone="move" class="pure-table pure-table-bordered">';
+
+    str += tableTabHead();
+
+    var i = 0;
+    for (i = 0; i < rowCount; i++) {
+        str += tableTabRow(data[i], i, ind, false);
+    }
+
+    str += tableTabRowNew();
+
+    str += '</table>';
+    str += '</br>';
+
+    obj.html(str);
+
+//    createButtonAdd(obj.find('.tdEditAdd'));
+//    createButtonDelete(obj.find('.tdEditDelete'));
+
+//    obj.find('.tdEditOnly').hide();
+}
+
+function tableTitle(data, title) {
+
+    var str = "";
+
+    str += '<h2>' + title + '</h2>';
+
+    return str;
+}
+
+
+function tableTabHead() {
+    
+    var str = "";
+
+    str += '<thead>';
+    str += '    <tr class="'+TR_CLASS_HEADER+'">';
+    str += '        <th>GPIO</th>';
+    str += '        <th>STATE</th>';
+    str += '        <th>INTERVAL</th>';
+    str += '        <th class="tdEditOnly tdEditTabHead"></th>';
+    str += '     </tr>';
+    str += '</thead>';
+
+    return str;
+}
+
+function tableTabRow(data, i, ind, isNew) {;
+
+    var str = "";
+
+    var trClass = "trEdit" + (isNew ? (" " + TABLE_CLASS_ROW_NEW) : "");
+    if(!isNew && (i == ind)) {
+        trClass += ' ' + TR_CLASS_ACTIVE_ROW;
+    }
+
+    str += '<tr draggable="';
+    str += isNew ? "false" : "true";
+ 
+    str += '" class="' + trClass + '">';
+
+    str += partTabCols(data);
+
+    if(isNew) {
+        // add button "add"
+        str += '<td class="tdEditAdd tdEditOnly"></td>';
+    } else {
+        // add button "delete"
+        str += '<td class="tdEditDelete tdEditOnly"></td>';
+    }    
+    
+    return str;
+}
+
+function partTabCols(data) {
+
+    var str = "";
+
+    str += '<td class="tdEdit tdEditGpio"     data-ori="' + data["Gpio"] +     '">' + data["Gpio"] + '</td>';
+    str += '<td class="tdEdit tdEditState"    data-ori="' + data["State"] +    '">' + data["State"] + '</td>';
+    str += '<td class="tdEdit tdEditInterval" data-ori="' + data["Interval"] + '">' + data["Interval"] + '</td>';
+
+    return str;
+}
+
+function tableTabRowNew() {;
+
+    var data = {Gpio:"new", State:"new", Interval:"new:new:new"};
+    var str = tableTabRow(data, -1, -2, true);
+
+    return str;
+}
 
 
 /*

@@ -25,6 +25,8 @@ func relayInterval() {
 			d.CfgRun = v.Cfg.RelInterv
 			d.CfgSaved = v.Cfg.RelInterv
 
+			d.Index = vrunrelayinterval.AllIndex{Start: vomni.PointNonActiveIndex, Base: vomni.PointNonActiveIndex, Finish: vomni.PointNonActiveIndex}
+
 			//logs, err := pointLoggers(d.Point, d.Type)
 			// handle all loggers of the point
 			logs, err := relayIntervalPointLoggers(d.Point, d.Type)

@@ -34,12 +34,15 @@ func AllPointData() (data vomni.WebAllPointData) {
 		d.CfgDefault = make(map[int]interface{})
 		d.CfgRun = make(map[int]interface{})
 		d.CfgSaved = make(map[int]interface{})
+		d.CfgState = make(map[int]interface{})
+		d.CfgIndex = make(map[int]interface{})
 
 		// get all configurations of this poist
 		for _, cc := range d.CfgList {
-			cfgDef, cfgRun, cfgSaved := Points[k].Run[cc].GetCfgs()
+			cfgDef, cfgRun, cfgSaved, cfgIndex, cfgState := Points[k].Run[cc].GetCfgs()
 
-			d.CfgDefault[cc], d.CfgRun[cc], d.CfgSaved[cc] = cfgDef, cfgRun, cfgSaved //Points[k].Run[cc].GetCfgs()
+			d.CfgDefault[cc], d.CfgRun[cc], d.CfgSaved[cc], d.CfgIndex[cc], d.CfgState[cc] =
+				cfgDef, cfgRun, cfgSaved, cfgIndex, cfgState //Points[k].Run[cc].GetCfgs()
 
 			_, _, _ = cfgDef, cfgRun, cfgSaved
 		}

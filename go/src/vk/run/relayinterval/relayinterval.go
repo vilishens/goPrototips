@@ -1,7 +1,6 @@
 package runrelayinterval
 
 import (
-	"encoding/json"
 	"fmt"
 	"net"
 	"time"
@@ -18,17 +17,18 @@ func init() {
 	RunningPoints = make(map[string]*RunData)
 }
 
-func (d RunData) GetCfgs() (cfgDefault interface{}, cfgRun interface{}, cfgSaved interface{}) {
+func (d RunData) GetCfgs() (cfgDefault interface{}, cfgRun interface{}, cfgSaved interface{},
+	cfgIndex interface{}, cfgState interface{}) {
 
-	back, err := json.Marshal(d.CfgDefault)
-	if nil != err {
-		panic(err)
-		return
-	}
+	//	back, err := json.Marshal(d.CfgDefault)
+	//	if nil != err {
+	//		panic(err)
+	//		return
+	//	}
 
-	json.Unmarshal(back, &cfgDefault)
+	//	json.Unmarshal(back, &cfgDefault)
 
-	return d.CfgDefault, d.CfgRun, d.CfgSaved
+	return d.CfgDefault, d.CfgRun, d.CfgSaved, d.Index, d.State
 }
 
 func (d RunData) LogStr(infoCd int, str string) {
