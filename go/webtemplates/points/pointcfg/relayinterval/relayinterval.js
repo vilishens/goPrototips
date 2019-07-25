@@ -21,6 +21,7 @@ var BTN_SAVE_TXT = "Save";
 
 var BTN_CLASS_ACTIVE = "btn-warning active";
 var BTN_CLASS_INACTIVE = "btn-outline-secondary disabled";
+var BTN_CLASS_IN_USE = 'btn-success active';
 
 var TABLE_START = "tableStart";
 var TABLE_BASE = "tableBase";
@@ -33,11 +34,25 @@ var TABLE_FINISH_TEXT = "Finish";
 var TD_CLASS_EDIT_OK = "tdEditOk";
 var TD_CLASS_EDIT_ERROR = "tdEditError";
 var TD_CLASS_EDIT_NONE = "tdEditNone";
+var TD_CLASS_EDIT_ONLY = "tdEditOnly";
+var TD_CLASS_EDIT_TAB_HEAD = "tdEditTabHead";
+var TD_CLASS_EDIT_ADD = "tdEditAdd"
+var TD_CLASS_EDIT_DELETE = "tdEditDelete"
+var TD_CLASS_EDIT = 'tdEdit';
 
 var TR_CLASS_HEADER = 'trEditHeader';
 var TR_CLASS_ACTIVE_ROW = 'active-row';
 var TR_CLASS_DRAGGED = "trDragged";
+var TR_CLASS_EDIT = 'trEdit';
 var TABLE_CLASS_ROW_NEW = "this-is-a-new-row";
+
+var J_BUTTON_LABEL_ADD = "Add";
+var J_BUTTON_LABEL_DELETE = "Del";
+
+var COLOR_EDITED = '#C6E710';
+var COLOR_ERROR = '#E9999A';
+//var COLOR_DRAG = '#90EE90';
+var COLOR_DRAG = '#FFE4B5';
 
 var AllD = {};
 var CfgDefault = {};
@@ -48,10 +63,26 @@ var CfgState = 0;
 
 var ThisState = 0;
 
+var ColorOri;
+var FontWeightOri;
+
 function makePage(name) {
     THIS_POINT = name;
     handlePointCfg()
+
     var nbr = SetInterv(-5, "handlePointCfg()", 1000);   // 1 sec
+}
+
+
+
+
+function setHandlersAndParams() {
+    $('.btnMngmt').on('click', function(){btnClick($(this));}); 
+
+   
+    if(!editState()) {
+        FontWeightOri = $('.' + TD_CLASS_EDIT).css('font-weight');
+    }    
 }
 
 function handlePointCfg() {
@@ -69,6 +100,7 @@ function handlePointCfg() {
         success : function(data, status, xhr) {
             setAllData(data);
             drawPage();
+            setHandlersAndParams();
         },
 //        error : function(request,error) {
 //            alert("Error: "+error);
@@ -105,12 +137,16 @@ function drawTitle() {
 }
 
 function drawButtons() {
-    drawBtn(BTN_FREEZE, BTN_FREEZE_TXT);
-    drawBtn(BTN_LOAD, BTN_LOAD_TXT);
-    drawBtn(BTN_SAVE, BTN_SAVE_TXT);
-    drawBtn(BTN_LOAD_DEFAULT, BTN_LOAD_DEFAULT_TXT);
-    drawBtn(BTN_LOAD_SAVED, BTN_LOAD_SAVED_TXT);
-    drawBtn(BTN_EDIT, BTN_EDIT_TXT);
+    if( editState()) {
+
+    } else {
+        drawBtn(BTN_FREEZE, BTN_FREEZE_TXT);
+        drawBtn(BTN_LOAD, BTN_LOAD_TXT);
+        drawBtn(BTN_SAVE, BTN_SAVE_TXT);
+        drawBtn(BTN_LOAD_DEFAULT, BTN_LOAD_DEFAULT_TXT);
+        drawBtn(BTN_LOAD_SAVED, BTN_LOAD_SAVED_TXT);
+        drawBtn(BTN_EDIT, BTN_EDIT_TXT);
+    }
 }
 
 function drawBtn(id, str) {
@@ -171,12 +207,27 @@ function drawCfgTable(data, table, title, ind) {
     str += '</table>';
     str += '</br>';
 
+//    if(!editState()) {
+//        obj.find('td.' + TD_CLASS_EDIT_ONLY).hide();
+//    }    
+
     obj.html(str);
 
-//    createButtonAdd(obj.find('.tdEditAdd'));
-//    createButtonDelete(obj.find('.tdEditDelete'));
+    createButtonAdd(obj.find('.' + TD_CLASS_EDIT_ADD));
+    createButtonDelete(obj.find('.' + TD_CLASS_EDIT_DELETE));
 
-//    obj.find('.tdEditOnly').hide();
+   obj.find('.' + TD_CLASS_EDIT_ONLY).hide();
+}
+
+function createButtonAdd(o) {
+    o.button({
+        label:J_BUTTON_LABEL_ADD, 
+        icons:{primary:'ui-icon-plusthick'}
+    });
+
+    o.button().on('click', function() {
+        jButtonClick($(this));
+    })
 }
 
 function tableTitle(data, title) {
@@ -198,7 +249,7 @@ function tableTabHead() {
     str += '        <th>GPIO</th>';
     str += '        <th>STATE</th>';
     str += '        <th>INTERVAL</th>';
-    str += '        <th class="tdEditOnly tdEditTabHead"></th>';
+    str += '        <th class="' + TD_CLASS_EDIT_ONLY + ' ' + TD_CLASS_EDIT_TAB_HEAD + '"></th>';
     str += '     </tr>';
     str += '</thead>';
 
@@ -223,22 +274,59 @@ function tableTabRow(data, i, ind, isNew) {;
 
     if(isNew) {
         // add button "add"
-        str += '<td class="tdEditAdd tdEditOnly"></td>';
+        str += '<td class="' + TD_CLASS_EDIT_ADD + ' ' + TD_CLASS_EDIT_ONLY + '"></td>';
     } else {
         // add button "delete"
-        str += '<td class="tdEditDelete tdEditOnly"></td>';
+        str += '<td class="' + TD_CLASS_EDIT_DELETE + ' ' + TD_CLASS_EDIT_ONLY + '"></td>';
     }    
     
     return str;
 }
 
+function seconds2Interval(secsFull) {
+
+    if(isNaN(secsFull)) {
+        return "new:new:new";
+    }
+
+    var secs = Math.trunc(secsFull / 1000000000);
+
+    var hr = Math.trunc(secs / 3600); // Hours
+    var min = Math.trunc((secs % 3600) / 60); // Minutes
+    var sec = Math.trunc(secs % (3600 * 60)); // secoonds
+
+    var str = ((hr < 10) ? "0" : "") + hr.toString() + ":" +
+              ((min < 10) ? "0" : "") + min.toString() + ":" + 
+              ((sec < 10) ? "0" : "") + sec.toString();
+
+    return str;
+}
+
+
 function partTabCols(data) {
 
     var str = "";
 
+    var go = data["Seconds"];
+    var f = typeof go;
+    var sis = 5;
+
+/*    
+    var intervHr = intervN / 3600; // Hours
+    intervN -= 3600 *intervHr;
+    var intervMin = intervN / 60; // Minutes
+    var intervSecs = interVN - (60 * intervMin);
+*/
+    if("Interval" in data) {
+        // this row is a template for the new row
+        interv = data["Interval"];
+    } else {
+        var interv = seconds2Interval(data["Seconds"]);
+    }    
+ 
     str += '<td class="tdEdit tdEditGpio"     data-ori="' + data["Gpio"] +     '">' + data["Gpio"] + '</td>';
     str += '<td class="tdEdit tdEditState"    data-ori="' + data["State"] +    '">' + data["State"] + '</td>';
-    str += '<td class="tdEdit tdEditInterval" data-ori="' + data["Interval"] + '">' + data["Interval"] + '</td>';
+    str += '<td class="tdEdit tdEditInterval" data-ori="' + interv + '">' + interv + '</td>';
 
     return str;
 }
@@ -251,6 +339,292 @@ function tableTabRowNew() {;
     return str;
 }
 
+function btnClick(btn) {
+
+    var which = btn.prop('id');
+
+    if(isButtonInactive(btn)) {
+        return 
+    }
+
+    switch(which) {
+        case BTN_EDIT:
+            btnEditPressed(btn);  
+            break;
+        case BTN_LOAD:
+            btnLoadPressed(btn);
+            break; 
+        case BTN_FREEZE:
+            btnFreezePressed(btn);
+            break;
+        case BTN_SAVE:
+            btnSavePressed(btn);
+            break;
+        case BTN_LOAD_DEFAULT:
+            btnLoadDefaultPressed(btn);
+            break;
+        case BTN_LOAD_SAVED:
+            btnLoadSavedPressed(btn);
+            break;
+ 
+        default:
+            alert("Button "+which+" pressed which doesn't have logic");
+            break;    
+    }
+}
+
+function isButtonInactive(btn) {
+
+    var cls = BTN_CLASS_INACTIVE.split(" ");
+    for (ind in cls) {
+        if(!btn.hasClass(cls[ind])) {
+            return false;
+        }
+    }
+
+    return true;
+}
+
+function isButtonInUse(btn) {
+
+    var cls = BTN_CLASS_IN_USE.split(" ");
+    for (ind in cls) {
+        if(!btn.hasClass(cls[ind])) {
+            return false;
+        }
+    }
+
+    return true;
+}
+
+function isButtonActive(btn) {
+
+    var cls = BTN_CLASS_ACTIVE.split(" ");
+    for (ind in cls) {
+        if(!btn.hasClass(cls[ind])) {
+            return false;
+        }
+    }
+
+    return true;
+}
+
+function btnEditPressed(btn) {
+    if(isButtonInactive(btn)) {
+        return 
+    }
+
+    if(isButtonActive(btn)) {
+        // activeonly, set in use
+        ThisState |= STATE_EDIT;
+        setButtonInUse(btn);
+        setAllTableEditOptions();
+   }
+    else if(isButtonInUse(btn)) {
+        // in use, set active only
+        ThisState &= ~STATE_EDIT;
+        setButtonActive(btn);
+//        unsetAllTableEditOptions();
+    }
+}
+
+function setAllTableEditOptions() {
+
+    var trcl = '.' + TR_CLASS_EDIT;
+
+    $(trcl).removeClass(TR_CLASS_ACTIVE_ROW);
+
+    $(trcl).attr('contenteditable', 'true');
+    $(trcl).attr('oninput', 'checkInput($(this))');
+    setAllTablesDraggable();
+
+    var tdcl = '.' + TD_CLASS_EDIT_DELETE;
+    $(tdcl).show();
+    var tdcl = '.' + TD_CLASS_EDIT_TAB_HEAD;
+    $(tdcl).show();
+  
+//    setTablesAddButton()
+
+    ThisState |= STATE_EDIT;
+
+  //  setEditButtons();
+}    
+
+
+function setButtonInUse(btn) {
+    var cls = BTN_CLASS_INACTIVE.split(" ");
+    for (ind in cls) {
+        btn.removeClass(cls[ind]);
+    }
+    cls = BTN_CLASS_ACTIVE.split(" ");
+    for (ind in cls) {
+        btn.removeClass(cls[ind]);
+    }
+
+    cls = BTN_CLASS_IN_USE.split(" ");
+    for (ind in cls) {
+        btn.addClass(cls[ind]);
+    }
+
+
+
+//    btn.removeClass('btn-outline-secondary').removeClass('btn-warning').removeClass('disabled');
+//    btn.addClass('btn-success').addClass('active');
+}
+
+function setButtonActive(btn) {
+    var cls = BTN_CLASS_INACTIVE.split(" ");
+    for (ind in cls) {
+        btn.removeClass(cls[ind]);
+    }
+    cls = BTN_CLASS_IN_USE.split(" ");
+    for (ind in cls) {
+        btn.removeClass(cls[ind]);
+    }
+
+    cls = BTN_CLASS_ACTIVE.split(" ");
+    for (ind in cls) {
+        btn.addClass(cls[ind]);
+    }
+
+
+
+//    btn.removeClass('btn-outline-secondary').removeClass('btn-warning').removeClass('disabled');
+//    btn.addClass('btn-success').addClass('active');
+}
+
+function jButtonClick(btn) {
+
+    var label = btn.button('option', 'label');
+
+    if (J_BUTTON_LABEL_DELETE == label) {
+  //      htmlRemoveTdRow(btn);
+    }
+
+    if (J_BUTTON_LABEL_ADD == label) {
+//        htmlAddNewRow(btn);
+    }
+}
+
+function setAllTablesDraggable() {
+    setTableDraggableOption(TABLE_START);
+    setTableDraggableOption(TABLE_BASE);
+    setTableDraggableOption(TABLE_FINISH);
+}
+
+function setTableDraggableOption(tbl) {
+    var tb = $('#' + tbl);
+    tb.find('.'+ TR_CLASS_EDIT).attr('draggable', 'true');
+
+    var removeDragg = $(tb.find('.' + TABLE_CLASS_ROW_NEW).last());
+    removeDragg.attr('draggable', 'false');
+
+    setTableSortedOption(tbl);
+}
+
+function setTableSortedOption(tab) {
+    var tbSort = $('#' + tab).find('tbody');
+
+    tbSort.sortable({
+        items: "tr[draggable='true']",
+        update:function(event, ui){
+            $(ui.item).css('background-color', COLOR_DRAG);
+            $(ui.item).addClass(TR_CLASS_DRAGGED);
+            //inputReady2Use();
+        }
+    });
+
+   // tbSort.on('dblclick', function(){toggleSort($(this));});       
+   tbSort.on('dblclick', function(){toggleSortAll();});       
+   tbSort.sortable('disable');
+}
+
+function toggleSortAll() {
+    //    var tbSort = $('#' + TABLE_START).find('tbody');
+    toggleSort($('#' + TABLE_START).find('tbody'));       
+    toggleSort($('#' + TABLE_BASE).find('tbody'));       
+    toggleSort($('#' + TABLE_FINISH).find('tbody'));       
+    
+    
+    
+    //    tbSort.sortable('disable');
+}
+    
+function toggleSort(obj) {
+    var opts = obj.sortable('option');
+
+    if(opts["disabled"]) {
+        // disabled, set active
+        obj.sortable( "enable" );
+        $("tr[draggable='true']").find('.' + TD_CLASS_EDIT).css("font-weight","bold");
+    } else {
+        // active, set disabled
+        $("tr[draggable='true']").find('.' + TD_CLASS_EDIT).css("font-weight", FontWeightOri);
+        obj.sortable( "disable" );
+    }
+};
+
+function createButtonDelete(o) {
+    o.button({
+        label:J_BUTTON_LABEL_DELETE, 
+        icons:{secondary:' ui-icon-closethick'}
+    })
+
+    o.button().on('click', function() {
+        jButtonClick($(this));
+    })
+}
+
+function checkInput(td) {
+/*
+    var str = td.html();
+    var ori = td.attr('data-ori');
+    var color = colorOri;
+    if(td.closest('tr').hasClass(TR_CLASS_DRAGGED)) {
+        color = COLOR_DRAG;
+    } 
+
+
+    var tdClass = TD_CLASS_EDIT_NONE;
+    td.removeClass(TD_CLASS_EDIT_OK);
+    td.removeClass(TD_CLASS_EDIT_ERROR);
+
+    var ok = false;
+
+    if(ori != str) {
+ 
+        if(td.hasClass("tdEditGpio")) {
+            ok = checkInputGpio(str.trim());
+        }
+        if(td.hasClass("tdEditState")) {
+            ok = checkInputState(str.trim());
+        }
+        if(td.hasClass("tdEditInterval")) {
+            ok = checkInputInterval(str.trim());
+        }
+
+        if(!ok) {
+            color = COLOR_ERROR;
+            tdClass = TD_CLASS_EDIT_ERROR;
+        } else {
+            color = COLOR_EDITED;
+            tdClass = TD_CLASS_EDIT_OK;
+        }
+    }
+
+    td.attr("style", 'background-color:' + color);
+    td.addClass(tdClass);
+
+    var tr = td.closest('tr');
+    if (tr.hasClass(TABLE_CLASS_ROW_NEW)) {
+        setTableAddTr(tr);
+    }
+
+    inputReady2Use();
+
+    return ok;
+*/    
+}
 
 /*
 
