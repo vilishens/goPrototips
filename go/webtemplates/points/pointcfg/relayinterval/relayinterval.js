@@ -3,7 +3,8 @@ var URL_PAGE_HANDLER="/point/cfg/";
 var THIS_POINT = "";
 var THIS_CFG = 0x000001; //relay intervals
 
-var STATE_EDIT = 0x0001;
+var STATE_EDIT   = 0x0001;
+var STATE_FREEZE = 0x0002;
 
 var BTN_EDIT = "btnEdit";
 var BTN_FREEZE = "btnFreeze";
@@ -27,9 +28,13 @@ var TABLE_START = "tableStart";
 var TABLE_BASE = "tableBase";
 var TABLE_FINISH = "tableFinish";
 
-var TABLE_START_TEXT = "Start";
-var TABLE_BASE_TEXT = "Base";
-var TABLE_FINISH_TEXT = "Finish";
+var TABLE_SPAN_START = "tableSpanStart";
+var TABLE_SPAN_BASE = "tableSpanBase";
+var TABLE_SPAN_FINISH = "tableSpanFinish";
+
+var TABLE_SPAN_START_TEXT = "Start";
+var TABLE_SPAN_BASE_TEXT = "Base";
+var TABLE_SPAN_FINISH_TEXT = "Finish";
 
 var TD_CLASS_EDIT_OK = "tdEditOk";
 var TD_CLASS_EDIT_ERROR = "tdEditError";
@@ -39,6 +44,10 @@ var TD_CLASS_EDIT_TAB_HEAD = "tdEditTabHead";
 var TD_CLASS_EDIT_ADD = "tdEditAdd"
 var TD_CLASS_EDIT_DELETE = "tdEditDelete"
 var TD_CLASS_EDIT = 'tdEdit';
+
+var TD_CLASS_EDIT_GPIO = 'tdEditGpio';
+var TD_CLASS_EDIT_STATE = 'tdEditState';
+var TD_CLASS_EDIT_INTERVAL = 'tdEditInterval';
 
 var TR_CLASS_HEADER = 'trEditHeader';
 var TR_CLASS_ACTIVE_ROW = 'active-row';
@@ -63,7 +72,7 @@ var CfgState = 0;
 
 var ThisState = 0;
 
-var ColorOri;
+var ColorBackOri;
 var FontWeightOri;
 
 function makePage(name) {
@@ -81,6 +90,7 @@ function setHandlersAndParams() {
 
    
     if(!editState()) {
+        ColorBackOri = $('.' + TD_CLASS_EDIT).css('background-color');
         FontWeightOri = $('.' + TD_CLASS_EDIT).css('font-weight');
     }    
 }
@@ -137,21 +147,78 @@ function drawTitle() {
 }
 
 function drawButtons() {
-    if( editState()) {
+//    if( editState()) {
 
-    } else {
+//    } else {
         drawBtn(BTN_FREEZE, BTN_FREEZE_TXT);
         drawBtn(BTN_LOAD, BTN_LOAD_TXT);
         drawBtn(BTN_SAVE, BTN_SAVE_TXT);
         drawBtn(BTN_LOAD_DEFAULT, BTN_LOAD_DEFAULT_TXT);
         drawBtn(BTN_LOAD_SAVED, BTN_LOAD_SAVED_TXT);
         drawBtn(BTN_EDIT, BTN_EDIT_TXT);
-    }
+//    }
 }
 
 function drawBtn(id, str) {
-    $('#'+id).text(str);
-    setAvailable(id);
+ 
+    var btn = $('#' + id);
+    btn.text(str);
+
+    switch(id) {
+        case BTN_EDIT:
+            drawBtnEdit(btn);  
+            break;
+//        case BTN_LOAD:
+  //          drawBtnLoad(btn);
+    //        break; 
+        case BTN_FREEZE:
+            drawBtnFreeze(btn);
+            break;
+//        case BTN_SAVE:
+  //          drawBtnSave(btn);
+    //        break;
+//        case BTN_LOAD_DEFAULT:
+  //          drawBtnLoadDefault(btn);
+    //        break;
+        //case BTN_LOAD_SAVED:
+  //          drawBtnLoadSaved(btn);
+    //        break;
+  //      default:
+    //        alert("Button "+id+" doesn't have draw logic");
+      //      break;    
+    }
+
+//    setAvailable(id);
+}
+
+function drawBtnEdit(btn) {
+    if(!editState()) {
+        setButtonActive(btn);
+    }
+}
+
+function drawBtnFreeze(btn) {
+
+    if(editState()) {
+        setButtonInactive(btn);
+    } else {
+        setButtonActive(btn);
+    }
+
+/*
+    if(isButtonActive(btn)) {
+        // activeonly, set in use
+        ThisState |= STATE_FREEZE;
+        setButtonInUse(btn);
+        setAllTableEditOptions();
+   }
+    else if(isButtonInUse(btn)) {
+        // in use, set active only
+        ThisState &= ~STATE_EDIT;
+        setButtonActive(btn);
+//        unsetAllTableEditOptions();
+    }
+    */
 }
 
 function setAvailable(id) {
@@ -179,13 +246,13 @@ function isAvailable(id) {
 }
 
 function drawCfg() {
-    drawCfgTable(CfgRun["Start"],TABLE_START, TABLE_START_TEXT, CfgIndex["Start"]);
-    drawCfgTable(CfgRun["Base"],TABLE_BASE, TABLE_BASE_TEXT, CfgIndex["Base"]);
-    drawCfgTable(CfgRun["Finish"],TABLE_FINISH, TABLE_FINISH_TEXT, CfgIndex["Finish"]);
+    drawCfgTable(CfgRun["Start"],TABLE_SPAN_START, TABLE_START, TABLE_SPAN_START_TEXT, CfgIndex["Start"]);
+    drawCfgTable(CfgRun["Base"],TABLE_SPAN_BASE, TABLE_BASE, TABLE_SPAN_BASE_TEXT, CfgIndex["Base"]);
+    drawCfgTable(CfgRun["Finish"],TABLE_SPAN_FINISH, TABLE_FINISH, TABLE_SPAN_FINISH_TEXT, CfgIndex["Finish"]);
 }
 
-function drawCfgTable(data, table, title, ind) {
-    var obj = $('#' + table);
+function drawCfgTable(data, span,  table, title, ind) {
+    var obj = $('#' + span);
     var rowCount = ((null == data) || (0 == data.length)) ? 0 : data.length;
 
     obj.empty()
@@ -193,7 +260,7 @@ function drawCfgTable(data, table, title, ind) {
 
     str += tableTitle(data, title);
     
-    str += '<table id="editable-def" dropzone="move" class="pure-table pure-table-bordered">';
+    str += '<table id="' + table + '" dropzone="move" class="pure-table pure-table-bordered">';
 
     str += tableTabHead();
 
@@ -206,10 +273,6 @@ function drawCfgTable(data, table, title, ind) {
 
     str += '</table>';
     str += '</br>';
-
-//    if(!editState()) {
-//        obj.find('td.' + TD_CLASS_EDIT_ONLY).hide();
-//    }    
 
     obj.html(str);
 
@@ -434,21 +497,40 @@ function setAllTableEditOptions() {
 
     $(trcl).removeClass(TR_CLASS_ACTIVE_ROW);
 
-    $(trcl).attr('contenteditable', 'true');
-    $(trcl).attr('oninput', 'checkInput($(this))');
+    var tdcl = '.' + TD_CLASS_EDIT;
+
+    $(tdcl).attr('contenteditable', 'true');
+    $(tdcl).attr('oninput', 'checkInput($(this))');
     setAllTablesDraggable();
 
-    var tdcl = '.' + TD_CLASS_EDIT_DELETE;
+    tdcl = '.' + TD_CLASS_EDIT_DELETE;
     $(tdcl).show();
-    var tdcl = '.' + TD_CLASS_EDIT_TAB_HEAD;
+    tdcl = '.' + TD_CLASS_EDIT_TAB_HEAD;
     $(tdcl).show();
   
-//    setTablesAddButton()
+    setTablesAddButton()
 
     ThisState |= STATE_EDIT;
 
   //  setEditButtons();
 }    
+
+/*
+function setAllTableEditOptions() {
+    $('.trEdit').removeClass(TR_CLASS_ACTIVE_ROW);
+
+    $('.tdEdit').attr('contenteditable', 'true');
+    $('.tdEdit').attr('oninput', 'checkInput($(this))');
+    setTablesDraggable();
+
+    $('.tdEditDelete').show();
+    $('.tdEditTabHead').show();
+    setTablesAddButton()
+
+    thisState |= STATE_EDIT;
+    setEditButtons();
+}    
+*/
 
 
 function setButtonInUse(btn) {
@@ -492,6 +574,26 @@ function setButtonActive(btn) {
 //    btn.removeClass('btn-outline-secondary').removeClass('btn-warning').removeClass('disabled');
 //    btn.addClass('btn-success').addClass('active');
 }
+
+function setButtonInactive(btn) {
+
+    var cls = BTN_CLASS_IN_USE.split(" ");
+    for (ind in cls) {
+        btn.removeClass(cls[ind]);
+    }
+    cls = BTN_CLASS_ACTIVE.split(" ");
+    for (ind in cls) {
+        btn.removeClass(cls[ind]);
+    }
+
+    var cls = BTN_CLASS_INACTIVE.split(" ");
+    for (ind in cls) {
+        btn.addClass(cls[ind]);
+    }
+}
+
+
+
 
 function jButtonClick(btn) {
 
@@ -576,14 +678,13 @@ function createButtonDelete(o) {
 }
 
 function checkInput(td) {
-/*
+
     var str = td.html();
     var ori = td.attr('data-ori');
-    var color = colorOri;
+    var color = ColorBackOri;
     if(td.closest('tr').hasClass(TR_CLASS_DRAGGED)) {
         color = COLOR_DRAG;
     } 
-
 
     var tdClass = TD_CLASS_EDIT_NONE;
     td.removeClass(TD_CLASS_EDIT_OK);
@@ -620,10 +721,159 @@ function checkInput(td) {
         setTableAddTr(tr);
     }
 
-    inputReady2Use();
+//    inputReady2Use();
 
-    return ok;
-*/    
+    return ok; 
+}
+
+function setTablesAddButton() {
+    setTableAddButtonOption(TABLE_START);
+    setTableAddButtonOption(TABLE_BASE);
+    setTableAddButtonOption(TABLE_FINISH);
+}
+
+function setTableAddButtonOption(tab) {
+    var tr = $('#' + tab).find('.' + TABLE_CLASS_ROW_NEW);
+    return setTableAddTr(tr);
+}
+
+function setTableAddTr(tr) {
+    var td = tr.find('.' + TD_CLASS_EDIT_ADD);
+
+    if(3 == checkInputRow(tr)) {
+        td.show();
+        return;
+    } 
+    td.hide();
+}
+
+//############
+/*
+function setTableAddButtonOption(tab) {
+    var tr = $('#' + tab).find('.' + TABLE_CLASS_ROW_NEW);
+    return setTableAddTr(tr);
+}
+
+function setTableAddTr(tr) {
+    var td = tr.find('.tdEditAdd');
+    if(checkInputRow(tr)) {
+        tr.find('.tdEditAdd').show();
+        return;
+    } 
+    tr.find('.tdEditAdd').hide();
+}
+*/
+//##############
+
+function checkInputRow(tr) {
+
+    var isNew = tr.hasClass(TABLE_CLASS_ROW_NEW);
+
+    var count = 0;
+
+    var str = tr.find('.' + TD_CLASS_EDIT_GPIO).html(); 
+    if(isNew && 'new' == str) {
+
+    } else if (checkInputGpio(str)) {
+        count++;
+    }
+
+    str = tr.find('.' + TD_CLASS_EDIT_STATE).html(); 
+    if(isNew && 'new' == str) {
+
+    } else if (checkInputState(str)) {
+        count++;
+    }
+
+    str = tr.find('.' + TD_CLASS_EDIT_INTERVAL).html(); 
+    if(isNew && 'new:new:new' == str) {
+
+    } else if (checkInputInterval(str)) {
+        count++;
+    }
+
+    return count;
+}
+
+function checkInputGpio(str) {
+
+    var dec = Number(str);
+
+    if(isNaN(dec)) {
+        // the string is not a correct numeric 
+        return false;
+    }
+
+    if(!((0 < dec) && (100 > dec))) {
+        // the number is not in a range (1 ... 99)
+        return false;
+    }    
+
+    return true;
+}
+
+function checkInputState(str) {
+    // allowed values 0 (off) and 1 (on)
+    return (str == '0' || str == '1');
+}
+
+function checkInputInterval(str) {
+
+    var decs = str.split(":"); 
+
+    if(3 != decs.length) {
+        // couldn't get 3 required parts
+        return false;
+    }
+
+    var maxs = [24, 59, 59]; // max values hours, minutes, seconds
+    var i = -1;
+    var val = -1;
+    var total = 0;
+    var str = "";
+
+    var maxmax = false;
+
+    for (i = 0; i < decs.length; i++) { 
+
+        str = decs[i].trim();
+
+        if(2 != str.length) {
+            // there aren't 2 chars in a part
+            return false;
+        }
+
+        val = Number(str);
+
+        if(isNaN(val)) {
+            // the value string is not a correct numeric
+            return false;
+        }
+
+        if((0 == i) && (24 == val)) {
+            // this MAX allowed 24 hours
+            maxmax = true;
+        }
+  
+        if(maxmax && (i > 0) && (0 != val)) {
+            //  24h is MAX, minutes and seconds need to be 0
+            return false;
+        }
+
+        if (!((0 <= val) && (maxs[i] >= val))) {
+            // value is either less than 0 or bigger than the max value
+            return false;
+        }
+
+        total += val;
+    } 
+
+    if(!total) {
+        // all parts are zero, an interval can't be a zero
+        return false;
+    }
+
+    return true;
 }
 
 /*
