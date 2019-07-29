@@ -11,13 +11,15 @@ import (
 	vutils "vk/utils"
 )
 
-var RunningPoints map[string]*RunData
+var RunningPoints map[string]*RunInterface
+var RunningData map[string]*RunData
 
 func init() {
-	RunningPoints = make(map[string]*RunData)
+	RunningPoints = make(map[string]*RunInterface)
+	RunningData = make(map[string]*RunData)
 }
 
-func (d RunData) GetCfgs() (cfgDefault interface{}, cfgRun interface{}, cfgSaved interface{},
+func (d RunInterface) GetCfgs() (cfgDefault interface{}, cfgRun interface{}, cfgSaved interface{},
 	cfgIndex interface{}, cfgState interface{}) {
 
 	//	back, err := json.Marshal(d.CfgDefault)
@@ -28,10 +30,10 @@ func (d RunData) GetCfgs() (cfgDefault interface{}, cfgRun interface{}, cfgSaved
 
 	//	json.Unmarshal(back, &cfgDefault)
 
-	return d.CfgDefault, d.CfgRun, d.CfgSaved, d.Index, d.State
+	return d.CfgDefault, d.CfgRun, d.CfgSaved, RunningData[d.Point].Index, d.State
 }
 
-func (d RunData) LogStr(infoCd int, str string) {
+func (d RunInterface) LogStr(infoCd int, str string) {
 
 	for _, v := range d.Logs {
 		for k1, v1 := range v.Loggers {
@@ -42,7 +44,7 @@ func (d RunData) LogStr(infoCd int, str string) {
 	}
 }
 
-func (d RunData) LetsGo(chGoOn chan bool, chDone chan int, chErr chan error) {
+func (d RunInterface) LetsGo(chGoOn chan bool, chDone chan int, chErr chan error) {
 
 	//d.UDPAddr = addr vk-xxx
 
@@ -50,7 +52,9 @@ func (d RunData) LetsGo(chGoOn chan bool, chDone chan int, chErr chan error) {
 
 	fmt.Printf("============ UDPAddr %+v\n", d.UDPAddr)
 
-	d.Index = AllIndex{Start: vomni.PointNonActiveIndex, Base: vomni.PointNonActiveIndex, Finish: vomni.PointNonActiveIndex}
+	//d.Index = AllIndex{Start: vomni.PointNonActiveIndex, Base: vomni.PointNonActiveIndex, Finish: vomni.PointNonActiveIndex}
+
+	RunningData[d.Point].Index = AllIndex{Start: vomni.PointNonActiveIndex, Base: vomni.PointNonActiveIndex, Finish: vomni.PointNonActiveIndex}
 
 	locGoOn := make(chan bool)
 	locDone := make(chan int)
@@ -64,11 +68,11 @@ func (d RunData) LetsGo(chGoOn chan bool, chDone chan int, chErr chan error) {
 	chGoOn <- true
 }
 
-func (d RunData) GetDone(done int) {
+func (d RunInterface) GetDone(done int) {
 	d.ChDone <- done
 }
 
-func (d RunData) Ready() (ready bool) {
+func (d RunInterface) Ready() (ready bool) {
 
 	ready = true
 
@@ -91,9 +95,9 @@ func (d RunData) Ready() (ready bool) {
 	return
 }
 
-func (d RunData) run(chGoOn chan bool, chDone chan int, chErr chan error) {
+func (d RunInterface) run(chGoOn chan bool, chDone chan int, chErr chan error) {
 
-	fmt.Printf("Point %q Addr %+v Index %+v\n", d.Point, d.UDPAddr, d.Index)
+	fmt.Printf("Point %q Addr %+v Index %+v\n", d.Point, d.UDPAddr, RunningData[d.Point].Index)
 
 	chGoOn <- true
 
@@ -105,9 +109,9 @@ func (d RunData) run(chGoOn chan bool, chDone chan int, chErr chan error) {
 	}
 
 	allStages := []stage{
-		stage{once: true, index: &d.Index.Start, cfg: d.CfgRun.Start},   // start sequence
-		stage{once: false, index: &d.Index.Base, cfg: d.CfgRun.Base},    // base sequence
-		stage{once: true, index: &d.Index.Finish, cfg: d.CfgRun.Finish}} // finishe sequence
+		stage{once: true, index: &RunningData[d.Point].Index.Start, cfg: d.CfgRun.Start},   // start sequence
+		stage{once: false, index: &RunningData[d.Point].Index.Base, cfg: d.CfgRun.Base},    // base sequence
+		stage{once: true, index: &RunningData[d.Point].Index.Finish, cfg: d.CfgRun.Finish}} // finishe sequence
 
 	for _, v := range allStages {
 		go d.runArray(v.cfg, v.index, v.once, locDone)
@@ -124,7 +128,7 @@ func (d RunData) run(chGoOn chan bool, chDone chan int, chErr chan error) {
 	}
 }
 
-func (d RunData) runArray(arr vcfg.RelIntervalArray, index *int, once bool, chDone chan int) {
+func (d RunInterface) runArray(arr vcfg.RelIntervalArray, index *int, once bool, chDone chan int) {
 
 	if 0 == len(arr) {
 		chDone <- vomni.DoneStop
@@ -183,7 +187,7 @@ func nextIndex(ind int, count int) (index int) {
 	return
 }
 
-func (d RunData) StartRotate() (err error) {
+func (d RunInterface) StartRotate() (err error) {
 
 	if err = d.prepareRotateLoggers(); nil != err {
 		return vutils.ErrFuncLine(fmt.Errorf("Couldn't prepare the point %q rotate configuration - %v", d.Point, err))
@@ -192,7 +196,7 @@ func (d RunData) StartRotate() (err error) {
 	return vrotate.StartPointLoggers(d.Point, d.Logs)
 }
 
-func (d RunData) prepareRotateLoggers() (err error) {
+func (d RunInterface) prepareRotateLoggers() (err error) {
 	for k, v := range d.Logs {
 		// Let's open the log data fiel
 		d.Logs[k].LogFilePtr, err = vutils.OpenFile(v.LogFile, vomni.LogFileFlags, vomni.LogUserPerms)
@@ -209,7 +213,7 @@ func (d RunData) prepareRotateLoggers() (err error) {
 	return
 }
 
-func (d *RunData) SetUDPAddr(addr net.UDPAddr) {
+func (d *RunInterface) SetUDPAddr(addr net.UDPAddr) {
 	/*
 		fAddr := reflect.ValueOf(&d.UDPAddr)
 
@@ -230,11 +234,11 @@ func (d *RunData) SetUDPAddr(addr net.UDPAddr) {
 	d.UDPAddr = addr
 }
 
-func (d RunData) GetUDPAddr() (addr net.UDPAddr) {
+func (d RunInterface) GetUDPAddr() (addr net.UDPAddr) {
 	return d.UDPAddr
 }
 
-func (d *RunData) SetState(state int, on bool) {
+func (d *RunInterface) SetState(state int, on bool) {
 
 	if on {
 		d.State |= state
@@ -243,11 +247,11 @@ func (d *RunData) SetState(state int, on bool) {
 	}
 }
 
-func (d *RunData) GetState() (state int) {
+func (d *RunInterface) GetState() (state int) {
 	return d.State
 }
 
-func (d *RunData) setState(state int, on bool) {
+func (d *RunInterface) setState(state int, on bool) {
 	if on {
 		d.State |= state
 	} else {

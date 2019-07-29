@@ -14,35 +14,39 @@ func relayInterval() {
 
 	for k, v := range vpointconfig.PointsAllData {
 		if 0 < (v.List & vomni.CfgTypeRelayInterval) {
-			d := vrunrelayinterval.RunData{}
-			d.Point = k
-			d.State = vomni.PointCfgStateUnknown
-			d.Type = vomni.CfgTypeRelayInterval
+			d := NewRunInterface(k, v)
+			/*
+				vrunrelayinterval.RunInterface{}
+				d.Point = k
+				d.State = vomni.PointCfgStateUnknown
+				d.Type = vomni.CfgTypeRelayInterval
 
-			fmt.Println("Nepiemirsti, ka vajag FACTORY conf!!!")
+				fmt.Println("Nepiemirsti, ka vajag FACTORY conf!!!")
 
-			d.CfgDefault = v.Cfg.RelInterv
-			d.CfgRun = v.Cfg.RelInterv
-			d.CfgSaved = v.Cfg.RelInterv
+				d.CfgDefault = v.Cfg.RelInterv
+				d.CfgRun = v.Cfg.RelInterv
+				d.CfgSaved = v.Cfg.RelInterv
 
-			d.Index = vrunrelayinterval.AllIndex{Start: vomni.PointNonActiveIndex, Base: vomni.PointNonActiveIndex, Finish: vomni.PointNonActiveIndex}
+				d.Index = vrunrelayinterval.AllIndex{Start: vomni.PointNonActiveIndex, Base: vomni.PointNonActiveIndex, Finish: vomni.PointNonActiveIndex}
+
+				d.ChDone = make(chan int)
+				d.ChErr = make(chan error)
+				d.ChMsg = make(chan string)
+			*/
+			vrunrelayinterval.RunningPoints[k] = &d
+
+			dd := NewRunData(k, v) //vrunrelayinterval.RunInfo(d)
+			vrunrelayinterval.RunningData[k] = &dd
 
 			//logs, err := pointLoggers(d.Point, d.Type)
 			// handle all loggers of the point
 			logs, err := relayIntervalPointLoggers(d.Point, d.Type)
-
-			d.ChDone = make(chan int)
-			d.ChErr = make(chan error)
-			d.ChMsg = make(chan string)
-
 			if nil != err {
 				vomni.RootErr <- err
 				return
 			}
 
 			d.Logs = logs
-
-			vrunrelayinterval.RunningPoints[k] = &d
 		}
 	}
 }
@@ -67,4 +71,46 @@ func relayIntervalPointLoggers(point string, cd int) (logs []vomni.PointLog, err
 	fmt.Printf("%q ***** Loggers     %+v\n", point, loggers)
 
 	return
+}
+
+func NewRunInterface(point string, cfg vpointconfig.PointCfgData) (d vrunrelayinterval.RunInterface) {
+	//d := vrunrelayinterval.RunInterface{}
+	d.Point = point
+	d.State = vomni.PointCfgStateUnknown
+	d.Type = vomni.CfgTypeRelayInterval
+
+	fmt.Println("Nepiemirsti, ka vajag FACTORY conf!!!")
+
+	d.CfgDefault = cfg.Cfg.RelInterv
+	d.CfgRun = cfg.Cfg.RelInterv
+	d.CfgSaved = cfg.Cfg.RelInterv
+
+	//	d.Index = vrunrelayinterval.AllIndex{Start: vomni.PointNonActiveIndex, Base: vomni.PointNonActiveIndex, Finish: vomni.PointNonActiveIndex}
+
+	d.ChDone = make(chan int)
+	d.ChErr = make(chan error)
+	d.ChMsg = make(chan string)
+
+	return d
+}
+
+func NewRunData(point string, cfg vpointconfig.PointCfgData) (d vrunrelayinterval.RunData) {
+	//d := vrunrelayinterval.RunInterface{}
+	d.Point = point
+	d.State = vomni.PointCfgStateUnknown
+	d.Type = vomni.CfgTypeRelayInterval
+
+	fmt.Println("Nepiemirsti, ka vajag FACTORY conf!!!")
+
+	d.CfgDefault = cfg.Cfg.RelInterv
+	d.CfgRun = cfg.Cfg.RelInterv
+	d.CfgSaved = cfg.Cfg.RelInterv
+
+	d.Index = vrunrelayinterval.AllIndex{Start: vomni.PointNonActiveIndex, Base: vomni.PointNonActiveIndex, Finish: vomni.PointNonActiveIndex}
+
+	d.ChDone = make(chan int)
+	d.ChErr = make(chan error)
+	d.ChMsg = make(chan string)
+
+	return d
 }
