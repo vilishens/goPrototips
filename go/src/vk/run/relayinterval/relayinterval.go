@@ -22,15 +22,8 @@ func init() {
 func (d RunInterface) GetCfgs() (cfgDefault interface{}, cfgRun interface{}, cfgSaved interface{},
 	cfgIndex interface{}, cfgState interface{}) {
 
-	//	back, err := json.Marshal(d.CfgDefault)
-	//	if nil != err {
-	//		panic(err)
-	//		return
-	//	}
-
-	//	json.Unmarshal(back, &cfgDefault)
-
-	return d.CfgDefault, d.CfgRun, d.CfgSaved, RunningData[d.Point].Index, d.State
+	dx := RunningData[d.Point]
+	return dx.CfgDefault, dx.CfgRun, dx.CfgSaved, dx.Index, dx.State
 }
 
 func (d RunInterface) LogStr(infoCd int, str string) {
