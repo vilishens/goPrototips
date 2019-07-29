@@ -74,6 +74,7 @@ var ThisState = 0;
 
 var ColorBackOri;
 var FontWeightOri;
+var FirstLoad = true;
 
 function makePage(name) {
     THIS_POINT = name;
@@ -84,7 +85,6 @@ function makePage(name) {
 
 function setHandlersAndParams() {
     $('.btnMngmt').on('click', function(){btnClick($(this));}); 
-
    
     if(!editState()) {
         ColorBackOri = $('.' + TD_CLASS_EDIT).css('background-color');
@@ -107,7 +107,6 @@ function handlePointCfg() {
         success : function(data, status, xhr) {
             setAllData(data);
             drawPage();
-            setHandlersAndParams();
         },
 //        error : function(request,error) {
 //            alert("Error: "+error);
@@ -129,7 +128,11 @@ function setAllData(data) {
 
 function drawPage() {
     drawTitle();
-    drawButtons();
+    if(FirstLoad) {
+        drawButtons();
+        setHandlersAndParams();
+        FirstLoad = false;
+    }    
     if(!editState()) {
         drawCfg();
     }    
@@ -483,6 +486,8 @@ function btnClick(btn) {
             alert("Button "+which+" pressed which doesn't have logic");
             break;    
     }
+
+    drawButtons();
 }
 
 function isButtonInactive(btn) {
