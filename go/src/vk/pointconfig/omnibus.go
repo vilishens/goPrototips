@@ -4,6 +4,17 @@ import (
 	"time"
 )
 
+type AllCfgData struct {
+	Default     CfgFileData
+	DefaultJSON CfgFileJSON
+	Running     CfgFileData
+	RunningJSON CfgFileJSON
+}
+
+type CfgFileData map[string]PointCfgData
+
+type CfgFileJSON map[string]CfgJSONPointData
+
 //##############################################################################
 //######### RELAY ON/OFF INTERVAL ##############################################
 //##############################################################################

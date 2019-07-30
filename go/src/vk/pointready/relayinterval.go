@@ -12,7 +12,9 @@ import (
 
 func relayInterval() {
 
-	for k, v := range vpointconfig.PointsAllData {
+	for k, v := range vpointconfig.AllPointData.Default {
+
+		//	for k, v := range vpointconfig.AllPointData.Running {
 		if 0 < (v.List & vomni.CfgTypeRelayInterval) {
 			d := NewRunInterface(k, v)
 			/*
