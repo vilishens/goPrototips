@@ -12,29 +12,9 @@ import (
 
 func relayInterval() {
 
-	for k, v := range vpointconfig.AllPointData.Default {
-
-		//	for k, v := range vpointconfig.AllPointData.Running {
-		if 0 < (v.List & vomni.CfgTypeRelayInterval) {
+	for k, v := range vpointconfig.AllPointData.Running {
+		if 0 != (v.List & vomni.CfgTypeRelayInterval) {
 			d := NewRunInterface(k, v)
-			/*
-				vrunrelayinterval.RunInterface{}
-				d.Point = k
-				d.State = vomni.PointCfgStateUnknown
-				d.Type = vomni.CfgTypeRelayInterval
-
-				fmt.Println("Nepiemirsti, ka vajag FACTORY conf!!!")
-
-				d.CfgDefault = v.Cfg.RelInterv
-				d.CfgRun = v.Cfg.RelInterv
-				d.CfgSaved = v.Cfg.RelInterv
-
-				d.Index = vrunrelayinterval.AllIndex{Start: vomni.PointNonActiveIndex, Base: vomni.PointNonActiveIndex, Finish: vomni.PointNonActiveIndex}
-
-				d.ChDone = make(chan int)
-				d.ChErr = make(chan error)
-				d.ChMsg = make(chan string)
-			*/
 			vrunrelayinterval.RunningPoints[k] = &d
 
 			dd := NewRunData(k, v) //vrunrelayinterval.RunInfo(d)
@@ -104,7 +84,7 @@ func NewRunData(point string, cfg vpointconfig.PointCfgData) (d vrunrelayinterva
 
 	fmt.Println("Nepiemirsti, ka vajag FACTORY conf!!!")
 
-	d.CfgDefault = cfg.Cfg.RelInterv
+	d.CfgDefault = getCfgDefault(d.Point)
 	d.CfgRun = cfg.Cfg.RelInterv
 	d.CfgSaved = cfg.Cfg.RelInterv
 
@@ -115,4 +95,22 @@ func NewRunData(point string, cfg vpointconfig.PointCfgData) (d vrunrelayinterva
 	d.ChMsg = make(chan string)
 
 	return d
+}
+
+func getCfgDefault(point string) (d vpointconfig.RelIntervalStruct) {
+
+	d = vpointconfig.RelIntervalStruct{}
+
+	if v, hasIt := vpointconfig.AllPointData.Default[point]; hasIt {
+		if 0 != (v.List & vomni.CfgTypeRelayInterval) {
+			d = v.Cfg.RelInterv
+
+			fmt.Println("DEFAULT found", point)
+		}
+	} else {
+		fmt.Println("DEFAULT not-found", point)
+	}
+
+	return
+
 }

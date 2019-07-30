@@ -3,9 +3,6 @@ var URL_PAGE_HANDLER="/point/cfg/";
 var THIS_POINT = "";
 var THIS_CFG = 0x000001; //relay intervals
 
-var STATE_EDIT   = 0x0001;
-var STATE_FREEZE = 0x0002;
-
 var BTN_EDIT = "btnEdit";
 var BTN_FREEZE = "btnFreeze";
 var BTN_LOAD = "btnLoad";
@@ -70,6 +67,12 @@ var CfgSaved = {};
 var CfgIndex = {};
 var CfgState = 0;
 
+var STATE_EDIT           = 0x0001;
+var STATE_FREEZE         = 0x0002;
+var STATE_RUN_DEFAULT_EQ = 0x0010;
+var STATE_RUN_SAVED_EQ   = 0x0020;
+var STATE_RUN_RUN_EQ     = 0x0040;
+
 var ThisState = 0;
 
 var ColorBackOri;
@@ -124,6 +127,61 @@ function setAllData(data) {
     CfgSaved = AllD["CfgSaved"][cfgCd];
     CfgIndex = AllD["CfgIndex"][cfgCd];
     CfgState = AllD["CfgState"][cfgCd];
+
+    checkDataSetButtons();
+}
+
+function checkDataSetButtons() {
+    if(runDataEqual(CfgSaved)) {
+        ThisState |= STATE_RUN_SAVED_EQ;
+    } else {
+        ThisState &= ~STATE_RUN_SAVED_EQ;
+    }
+
+
+}
+
+function runDataEqual(d) {
+    var tbl = $('#' + TABLE_START)
+    if(!equalTable(tbl, d["Start"])) {
+        return false;
+    }
+
+    return true;
+}
+
+function equalTable(tbl, d) {
+    var countD = d.length;
+    var rows = tbl.find('tbody tr.' + TR_CLASS_EDIT).not('.' + TABLE_CLASS_ROW_NEW);
+
+    if(d.length == rows.length) {
+        if(0 == rows.length) {
+            // there is no data in that table
+            return true
+        }
+
+        return equalRows(rows, d);
+    }
+
+    return false;
+}
+
+function equalRows(rows, d) {
+
+    if(0 != rows.find('td .'+TD_CLASS_EDIT_ERROR).length) {
+        // there is at least one cell with unaccaptable data
+        return false;
+    }
+
+    for(i in d) {
+
+        var go = d[i];
+        var rod = rows[i];
+
+        var sitko = 3;
+    }
+
+    return true;
 }
 
 function drawPage() {
