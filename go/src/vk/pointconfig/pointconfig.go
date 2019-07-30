@@ -6,12 +6,15 @@ import (
 )
 
 var PointsAllJSON CfgJSONData
+var PointsAllDefaultJSON CfgJSONData
 var PointsAllData AllPointCfgData
+var PointsAllDefaultData AllPointCfgData
 
 func init() {
-
 	PointsAllData = make(map[string]PointCfgData)
+	PointsAllDefaultData = make(map[string]PointCfgData)
 	PointsAllJSON = CfgJSONData{}
+	PointsAllDefaultJSON = CfgJSONData{}
 }
 
 func GetPointCfg(chGoOn chan bool, chDone chan int, chErr chan error) {
@@ -44,6 +47,15 @@ func preparePointCfg(doneCh chan bool, errCh chan error) {
 		return
 	}
 
+	if PointsAllDefaultJSON, err = loadPointDefaultCfg(); nil == err {
+		err = PointsAllDefaultJSON.putCfgDefault4Run()
+	}
+
+	if nil != err {
+		errCh <- err
+		return
+	}
+
 	doneCh <- true
 }
 
@@ -54,10 +66,41 @@ func (d CfgJSONData) putCfg4Run() (err error) {
 			PointsAllData[k] = PointCfgData{}
 		}
 
+		var newStruct PointCfgData
 		if v.RelIntervalJSON.hasCfgRelInterval() {
-			if err = v.RelIntervalJSON.putCfg4Run(k); nil != err {
+			if newStruct, err = v.RelIntervalJSON.putCfg4Run(PointsAllData[k]); nil != err {
 				err = vutils.ErrFuncLine(fmt.Errorf("Relay Interval configuration Error - %s", err.Error()))
 				return
+			} else {
+				PointsAllData[k] = newStruct
+			}
+		}
+
+		//		if v.RelIntervalJSON.hasCfgRelInterval() {
+		//			if err = v.RelIntervalJSON.putCfg4Run(k); nil != err {
+		//				err = vutils.ErrFuncLine(fmt.Errorf("Relay Interval configuration Error - %s", err.Error()))
+		//				return
+		//			}
+		//		}
+	}
+
+	return
+}
+
+func (d CfgJSONData) putCfgDefault4Run() (err error) {
+
+	for k, v := range d {
+		if _, has := PointsAllDefaultData[k]; !has {
+			PointsAllDefaultData[k] = PointCfgData{}
+		}
+
+		var newStruct PointCfgData
+		if v.RelIntervalJSON.hasCfgRelInterval() {
+			if newStruct, err = v.RelIntervalJSON.putCfgDefault4Run(PointsAllDefaultData[k]); nil != err {
+				err = vutils.ErrFuncLine(fmt.Errorf("Relay Interval Default configuration Error - %s", err.Error()))
+				return
+			} else {
+				PointsAllDefaultData[k] = newStruct
 			}
 		}
 	}

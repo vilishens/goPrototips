@@ -25,8 +25,8 @@ type CfgData struct {
 	IPExternalAddressCmds  []string `json:"IPExternalAddressCmds"`
 	NetExternalRequirement string   `json:"NetExternalRequired"`
 
-	PointConfigOriginalFile string `json:"PointConfigOriginalFile"`
-	PointConfigFile         string `json:"PointConfigFile"`
+	PointConfigDefaultFile string `json:"PointConfigDefaultFile"`
+	PointConfigFile        string `json:"PointConfigFile"`
 
 	SendGridKey         string `json:"SendGridKey"`
 	MessageEmailAddress string `json:"MessageEmailAddress"`
@@ -58,8 +58,8 @@ type CfgFinalData struct {
 	IPExternalAddressCmds  []string
 	NetExternalRequirement int
 
-	PointConfigOriginalFile string
-	PointConfigFile         string
+	PointConfigDefaultFile string
+	PointConfigFile        string
 
 	SendGridKey         string
 	MessageEmailAddress string

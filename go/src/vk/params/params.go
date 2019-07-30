@@ -38,7 +38,7 @@ func init() {
 	Params.IPExternalAddressCmds = []string{} // commands to find the station external IP address
 	Params.NetExternalRequirement = 0         // no the external net required at this moment
 
-	Params.PointConfigOriginalFile = ""
+	Params.PointConfigDefaultFile = ""
 	Params.PointConfigFile = ""
 
 	Params.SendGridKey = ""
@@ -116,8 +116,8 @@ func Put(chDone chan bool, chErr chan error) {
 	}
 
 	// point config file
-	if (nil == err) && ("" != data.PointConfigOriginalFile) {
-		Params.PointConfigOriginalFile = data.PointConfigOriginalFile
+	if (nil == err) && ("" != data.PointConfigDefaultFile) {
+		Params.PointConfigDefaultFile = data.PointConfigDefaultFile
 	}
 	if (nil == err) && ("" != data.PointConfigFile) {
 		Params.PointConfigFile = data.PointConfigFile

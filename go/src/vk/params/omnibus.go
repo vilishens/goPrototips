@@ -29,8 +29,8 @@ type ParamData struct {
 	IPExternalAddressCmds  []string
 	NetExternalRequirement int
 
-	PointConfigOriginalFile string
-	PointConfigFile         string
+	PointConfigDefaultFile string
+	PointConfigFile        string
 
 	SendGridKey         string
 	MessageEmailAddress string

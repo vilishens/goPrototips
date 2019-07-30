@@ -39,7 +39,7 @@ func init() {
 	Final.IPExternalAddressCmds = []string{}
 	Final.NetExternalRequirement = -1
 
-	Final.PointConfigOriginalFile = ""
+	Final.PointConfigDefaultFile = ""
 	Final.PointConfigFile = ""
 
 	Final.SendGridKey = ""
@@ -210,8 +210,8 @@ func (c *CfgData) Put() (err error) {
 	}
 
 	// Point configuration file
-	if (nil == err) && ("" != c.PointConfigOriginalFile) {
-		Final.PointConfigOriginalFile = c.PointConfigOriginalFile
+	if (nil == err) && ("" != c.PointConfigDefaultFile) {
+		Final.PointConfigDefaultFile = c.PointConfigDefaultFile
 	}
 	if (nil == err) && ("" != c.PointConfigFile) {
 		Final.PointConfigFile = c.PointConfigFile
