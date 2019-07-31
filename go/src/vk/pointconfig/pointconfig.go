@@ -28,6 +28,11 @@ func init() {
 
 func loadAllCfgFiles() (err error) {
 
+	if err = verifyCfgFiles(); nil != err {
+		err = vutils.ErrFuncLine(fmt.Errorf("Couldn't verify existance of configuration files - %v", err))
+		return
+	}
+
 	path := vutils.FileAbsPath(vparams.Params.PointConfigFile, "")
 
 	fmt.Printf("\n\n\n******* RUNNING PATH %q\n\n\n", path)
@@ -100,6 +105,13 @@ func (d CfgFileJSON) putCfgJSON4Run() (data CfgFileData, err error) {
 		}
 	}
 
+	return
+}
+
+func verifyCfgFiles() (err error) {
+	if has, _ := vutils.PathExists(vparams.Params.PointConfigFile); !has {
+		err = vutils.FileCopy(vparams.Params.PointConfigDefaultFile, vparams.Params.PointConfigFile)
+	}
 	return
 }
 
