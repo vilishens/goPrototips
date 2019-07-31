@@ -75,6 +75,10 @@ var STATE_NON_EQ_RUN_RUN     = 0x0040;
 var STATE_NON_EQ_RUN_BITS    = 0x00F0;
 var STATE_ERR_INPUT_DATA     = 0x0100;
 var STATE_ERR_BITS           = 0x0F00;
+var STATE_NOT_RCVD_DEFAULT   = 0x1000;
+var STATE_NOT_RCVD_SAVED     = 0x2000;
+var STATE_NOT_RCVD_RUN       = 0x4000;
+var STATE_NOT_RCVD_BITS      = 0xF000;
 
 var ThisState = 0;
 
@@ -140,23 +144,46 @@ function checkDataSetButtons() {
 
     ThisState &= ~STATE_NON_EQ_RUN_BITS;
     ThisState &= ~STATE_ERR_BITS;
+    ThisState &= ~STATE_NOT_RCVD_BITS;
 
-    if(!runDataEqual(CfgSaved)) {
-        ThisState |= STATE_NON_EQ_RUN_SAVED;
-    }   
-    if(!runDataEqual(CfgDefault)) {
-        ThisState |= STATE_NON_EQ_RUN_DEFAULT;
-    }   
-    if(!runDataEqual(CfgRun)) {
-        ThisState |= STATE_NON_EQ_RUN_RUN;
-    }   
+    if(dataReceived(CfgSaved)) {
+        if(!runDataEqual(CfgSaved)) {
+            ThisState |= STATE_NON_EQ_RUN_SAVED;
+        }   
+    } else {
+        ThisState |= STATE_NOT_RCVD_SAVED;
+    }
 
+    if(dataReceived(CfgDefault)) {
+        if(!runDataEqual(CfgDefault)) {
+            ThisState |= STATE_NON_EQ_RUN_DEFAULT;
+        }    
+    } else {
+        ThisState |= STATE_NOT_RCVD_DEFAULT;
+    }
+ 
+    if(dataReceived(CfgRun)) {
+        if(!runDataEqual(CfgRun)) {
+            ThisState |= STATE_NON_EQ_RUN_RUN;
+        }    
+    } else {
+        ThisState |= STATE_NOT_RCVD_RUN;
+    }
+  
     setMostButtonsInactive();
     if(ThisState & STATE_ERR_BITS) {
         setErrButtons(ThisState & STATE_ERR_BITS);
     } else if(ThisState & STATE_NON_EQ_RUN_BITS) {
         setNonEqualButtons(ThisState & STATE_NON_EQ_RUN_BITS); 
     }
+}
+
+function dataReceived(d) {
+    if((null === d["Start"]) && (null === d["Base"]) && (null === d["Finish"])) {
+        return false;
+    }
+
+    return true;
 }
 
 function setErrButtons(state) {
