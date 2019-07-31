@@ -67,11 +67,14 @@ var CfgSaved = {};
 var CfgIndex = {};
 var CfgState = 0;
 
-var STATE_EDIT           = 0x0001;
-var STATE_FREEZE         = 0x0002;
-var STATE_RUN_DEFAULT_EQ = 0x0010;
-var STATE_RUN_SAVED_EQ   = 0x0020;
-var STATE_RUN_RUN_EQ     = 0x0040;
+var STATE_EDIT               = 0x0001;
+var STATE_FREEZE             = 0x0002;
+var STATE_NON_EQ_RUN_DEFAULT = 0x0010;
+var STATE_NON_EQ_RUN_SAVED   = 0x0020;
+var STATE_NON_EQ_RUN_RUN     = 0x0040;
+var STATE_NON_EQ_RUN_BITS    = 0x00F0;
+var STATE_ERR_INPUT_DATA     = 0x0100;
+var STATE_ERR_BITS           = 0x0F00;
 
 var ThisState = 0;
 
@@ -128,17 +131,57 @@ function setAllData(data) {
     CfgIndex = AllD["CfgIndex"][cfgCd];
     CfgState = AllD["CfgState"][cfgCd];
 
-    checkDataSetButtons();
+    if(!FirstLoad) {
+        checkDataSetButtons();
+    }    
 }
 
 function checkDataSetButtons() {
-    if(runDataEqual(CfgSaved)) {
-        ThisState |= STATE_RUN_SAVED_EQ;
-    } else {
-        ThisState &= ~STATE_RUN_SAVED_EQ;
+
+    ThisState &= ~STATE_NON_EQ_RUN_BITS;
+    ThisState &= ~STATE_ERR_BITS;
+
+    if(!runDataEqual(CfgSaved)) {
+        ThisState |= STATE_NON_EQ_RUN_SAVED;
+    }   
+    if(!runDataEqual(CfgDefault)) {
+        ThisState |= STATE_NON_EQ_RUN_DEFAULT;
+    }   
+    if(!runDataEqual(CfgRun)) {
+        ThisState |= STATE_NON_EQ_RUN_RUN;
+    }   
+
+    setMostButtonsInactive();
+    if(ThisState & STATE_ERR_BITS) {
+        setErrButtons(ThisState & STATE_ERR_BITS);
+    } else if(ThisState & STATE_NON_EQ_RUN_BITS) {
+        setNonEqualButtons(ThisState & STATE_NON_EQ_RUN_BITS); 
     }
+}
 
+function setErrButtons(state) {
+    setButtonInactive($('#' + BTN_FREEZE));
+}    
 
+function setMostButtonsInactive() {
+//    setButtonInactive($('#' + BTN_FREEZE));
+    setButtonInactive($('#' + BTN_LOAD));
+    setButtonInactive($('#' + BTN_SAVE));
+    setButtonInactive($('#' + BTN_LOAD_DEFAULT));
+    setButtonInactive($('#' + BTN_LOAD_SAVED));
+}
+
+function setNonEqualButtons(state) {
+    var s = state;
+    if(state & STATE_NON_EQ_RUN_SAVED) {
+        var e = 3;
+    } 
+    if(state & STATE_NON_EQ_RUN_DEFAULT) {
+        setButtonActive($('#' + BTN_LOAD_DEFAULT));
+    }
+    if(state & STATE_NON_EQ_RUN_RUN) {
+        var e = 3;   
+    }
 }
 
 function runDataEqual(d) {
@@ -151,8 +194,16 @@ function runDataEqual(d) {
 }
 
 function equalTable(tbl, d) {
-    var countD = d.length;
     var rows = tbl.find('tbody tr.' + TR_CLASS_EDIT).not('.' + TABLE_CLASS_ROW_NEW);
+
+    if(null === d) {
+        if(0 == rows.length) {
+            return true;
+        }
+        return false;
+    }
+
+    var countD = d.length;
 
     if(d.length == rows.length) {
         if(0 == rows.length) {
@@ -166,19 +217,43 @@ function equalTable(tbl, d) {
     return false;
 }
 
+function interval2Seconds(interval) {
+    var secs = -1222;
+
+    var arr = interval.split(":");
+    if(3 == arr.length) {
+        secs = 0;
+        secs += parseInt(arr[0], 10) * 3600;
+        secs += parseInt(arr[1], 10) * 60;
+        secs += parseInt(arr[2], 10);
+        secs *= 1000000000;
+    }
+
+    return secs;
+}
+
 function equalRows(rows, d) {
 
-    if(0 != rows.find('td .'+TD_CLASS_EDIT_ERROR).length) {
+    if(0 != $(rows).find('td.'+TD_CLASS_EDIT_ERROR).length) {
         // there is at least one cell with unaccaptable data
+        ThisState |= STATE_ERR_INPUT_DATA;
         return false;
     }
 
     for(i in d) {
 
-        var go = d[i];
-        var rod = rows[i];
+        var dGpio = d[i]["Gpio"];
+        var dState = d[i]["State"];
+        var dSeconds = d[i]["Seconds"];
 
-        var sitko = 3;
+        var rGpio =  $(rows[i]).find('td.' + TD_CLASS_EDIT_GPIO).text();
+        var rState =  $(rows[i]).find('td.' + TD_CLASS_EDIT_STATE).text();
+        var rInterval =  $(rows[i]).find('td.' + TD_CLASS_EDIT_INTERVAL).text();
+        var rSeconds = interval2Seconds(rInterval);
+
+        if(!(dGpio == rGpio) || !(dState == rState) || !(dSeconds == rSeconds)) {
+            return false;
+        }
     }
 
     return true;
@@ -767,6 +842,8 @@ function checkInput(td) {
     if (tr.hasClass(TABLE_CLASS_ROW_NEW)) {
         setTableAddTr(tr);
     }
+
+    checkDataSetButtons();
 
 //    inputReady2Use();
 
