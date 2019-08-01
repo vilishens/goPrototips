@@ -36,7 +36,8 @@ func setMux() {
 	//	rtr.HandleFunc("/station/{todo}", handleStation)
 
 	// Point
-	rtr.HandleFunc("/point/cfg/{point}/{cfg}", handlePointCfg)
+	//	rtr.HandleFunc("/point/cfg/{point}/{cfg}", handleGetPointCfg)
+	rtr.HandleFunc("/point/handle/cfg/{todo}/{point}/{cfg}", handlePointCfg)
 
 	// Station
 	rtr.HandleFunc("/station/act/{todo}", handleStationAction)

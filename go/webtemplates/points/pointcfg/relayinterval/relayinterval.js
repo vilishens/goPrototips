@@ -1,4 +1,4 @@
-var URL_PAGE_HANDLER="/point/cfg/"; 
+var URL_PAGE_HANDLER="/point/handle/cfg/"; 
 
 var THIS_POINT = "";
 var THIS_CFG = 0x000001; //relay intervals
@@ -67,18 +67,20 @@ var CfgSaved = {};
 var CfgIndex = {};
 var CfgState = 0;
 
-var STATE_EDIT               = 0x0001;
-var STATE_FREEZE             = 0x0002;
-var STATE_NON_EQ_RUN_DEFAULT = 0x0010;
-var STATE_NON_EQ_RUN_SAVED   = 0x0020;
-var STATE_NON_EQ_RUN_RUN     = 0x0040;
-var STATE_NON_EQ_RUN_BITS    = 0x00F0;
-var STATE_ERR_INPUT_DATA     = 0x0100;
-var STATE_ERR_BITS           = 0x0F00;
-var STATE_NOT_RCVD_DEFAULT   = 0x1000;
-var STATE_NOT_RCVD_SAVED     = 0x2000;
-var STATE_NOT_RCVD_RUN       = 0x4000;
-var STATE_NOT_RCVD_BITS      = 0xF000;
+var STATE_EDIT                  = 0x00001;
+var STATE_FREEZE                = 0x00002;
+var STATE_NON_EQ_TBL_DEFAULT    = 0x00010;  // compare data of tables with the default set
+var STATE_NON_EQ_TBL_SAVED      = 0x00020;  // compare data of tables with the saved set
+var STATE_NON_EQ_TBL_RUN        = 0x00040;  // compare data of tables with the run set
+var STATE_NON_EQ_TBL_BITS       = 0x000F0;
+var STATE_ERR_INPUT_DATA        = 0x00100;
+var STATE_ERR_BITS              = 0x00F00;
+var STATE_NOT_RCVD_DEFAULT      = 0x01000;
+var STATE_NOT_RCVD_SAVED        = 0x02000;
+var STATE_NOT_RCVD_RUN          = 0x04000;
+var STATE_NOT_RCVD_BITS         = 0x0F000;
+var STATE_NON_EQ_SETS_RUN_SAVED = 0x10000;  // compare running and saved sets   
+var STATE_NON_EQ_SETS_BITS      = 0xF0000;
 
 var ThisState = 0;
 
@@ -107,7 +109,7 @@ function handlePointCfg() {
     AllD = {};
 
     $.ajax({
-        url: URL_PAGE_HANDLER+THIS_POINT+"/"+THIS_CFG.toString(),
+        url: URL_PAGE_HANDLER+"get/" + THIS_POINT+"/"+THIS_CFG.toString(),
         type: 'post',
         data: {}, //JSON.stringify(d), 
         dataType: 'json',
@@ -142,41 +144,79 @@ function setAllData(data) {
 
 function checkDataSetButtons() {
 
-    ThisState &= ~STATE_NON_EQ_RUN_BITS;
+    ThisState &= ~STATE_NON_EQ_TBL_BITS;
     ThisState &= ~STATE_ERR_BITS;
     ThisState &= ~STATE_NOT_RCVD_BITS;
+    ThisState &= ~STATE_NON_EQ_SETS_BITS;
 
     if(dataReceived(CfgSaved)) {
-        if(!runDataEqual(CfgSaved)) {
-            ThisState |= STATE_NON_EQ_RUN_SAVED;
+        if(!dataTblEqual(CfgSaved)) {
+            ThisState |= STATE_NON_EQ_TBL_SAVED;
         }   
     } else {
         ThisState |= STATE_NOT_RCVD_SAVED;
     }
 
     if(dataReceived(CfgDefault)) {
-        if(!runDataEqual(CfgDefault)) {
-            ThisState |= STATE_NON_EQ_RUN_DEFAULT;
+        if(!dataTblEqual(CfgDefault)) {
+            ThisState |= STATE_NON_EQ_TBL_DEFAULT;
         }    
     } else {
         ThisState |= STATE_NOT_RCVD_DEFAULT;
     }
  
     if(dataReceived(CfgRun)) {
-        if(!runDataEqual(CfgRun)) {
-            ThisState |= STATE_NON_EQ_RUN_RUN;
+        if(!dataTblEqual(CfgRun)) {
+            ThisState |= STATE_NON_EQ_TBL_RUN;
         }    
     } else {
         ThisState |= STATE_NOT_RCVD_RUN;
     }
-  
+
+    if(dataReceived(CfgRun) && !dataReceived(CfgSaved)) {
+        // there is Run data but Saved data abscent
+        ThisState |= STATE_NON_EQ_SETS_RUN_SAVED;
+    } else if(!dataSetsEqual(CfgRun, CfgSaved)) {
+        ThisState |= STATE_NON_EQ_SETS_RUN_SAVED;
+    }
+
     setMostButtonsInactive();
     if(ThisState & STATE_ERR_BITS) {
         setErrButtons(ThisState & STATE_ERR_BITS);
-    } else if(ThisState & STATE_NON_EQ_RUN_BITS) {
-        setNonEqualButtons(ThisState & STATE_NON_EQ_RUN_BITS); 
+    } else {
+        var bits = STATE_NON_EQ_TBL_BITS | STATE_NON_EQ_SETS_BITS;
+        if(ThisState & bits) {
+            setNonEqualButtons(ThisState & bits); 
+        }    
     }
 }
+
+function dataSetsEqual(d1, d2) {
+
+    var parts = ["Start", "Base", "Finish"];
+    for(i in parts) {
+        if(!dataPartEqual(d1[parts[i]], d2[parts[i]])) {
+            return false;
+        }
+    }    
+
+    return true;
+}
+
+function dataPartEqual(d1, d2) {
+    if(d1.length != d2.length) {
+        return false;
+    }
+
+    for(i in d1) {
+        if(!((d1[i]["Gpio"] == d2[i]["Gpio"]) && (d1[i]["State"] == d2[i]["State"]) && (d1[i]["Seconds"] == d2[i]["Seconds"]))) {
+            return false;            
+        }
+    }
+
+    return true;
+}
+
 
 function dataReceived(d) {
     if((null === d["Start"]) && (null === d["Base"]) && (null === d["Finish"])) {
@@ -200,20 +240,46 @@ function setMostButtonsInactive() {
 
 function setNonEqualButtons(state) {
     var s = state;
-    if(state & STATE_NON_EQ_RUN_SAVED) {
-        var e = 3;
+    if(state & STATE_NON_EQ_TBL_SAVED) {
+        setButtonActive($('#' + BTN_LOAD_SAVED));
     } 
-    if(state & STATE_NON_EQ_RUN_DEFAULT) {
+    if(state & STATE_NON_EQ_TBL_DEFAULT) {
         setButtonActive($('#' + BTN_LOAD_DEFAULT));
     }
-    if(state & STATE_NON_EQ_RUN_RUN) {
-        var e = 3;   
+    if(state & STATE_NON_EQ_TBL_RUN) {
+        setButtonActive($('#' + BTN_LOAD));
+    }
+    if(state & STATE_NON_EQ_SETS_RUN_SAVED) {
+        setButtonActive($('#' + BTN_SAVE));
     }
 }
 
-function runDataEqual(d) {
+function dataTblEqual(d) {
+
+    var tbls = [TABLE_START, TABLE_BASE, TABLE_FINISH];
+    var parts = ["Start", "Base", "Finish"];
+
+    for(i in tbls) {
+        var tbl = $('#' + tbls[i]);
+        if(!equalTable(tbl, d[parts[i]])) {
+            return false;
+        }
+    }
+
+    return true;
+
     var tbl = $('#' + TABLE_START)
     if(!equalTable(tbl, d["Start"])) {
+        return false;
+    }
+
+    tbl = $('#' + TABLE_BASE)
+    if(!equalTable(tbl, d["Base"])) {
+        return false;
+    }
+
+    tbl = $('#' + TABLE_FINISH)
+    if(!equalTable(tbl, d["Finish"])) {
         return false;
     }
 
@@ -650,6 +716,79 @@ function btnClick(btn) {
     drawButtons();
 }
 
+
+function btnLoadPressed(btn) {
+
+//    setButtonActive(btn);
+
+    unsetAllTableEditOptions();
+
+    loadInputData();
+}
+
+function loadInputData() {
+    var d = getInputData();
+
+    var urlStr = URL_PAGE_HANDLER + "loadinp/" + THIS_POINT+"/"+THIS_CFG.toString();
+
+    ReturnData(urlStr, d);
+}
+
+function getInputData() {
+
+    var d = {};
+
+    d["Start"] = getInputTableData($('#' + TABLE_START));
+    d["Base"] = getInputTableData($('#' + TABLE_BASE));
+    d["Finish"] = getInputTableData($('#' + TABLE_FINISH));
+
+    return d;
+}
+
+function getInputTableData(tbl) {
+    var d = [];
+
+    tbl.find('tr:not(.'+TABLE_CLASS_ROW_NEW+')').each(function() {
+        if(!$(this).hasClass(TR_CLASS_HEADER)) {
+            d.push(getInputTrData($(this)));
+        }    
+    })        
+
+    return d;
+}
+
+function getInputTrData(tr) {
+    var d = {};
+
+    d["Gpio"] = tr.find('.' + TD_CLASS_EDIT_GPIO).html(); 
+    d["State"] = tr.find('.' + TD_CLASS_EDIT_STATE).html(); 
+
+    var interval = tr.find('.' + TD_CLASS_EDIT_INTERVAL).html(); 
+    d["Seconds"] = interval2Seconds(interval); 
+
+    return d
+}
+
+function returnData(url, d) {
+
+    $.ajax({  
+        url: url,
+        type: 'post',
+        data: JSON.stringify(d), 
+        dataType: 'json',
+        contentType: 'application/json;charset=utf-8',
+        async: true,
+        timeout: 500,   // 0.5 second
+        success : function(data, status, xhr) {
+ //           alert("Data "+ data + " STATUS " + status + " XHR " +xhr);
+            return;
+        },
+        error : function(request,error) {
+            alert("Request: "+JSON.stringify(request)+", Error: "+error);
+        },
+    });
+}
+
 function isButtonInactive(btn) {
     return everyClass(btn, BTN_CLASS_INACTIVE);
 }
@@ -749,12 +888,56 @@ function jButtonClick(btn) {
     var label = btn.button('option', 'label');
 
     if (J_BUTTON_LABEL_DELETE == label) {
-  //      htmlRemoveTdRow(btn);
+        htmlRemoveTdRow(btn);
     }
 
     if (J_BUTTON_LABEL_ADD == label) {
-//        htmlAddNewRow(btn);
+        htmlAddNewRow(btn);
     }
+}
+
+function htmlRemoveTdRow(btn) {
+    var row = btn.closest('tr');
+    row.remove();
+}
+
+function htmlAddNewRow(btn) {
+    // find the button table
+    var tbl = btn.closest('table');
+
+    // find the button row in the table
+    var row = btn.closest('tr');
+
+    // remove classes specific to the 'NEW' row
+    btn.removeClass(TD_CLASS_EDIT_ADD);
+    btn.addClass(TD_CLASS_EDIT_DELETE);
+    row.removeClass(TABLE_CLASS_ROW_NEW);
+  
+    // destroy the 'NEW' button of the current 'NEW' row
+    btn.button('destroy');
+    // substitute the current 'ADD' button to 'DELETE' button 
+    // which is required for table data rows
+    createButtonDelete(btn);
+
+    // set the row draggable
+    row.attr("draggable", "true");
+
+    // prepare a new 'NEW' row html code to substitute the current 'NEW' row 
+    // which is ready to add to the table data rows
+    var str = tableTabRowNew()
+    // add the new row html row code after the last row
+    tbl.find('tr:last').after(str);
+
+    // find the last row after adding html code
+    row = tbl.find('tr:last');
+
+    row.find('.' + TD_CLASS_EDIT).attr('contenteditable', 'true');
+    row.find('.' + TD_CLASS_EDIT).attr('oninput', 'checkInput($(this))');
+    createButtonAdd(row.find('.' + TD_CLASS_EDIT_ADD));
+
+    setTableAddTr(row);
+    
+//    inputReady2Use();
 }
 
 function setAllTablesDraggable() {
