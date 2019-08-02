@@ -8,6 +8,7 @@ import (
 	"strconv"
 	"strings"
 	vomni "vk/omnibus"
+	vpointrun "vk/run/pointrun"
 
 	"github.com/gorilla/mux"
 )
@@ -94,6 +95,8 @@ func handlePointCfg(w http.ResponseWriter, r *http.Request) {
 	case "LOADINP":
 
 		cfgCd, _ := strconv.Atoi(cfg)
+
+		fmt.Println("Kolka Voshnovs CFG ", cfg, " DEC ", cfgCd)
 
 		loadCfgData(w, r, point, cfgCd)
 		return
@@ -193,8 +196,12 @@ func loadCfgData(w http.ResponseWriter, r *http.Request, point string, cfg int) 
 	}
 
 	responseOK(w)
-	//xrun.ReceivedWebMsg(point, todo, data)
 
+	kika := vpointrun.CmdLoadCfgIntoPoint | cfg
+
+	fmt.Printf("##### CMD %08X CFG %08X --> %08X", vpointrun.CmdLoadCfgIntoPoint, cfg, kika)
+
+	vpointrun.WebSent(vpointrun.CmdLoadCfgIntoPoint|cfg, point, data)
 }
 
 //#####################################

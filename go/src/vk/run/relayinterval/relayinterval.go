@@ -26,6 +26,24 @@ func (d RunInterface) GetCfgs() (cfgDefault interface{}, cfgRun interface{}, cfg
 	return dx.CfgDefault, dx.CfgRun, dx.CfgSaved, dx.Index, dx.State
 }
 
+func (d RunInterface) ReceiveCfg(data interface{}) {
+
+	RunningData[d.Point].CfgRun = webInterface2Struct(data)
+	//data.(vcfg.RelIntervalStruct)
+
+	/*
+		RunningData[d.Point]
+
+		cfg := 147
+
+		switch cfg {
+		default:
+			str := fmt.Sprintf("\n\nDon't know how te receive configuration %08X for %q\n\n", cfg, d.Point)
+			panic(str)
+		}
+	*/
+}
+
 func (d RunInterface) LogStr(infoCd int, str string) {
 
 	for _, v := range d.Logs {

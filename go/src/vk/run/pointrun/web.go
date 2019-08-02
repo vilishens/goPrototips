@@ -92,3 +92,17 @@ func webCfgInfo(list []int) (d map[int]vomni.CfgPlusData) {
 
 	return
 }
+
+func WebSent(todo int, point string, data interface{}) {
+
+	cmd := todo & CmdBits
+	switch cmd {
+	case CmdLoadCfgIntoPoint:
+		cfg := todo & CmdOptionBits
+		Points[point].Run[cfg].ReceiveCfg(data)
+
+	default:
+		str := fmt.Sprintf("\n\nDon't know what to do with %08X for %s\n\n", todo, point)
+		panic(str)
+	}
+}

@@ -2,6 +2,7 @@ package runrelayinterval
 
 import (
 	"net"
+	"time"
 	vomni "vk/omnibus"
 	vcfg "vk/pointconfig"
 )
@@ -44,3 +45,25 @@ type RunData struct {
 	CfgRun     vcfg.RelIntervalStruct
 	CfgSaved   vcfg.RelIntervalStruct
 }
+
+type webPoint struct {
+	Gpio     string
+	State    string
+	Interval string
+}
+
+type webPointArr []webPoint
+
+type webPointStruct struct {
+	Start  webPointArr
+	Base   webPointArr
+	Finish webPointArr
+}
+
+type RelInterval struct {
+	Gpio    int
+	State   int
+	Seconds time.Duration
+}
+
+type RelIntervalArr []RelInterval

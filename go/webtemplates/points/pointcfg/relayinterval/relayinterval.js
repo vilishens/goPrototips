@@ -764,7 +764,8 @@ function getInputTrData(tr) {
     d["State"] = tr.find('.' + TD_CLASS_EDIT_STATE).html(); 
 
     var interval = tr.find('.' + TD_CLASS_EDIT_INTERVAL).html(); 
-    d["Seconds"] = interval2Seconds(interval); 
+    var secs = interval2Seconds(interval);
+    d["Seconds"] = secs.toString() 
 
     return d
 }
