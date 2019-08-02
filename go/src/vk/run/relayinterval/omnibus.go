@@ -23,7 +23,7 @@ type RunInterface struct {
 	UDPAddr    net.UDPAddr
 	ChErr      chan error
 	ChDone     chan int
-	ChMsg      chan string
+	ChMsg      chan int
 	CfgDefault vcfg.RelIntervalStruct
 	CfgRun     vcfg.RelIntervalStruct
 	CfgSaved   vcfg.RelIntervalStruct
@@ -40,16 +40,16 @@ type RunData struct {
 	UDPAddr    net.UDPAddr
 	ChErr      chan error
 	ChDone     chan int
-	ChMsg      chan string
+	ChMsg      chan int
 	CfgDefault vcfg.RelIntervalStruct
 	CfgRun     vcfg.RelIntervalStruct
 	CfgSaved   vcfg.RelIntervalStruct
 }
 
 type webPoint struct {
-	Gpio     string
-	State    string
-	Interval string
+	Gpio    string
+	State   string
+	Seconds string
 }
 
 type webPointArr []webPoint

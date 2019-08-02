@@ -634,7 +634,7 @@ function seconds2Interval(secsFull) {
 
     var hr = Math.trunc(secs / 3600); // Hours
     var min = Math.trunc((secs % 3600) / 60); // Minutes
-    var sec = Math.trunc(secs % (3600 * 60)); // secoonds
+    var sec = Math.trunc(secs % 60); // secoonds
 
     var str = ((hr < 10) ? "0" : "") + hr.toString() + ":" +
               ((min < 10) ? "0" : "") + min.toString() + ":" + 

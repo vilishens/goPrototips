@@ -71,7 +71,7 @@ func NewRunInterface(point string, cfg vpointconfig.PointCfgData) (d vrunrelayin
 
 	d.ChDone = make(chan int)
 	d.ChErr = make(chan error)
-	d.ChMsg = make(chan string)
+	d.ChMsg = make(chan int)
 
 	return d
 }
@@ -92,7 +92,7 @@ func NewRunData(point string, cfg vpointconfig.PointCfgData) (d vrunrelayinterva
 
 	d.ChDone = make(chan int)
 	d.ChErr = make(chan error)
-	d.ChMsg = make(chan string)
+	d.ChMsg = make(chan int)
 
 	return d
 }

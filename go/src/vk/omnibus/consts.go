@@ -6,6 +6,12 @@ import (
 	"time"
 )
 
+const (
+	PointCmdBits             = 0xFFFF0000
+	PointCmdOptionBits       = 0x0000FFFF
+	PointCmdLoadCfgIntoPoint = 0x00010000
+)
+
 // constants for log
 const (
 	LogFileFlags       = os.O_RDWR | os.O_CREATE | os.O_APPEND

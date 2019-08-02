@@ -29,7 +29,11 @@ func webInterface2Struct(data interface{}) (back vcfg.RelIntervalStruct) {
 				case "STATE":
 					rec.State = v2.(string)
 				case "SECONDS": //"SECONDS":
-					rec.Interval = v2.(string)
+					str := v2.(string)
+					// remove nanoseconds
+					nn, _ := strconv.Atoi(str)
+
+					rec.Seconds = strconv.Itoa(nn / 1000000000) //v2.(string)
 				default:
 					log.Fatal(fmt.Sprintf("Unknow WEB interface record field \"%s\"", k2))
 				}
@@ -66,7 +70,8 @@ func (d webPointArr) webArray2Regular() (newStr vcfg.RelIntervalArray) {
 		newR := vcfg.RelInterval{}
 		newR.Gpio, _ = strconv.Atoi(v.Gpio)
 		newR.State, _ = strconv.Atoi(v.State)
-		t, _ := time.ParseDuration(v.Interval + "s")
+
+		t, _ := time.ParseDuration(v.Seconds + "s")
 		newR.Seconds = t.Round(time.Second)
 
 		newStr = append(newStr, newR)

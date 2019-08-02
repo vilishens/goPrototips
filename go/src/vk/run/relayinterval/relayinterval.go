@@ -26,9 +26,12 @@ func (d RunInterface) GetCfgs() (cfgDefault interface{}, cfgRun interface{}, cfg
 	return dx.CfgDefault, dx.CfgRun, dx.CfgSaved, dx.Index, dx.State
 }
 
-func (d RunInterface) ReceiveCfg(data interface{}) {
+func (d RunInterface) ReceiveCfg(cmd int, data interface{}) {
 
 	RunningData[d.Point].CfgRun = webInterface2Struct(data)
+
+	RunningData[d.Point].ChMsg <- cmd
+
 	//data.(vcfg.RelIntervalStruct)
 
 	/*
@@ -124,17 +127,27 @@ func (d RunInterface) run(chGoOn chan bool, chDone chan int, chErr chan error) {
 		stage{once: false, index: &RunningData[d.Point].Index.Base, cfg: d.CfgRun.Base},    // base sequence
 		stage{once: true, index: &RunningData[d.Point].Index.Finish, cfg: d.CfgRun.Finish}} // finishe sequence
 
-	for _, v := range allStages {
-		go d.runArray(v.cfg, v.index, v.once, locDone)
-		rc := <-locDone
-		if vomni.DoneDisconnected == rc {
-			d.SetState(vomni.DoneDisconnected, true)
-			str := fmt.Sprintf("Point %q lost connection", d.Point)
-			d.LogStr(vomni.LogFileCdErr, str)
+	stop := false
+	for !stop {
+		for _, v := range allStages {
+			go d.runArray(v.cfg, v.index, v.once, locDone)
+			rc := <-locDone
+			if vomni.DoneDisconnected == rc {
+				d.SetState(vomni.DoneDisconnected, true)
+				str := fmt.Sprintf("Point %q lost connection", d.Point)
+				d.LogStr(vomni.LogFileCdErr, str)
 
-			fmt.Printf("***\n***\n*** Nutivara %q \n***\n***\n", d.Point)
+				fmt.Printf("***\n***\n*** Nutivara %q \n***\n***\n", d.Point)
 
-			break
+				stop = true
+				break
+			}
+
+			if vomni.PointCmdLoadCfgIntoPoint == rc {
+				RunningData[d.Point].Index = AllIndex{Start: vomni.PointNonActiveIndex,
+					Base: vomni.PointNonActiveIndex, Finish: vomni.PointNonActiveIndex}
+				break
+			}
 		}
 	}
 }
@@ -162,8 +175,8 @@ func (d RunInterface) runArray(arr vcfg.RelIntervalArray, index *int, once bool,
 
 		select {
 
-		case msg := <-d.ChMsg:
-			fmt.Printf("vk-xxx ###\n###\n###\n Point %q received a message %q *** HEAVY METAL\n###\n###\n###\n", d.Point, msg)
+		case msg := <-RunningData[d.Point].ChMsg:
+			fmt.Printf("vk-xxx ###\n###\n###\n Point %q received a message %d *** HEAVY METAL\n###\n###\n###\n", d.Point, msg)
 
 		case done = <-d.ChDone:
 

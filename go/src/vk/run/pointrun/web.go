@@ -95,11 +95,11 @@ func webCfgInfo(list []int) (d map[int]vomni.CfgPlusData) {
 
 func WebSent(todo int, point string, data interface{}) {
 
-	cmd := todo & CmdBits
+	cmd := todo & vomni.PointCmdBits
 	switch cmd {
-	case CmdLoadCfgIntoPoint:
-		cfg := todo & CmdOptionBits
-		Points[point].Run[cfg].ReceiveCfg(data)
+	case vomni.PointCmdLoadCfgIntoPoint:
+		cfg := todo & vomni.PointCmdOptionBits
+		Points[point].Run[cfg].ReceiveCfg(cmd, data)
 
 	default:
 		str := fmt.Sprintf("\n\nDon't know what to do with %08X for %s\n\n", todo, point)

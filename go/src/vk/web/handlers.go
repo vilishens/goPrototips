@@ -197,11 +197,11 @@ func loadCfgData(w http.ResponseWriter, r *http.Request, point string, cfg int) 
 
 	responseOK(w)
 
-	kika := vpointrun.CmdLoadCfgIntoPoint | cfg
+	kika := vomni.PointCmdLoadCfgIntoPoint | cfg
 
-	fmt.Printf("##### CMD %08X CFG %08X --> %08X", vpointrun.CmdLoadCfgIntoPoint, cfg, kika)
+	fmt.Printf("##### CMD %08X CFG %08X --> %08X", vomni.PointCmdLoadCfgIntoPoint, cfg, kika)
 
-	vpointrun.WebSent(vpointrun.CmdLoadCfgIntoPoint|cfg, point, data)
+	vpointrun.WebSent(vomni.PointCmdLoadCfgIntoPoint|cfg, point, data)
 }
 
 //#####################################

@@ -2,12 +2,6 @@ package pointrun
 
 import "net"
 
-const (
-	CmdBits             = 0xFFFF0000
-	CmdOptionBits       = 0x0000FFFF
-	CmdLoadCfgIntoPoint = 0x00010000
-)
-
 //===============================
 //===============================
 //===============================
@@ -36,7 +30,7 @@ type Runner interface {
 	SetUDPAddr(addr net.UDPAddr)
 
 	//#######################################
-	ReceiveCfg(data interface{})
+	ReceiveCfg(cmd int, data interface{})
 }
 
 type PointMsg struct {
