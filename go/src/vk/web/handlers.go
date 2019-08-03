@@ -83,8 +83,6 @@ func handlePointCfg(w http.ResponseWriter, r *http.Request) {
 	point := vars["point"]
 	cfg := vars["cfg"]
 
-	//	var data interface{}
-
 	fmt.Println("viorika-VISKOPOLEANU", cfg, "Point", point, "TODO", todo)
 
 	switch strings.ToUpper(todo) {
@@ -92,57 +90,11 @@ func handlePointCfg(w http.ResponseWriter, r *http.Request) {
 		getPointCfg(w, r)
 		return
 
-	case "LOADINP":
-
+	case "LOADINP", "LOADDEFAULT", "LOADSAVED":
 		cfgCd, _ := strconv.Atoi(cfg)
-
-		fmt.Println("Kolka Voshnovs CFG ", cfg, " DEC ", cfgCd)
-
 		loadCfgData(w, r, point, cfgCd)
 		return
-
 	}
-
-	/*
-		tmplStr := "pointcfg"
-		data = pointCfg(point)
-
-		refl := reflect.ValueOf(data)
-
-		zType := refl.FieldByName("Type")
-
-		switch zType.Int() {
-		case vomni.PointTypeRelayOnOffInterval:
-			tmplStr = "cfgrelayonoffinterval"
-		default:
-			tmplStr = "pointcfg"
-		}
-
-		err = tmpls.ExecuteTemplate(w, tmplStr, point)
-
-		if err != nil {
-			http.Error(w, err.Error(), http.StatusInternalServerError)
-		}
-	*/
-
-	/*
-
-		switch cfg {
-		case strconv.Itoa(vomni.CfgTypeRelayInterval):
-		default:
-			err := fmt.Errorf("Don't have code to handle configuration %q of the point %q", cfg, point)
-			http.Error(w, err.Error(), http.StatusInternalServerError)
-			return
-		}
-
-		data := pointData(point)
-		newData, err := json.Marshal(data)
-		if err != nil {
-			http.Error(w, err.Error(), http.StatusInternalServerError)
-		}
-		w.Write(newData)
-
-	*/
 }
 
 /*
@@ -194,12 +146,6 @@ func loadCfgData(w http.ResponseWriter, r *http.Request, point string, cfg int) 
 	if err != nil {
 		panic(err.Error())
 	}
-
-	responseOK(w)
-
-	kika := vomni.PointCmdLoadCfgIntoPoint | cfg
-
-	fmt.Printf("##### CMD %08X CFG %08X --> %08X", vomni.PointCmdLoadCfgIntoPoint, cfg, kika)
 
 	vpointrun.WebSent(vomni.PointCmdLoadCfgIntoPoint|cfg, point, data)
 }

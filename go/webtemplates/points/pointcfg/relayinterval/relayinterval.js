@@ -120,9 +120,9 @@ function handlePointCfg() {
             setAllData(data);
             drawPage();
         },
-//        error : function(request,error) {
-//            alert("Error: "+error);
-//        },
+        error : function(request,error) {
+            alert("Error: "+error);
+        },
     });
 }
 
@@ -716,22 +716,78 @@ function btnClick(btn) {
     drawButtons();
 }
 
+function btnLoadSavedPressed(btn) {
+
+    unsetAllTableEditOptions();
+    loadSavedCfg();
+}
 
 function btnLoadPressed(btn) {
 
-//    setButtonActive(btn);
+    unsetAllTableEditOptions();
+    loadInputData();
+}
+
+function btnLoadDefaultPressed(btn) {
 
     unsetAllTableEditOptions();
-
-    loadInputData();
+    loadDefaultCfg();
 }
 
 function loadInputData() {
     var d = getInputData();
-
     var urlStr = URL_PAGE_HANDLER + "loadinp/" + THIS_POINT+"/"+THIS_CFG.toString();
 
     ReturnData(urlStr, d);
+}
+
+function loadDefaultCfg() {
+    var d = getDataToSend(CfgDefault);
+    var urlStr = URL_PAGE_HANDLER + "loaddefault/" + THIS_POINT+"/"+THIS_CFG.toString();
+
+    ReturnData(urlStr, d);
+}
+
+function loadSavedCfg() {
+    var d = getDataToSend(CfgSaved);
+    var urlStr = URL_PAGE_HANDLER + "loadsaved/" + THIS_POINT+"/"+THIS_CFG.toString();
+
+    ReturnData(urlStr, d);
+}
+
+function getDataToSend(cfgData) {
+    var d = {};
+
+    var sets = ["Start", "Base", "Finish"];
+    for(j in sets) {
+        var set = sets[j];
+        d[set] = getSetSendData(cfgData[set]);
+    }
+
+    return d;
+}
+
+function getSetSendData(dd) {
+    var d = [];
+
+    for(i in dd) {
+        d.push(getRecordSendData(dd[i]))
+    }
+
+    return d;
+}
+
+function getRecordSendData(dd) {
+    var d = {};
+
+    flds = ["Gpio", "State", "Seconds"];
+
+    for(j in flds) {
+        var fld = flds[j];
+        d[fld] = dd[fld].toString();
+    }
+
+    return d
 }
 
 function getInputData() {

@@ -136,9 +136,6 @@ func (d RunInterface) Ready() (ready bool) {
 
 func (d RunInterface) run(chGoOn chan bool, chDone chan int, chErr chan error) {
 
-	fmt.Printf("@@@@@@@@@@@@@@@@@@@ RUN sākums @@@@@@@@@@@ Point %q Addr %+v Index %+v\n", d.Point, d.UDPAddr, RunningData[d.Point].Index)
-	fmt.Printf("@@@@@@@@@@@@@@@@@@@ RUN sākums @@@@@@@@@@@ Point %q @@@@@@@ %+v", d.Point, RunningData[d.Point].Index)
-
 	chGoOn <- true
 
 	locDone := make(chan int)
@@ -151,7 +148,10 @@ func (d RunInterface) run(chGoOn chan bool, chDone chan int, chErr chan error) {
 	stop := false
 	for !stop {
 
-		fmt.Printf("***\n***\n*** MEZOZOJS\n***\n***\n")
+		fmt.Println("$$$\n$$$\nVICINS-GEIRGS\n$$$\n$$$")
+
+		RunningData[d.Point].Index = AllIndex{Start: vomni.PointNonActiveIndex,
+			Base: vomni.PointNonActiveIndex, Finish: vomni.PointNonActiveIndex}
 
 		allStages := []stage{
 			stage{once: true, index: &RunningData[d.Point].Index.Start, cfg: RunningData[d.Point].CfgRun.Start},   // start sequence
@@ -178,10 +178,10 @@ func (d RunInterface) run(chGoOn chan bool, chDone chan int, chErr chan error) {
 
 				fmt.Println("$$$$$\n$$$$$\nIgor Botvin\n@@@@\n@@@@@@")
 
-				chDone <- rc
+				//chDone <- rc
 
-				return
-				stop = true
+				//				return
+				//stop = true
 				break
 			}
 		}
@@ -213,9 +213,7 @@ func (d RunInterface) runArray(arr vcfg.RelIntervalArray, index *int, once bool,
 
 		case msg := <-RunningData[d.Point].ChMsg:
 
-			fmt.Println("!!!!!\n!!!!!\nZanuda bljadj\n!!!!!\n!!!!!")
-
-			fmt.Printf("vk-xxx ###\n###\n###\n Point %q received a message %d *** HEAVY METAL\n###\n###\n###\n", d.Point, msg)
+			// Seit jāieliek msg apstrāde
 
 			chDone <- msg
 			return
