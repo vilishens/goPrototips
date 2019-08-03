@@ -30,6 +30,8 @@ func (d RunInterface) ReceiveCfg(cmd int, data interface{}) {
 
 	RunningData[d.Point].CfgRun = webInterface2Struct(data)
 
+	fmt.Println("%%%%%\n%%%%%\nShafer\n%%%%%\n%%%%%", cmd)
+
 	RunningData[d.Point].ChMsg <- cmd
 
 	//data.(vcfg.RelIntervalStruct)
@@ -73,13 +75,36 @@ func (d RunInterface) LetsGo(chGoOn chan bool, chDone chan int, chErr chan error
 	locGoOn := make(chan bool)
 	locDone := make(chan int)
 	locErr := make(chan error)
-	go d.run(locGoOn, locDone, locErr)
 
-	<-locGoOn
+	stop := false
+	for !stop {
 
-	d.SetState(vomni.PointStateActive|vomni.PointStateSigned, true)
+		fmt.Println("wwwww\nwwwww\nZIRGS-ZIRGS-ZIRGS\nwwwww\nwwwww")
 
-	chGoOn <- true
+		go d.run(locGoOn, locDone, locErr)
+
+		waitNext := true
+		for waitNext {
+			select {
+			case <-locGoOn:
+				d.SetState(vomni.PointStateActive|vomni.PointStateSigned, true)
+				chGoOn <- true
+			case rc := <-locDone:
+
+				fmt.Println("=====\n=====\nGruzovik", rc, " && ", vomni.PointCmdLoadCfgIntoPoint, "\n=====\n=====")
+
+				if vomni.PointCmdLoadCfgIntoPoint == rc {
+
+					d.SetState(vomni.PointStateSigned, false)
+					waitNext = false
+				}
+			}
+		}
+
+		fmt.Println("xxxxx\nxxxxx\nNehuj!!!\n=====\n=====")
+
+	}
+
 }
 
 func (d RunInterface) GetDone(done int) {
@@ -111,7 +136,8 @@ func (d RunInterface) Ready() (ready bool) {
 
 func (d RunInterface) run(chGoOn chan bool, chDone chan int, chErr chan error) {
 
-	fmt.Printf("Point %q Addr %+v Index %+v\n", d.Point, d.UDPAddr, RunningData[d.Point].Index)
+	fmt.Printf("@@@@@@@@@@@@@@@@@@@ RUN sākums @@@@@@@@@@@ Point %q Addr %+v Index %+v\n", d.Point, d.UDPAddr, RunningData[d.Point].Index)
+	fmt.Printf("@@@@@@@@@@@@@@@@@@@ RUN sākums @@@@@@@@@@@ Point %q @@@@@@@ %+v", d.Point, RunningData[d.Point].Index)
 
 	chGoOn <- true
 
@@ -122,13 +148,16 @@ func (d RunInterface) run(chGoOn chan bool, chDone chan int, chErr chan error) {
 		cfg   vcfg.RelIntervalArray
 	}
 
-	allStages := []stage{
-		stage{once: true, index: &RunningData[d.Point].Index.Start, cfg: d.CfgRun.Start},   // start sequence
-		stage{once: false, index: &RunningData[d.Point].Index.Base, cfg: d.CfgRun.Base},    // base sequence
-		stage{once: true, index: &RunningData[d.Point].Index.Finish, cfg: d.CfgRun.Finish}} // finishe sequence
-
 	stop := false
 	for !stop {
+
+		fmt.Printf("***\n***\n*** MEZOZOJS\n***\n***\n")
+
+		allStages := []stage{
+			stage{once: true, index: &RunningData[d.Point].Index.Start, cfg: RunningData[d.Point].CfgRun.Start},   // start sequence
+			stage{once: false, index: &RunningData[d.Point].Index.Base, cfg: RunningData[d.Point].CfgRun.Base},    // base sequence
+			stage{once: true, index: &RunningData[d.Point].Index.Finish, cfg: RunningData[d.Point].CfgRun.Finish}} // finishe sequence
+
 		for _, v := range allStages {
 			go d.runArray(v.cfg, v.index, v.once, locDone)
 			rc := <-locDone
@@ -146,6 +175,13 @@ func (d RunInterface) run(chGoOn chan bool, chDone chan int, chErr chan error) {
 			if vomni.PointCmdLoadCfgIntoPoint == rc {
 				RunningData[d.Point].Index = AllIndex{Start: vomni.PointNonActiveIndex,
 					Base: vomni.PointNonActiveIndex, Finish: vomni.PointNonActiveIndex}
+
+				fmt.Println("$$$$$\n$$$$$\nIgor Botvin\n@@@@\n@@@@@@")
+
+				chDone <- rc
+
+				return
+				stop = true
 				break
 			}
 		}
@@ -176,7 +212,13 @@ func (d RunInterface) runArray(arr vcfg.RelIntervalArray, index *int, once bool,
 		select {
 
 		case msg := <-RunningData[d.Point].ChMsg:
+
+			fmt.Println("!!!!!\n!!!!!\nZanuda bljadj\n!!!!!\n!!!!!")
+
 			fmt.Printf("vk-xxx ###\n###\n###\n Point %q received a message %d *** HEAVY METAL\n###\n###\n###\n", d.Point, msg)
+
+			chDone <- msg
+			return
 
 		case done = <-d.ChDone:
 
