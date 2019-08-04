@@ -92,7 +92,8 @@ func NewRunData(point string, cfg vpointconfig.PointCfgData) (d vrunrelayinterva
 
 	d.ChDone = make(chan int)
 	d.ChErr = make(chan error)
-	d.ChMsg = make(chan int)
+	d.ChMsg = make(chan string)
+	d.ChCmd = make(chan int)
 
 	return d
 }

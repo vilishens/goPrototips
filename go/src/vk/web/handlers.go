@@ -4,6 +4,7 @@ import (
 	"encoding/json"
 	"fmt"
 	"io/ioutil"
+	"log"
 	"net/http"
 	"strconv"
 	"strings"
@@ -92,8 +93,18 @@ func handlePointCfg(w http.ResponseWriter, r *http.Request) {
 
 	case "LOADINP", "LOADDEFAULT", "LOADSAVED":
 		cfgCd, _ := strconv.Atoi(cfg)
-		loadCfgData(w, r, point, cfgCd)
+		send2Point(w, r, point, vomni.PointCmdLoadCfgIntoPoint|cfgCd)
+		//		loadCfgData
 		return
+
+	case "SAVECFG":
+		cfgCd, _ := strconv.Atoi(cfg)
+		send2Point(w, r, point, vomni.PointCmdSaveCfg|cfgCd)
+		return
+
+	default:
+		log.Fatal("Don't know what to do with %q", todo)
+
 	}
 }
 
@@ -148,6 +159,22 @@ func loadCfgData(w http.ResponseWriter, r *http.Request, point string, cfg int) 
 	}
 
 	vpointrun.WebSent(vomni.PointCmdLoadCfgIntoPoint|cfg, point, data)
+}
+
+func send2Point(w http.ResponseWriter, r *http.Request, point string, cmd int) {
+
+	var data interface{}
+
+	body, err := ioutil.ReadAll(r.Body)
+	if err != nil {
+		panic(err.Error())
+	}
+	err = json.Unmarshal(body, &data)
+	if err != nil {
+		panic(err.Error())
+	}
+
+	vpointrun.WebSent(cmd, point, data)
 }
 
 //#####################################

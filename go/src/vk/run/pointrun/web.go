@@ -97,9 +97,9 @@ func WebSent(todo int, point string, data interface{}) {
 
 	cmd := todo & vomni.PointCmdBits
 	switch cmd {
-	case vomni.PointCmdLoadCfgIntoPoint:
+	case vomni.PointCmdLoadCfgIntoPoint, vomni.PointCmdSaveCfg:
 		cfg := todo & vomni.PointCmdOptionBits
-		Points[point].Run[cfg].ReceiveCfg(cmd, data)
+		Points[point].Run[cfg].ReceiveWeb(cmd, data)
 
 	default:
 		str := fmt.Sprintf("\n\nDon't know what to do with %08X for %s\n\n", todo, point)

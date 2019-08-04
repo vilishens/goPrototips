@@ -2,7 +2,9 @@ package runrelayinterval
 
 import (
 	"fmt"
+	"log"
 	"net"
+	"strings"
 	"time"
 	vmsg "vk/messages"
 	vomni "vk/omnibus"
@@ -26,13 +28,29 @@ func (d RunInterface) GetCfgs() (cfgDefault interface{}, cfgRun interface{}, cfg
 	return dx.CfgDefault, dx.CfgRun, dx.CfgSaved, dx.Index, dx.State
 }
 
-func (d RunInterface) ReceiveCfg(cmd int, data interface{}) {
+func (d RunInterface) ReceiveWeb(cmd int, data interface{}) {
 
-	RunningData[d.Point].CfgRun = webInterface2Struct(data)
+	newCmd := 0
 
-	fmt.Println("%%%%%\n%%%%%\nShafer\n%%%%%\n%%%%%", cmd)
+	switch cmd {
+	case vomni.PointCmdLoadCfgIntoPoint:
+		RunningData[d.Point].CfgRun = webInterface2Struct(data)
+		newCmd = cmdRestart
+	case vomni.PointCmdSaveCfg:
 
-	RunningData[d.Point].ChMsg <- cmd
+		if err := webSavePointCfg(d.Point, data); nil != err {
+			vomni.LogErr.Println(vutils.ErrFuncLine(err))
+		} else {
+			dNew := webInterface2Struct(data)
+			RunningData[d.Point].CfgRun = dNew
+			RunningData[d.Point].CfgSaved = dNew
+		}
+		newCmd = cmdRestart
+	default:
+		log.Fatal("RelayInterval received ", cmd, ". What to do?")
+	}
+
+	RunningData[d.Point].ChCmd <- newCmd
 
 	//data.(vcfg.RelIntervalStruct)
 
@@ -161,6 +179,7 @@ func (d RunInterface) run(chGoOn chan bool, chDone chan int, chErr chan error) {
 		for _, v := range allStages {
 			go d.runArray(v.cfg, v.index, v.once, locDone)
 			rc := <-locDone
+
 			if vomni.DoneDisconnected == rc {
 				d.SetState(vomni.DoneDisconnected, true)
 				str := fmt.Sprintf("Point %q lost connection", d.Point)
@@ -172,18 +191,24 @@ func (d RunInterface) run(chGoOn chan bool, chDone chan int, chErr chan error) {
 				break
 			}
 
-			if vomni.PointCmdLoadCfgIntoPoint == rc {
-				RunningData[d.Point].Index = AllIndex{Start: vomni.PointNonActiveIndex,
-					Base: vomni.PointNonActiveIndex, Finish: vomni.PointNonActiveIndex}
+			/*
+				if vomni.PointCmdLoadCfgIntoPoint == rc {
+					RunningData[d.Point].Index = AllIndex{Start: vomni.PointNonActiveIndex,
+						Base: vomni.PointNonActiveIndex, Finish: vomni.PointNonActiveIndex}
 
-				fmt.Println("$$$$$\n$$$$$\nIgor Botvin\n@@@@\n@@@@@@")
+					fmt.Println("$$$$$\n$$$$$\nIgor Botvin\n@@@@\n@@@@@@")
 
-				//chDone <- rc
+					//chDone <- rc
 
-				//				return
-				//stop = true
+					//				return
+					//stop = true
+					break
+				}
+			*/
+			if cmdRestart == rc {
 				break
 			}
+
 		}
 	}
 }
@@ -211,11 +236,11 @@ func (d RunInterface) runArray(arr vcfg.RelIntervalArray, index *int, once bool,
 
 		select {
 
-		case msg := <-RunningData[d.Point].ChMsg:
+		case cmd := <-RunningData[d.Point].ChCmd:
 
 			// Seit jāieliek msg apstrāde
 
-			chDone <- msg
+			chDone <- cmd
 			return
 
 		case done = <-d.ChDone:
@@ -321,4 +346,73 @@ func (d *RunInterface) setState(state int, on bool) {
 	} else {
 		d.State &^= state
 	}
+}
+
+func webSavePointCfg(point string, data interface{}) (err error) {
+
+	var newData vcfg.CfgRelIntervalStruct
+
+	if newData, err = webInterface2SaveCfg(data); nil != err {
+		err = vutils.ErrFuncLine(err)
+		return
+	}
+
+	fmt.Println("NEW DATA\n", newData)
+
+	whole := vcfg.AllPointData.RunningJSON //CfgJSONData
+
+	fmt.Println("AKTIVS\n", whole, "\nDEFUALTE\n", vcfg.PointsAllDefaultData)
+
+	pData := whole[point]
+
+	pData.RelIntervalJSON = newData
+
+	whole[point] = pData
+
+	fmt.Println("PEC\n", whole)
+
+	return whole.Save()
+}
+
+func webInterface2SaveCfg(inter interface{}) (web vcfg.CfgRelIntervalStruct, err error) {
+	// WEB struct
+	web = vcfg.CfgRelIntervalStruct{}
+
+	for part, v := range inter.(map[string]interface{}) { // list add configuration parts
+		d := vcfg.CfgRelIntervalArray{}        // array for the configuration part records
+		for _, v1 := range v.([]interface{}) { // fill part record array
+			rec := vcfg.CfgRelInterval{} // storage for a record data
+
+			for k2, v2 := range v1.(map[string]interface{}) {
+				switch strings.ToUpper(k2) {
+				case "GPIO":
+					rec.Gpio = v2.(string)
+				case "STATE":
+					rec.State = v2.(string)
+				case "SECONDS":
+					if rec.Interval, err = vutils.DurationStrToIntervalStr(v2.(string)); nil != err {
+						err = vutils.ErrFuncLine(err)
+						return
+					}
+				default:
+					log.Fatal(fmt.Sprintf("Unknow WEB interface record field \"%s\"", k2))
+				}
+			}
+
+			d = append(d, rec)
+		}
+
+		switch strings.ToUpper(part) {
+		case "START":
+			web.Start = d
+		case "BASE":
+			web.Base = d
+		case "FINISH":
+			web.Finish = d
+		default:
+			log.Fatal(fmt.Sprintf("Unknow WEB interface part \"%s\"", part))
+		}
+	}
+
+	return
 }

@@ -728,10 +728,22 @@ function btnLoadPressed(btn) {
     loadInputData();
 }
 
+function btnSavePressed(btn) {
+    unsetAllTableEditOptions();
+    saveRunCfg();
+}
+
 function btnLoadDefaultPressed(btn) {
 
     unsetAllTableEditOptions();
     loadDefaultCfg();
+}
+
+function saveRunCfg() {
+    var d = getDataToSend(CfgRun);
+    var urlStr = URL_PAGE_HANDLER + "savecfg/" + THIS_POINT+"/"+THIS_CFG.toString();
+
+    ReturnData(urlStr, d);
 }
 
 function loadInputData() {

@@ -7,6 +7,10 @@ import (
 	vcfg "vk/pointconfig"
 )
 
+const (
+	cmdRestart = 0x0001
+)
+
 type AllIndex struct {
 	Start  int
 	Base   int
@@ -40,7 +44,8 @@ type RunData struct {
 	UDPAddr    net.UDPAddr
 	ChErr      chan error
 	ChDone     chan int
-	ChMsg      chan int
+	ChMsg      chan string
+	ChCmd      chan int
 	CfgDefault vcfg.RelIntervalStruct
 	CfgRun     vcfg.RelIntervalStruct
 	CfgSaved   vcfg.RelIntervalStruct

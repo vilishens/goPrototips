@@ -30,7 +30,7 @@ type Runner interface {
 	SetUDPAddr(addr net.UDPAddr)
 
 	//#######################################
-	ReceiveCfg(cmd int, data interface{})
+	ReceiveWeb(cmd int, data interface{})
 }
 
 type PointMsg struct {

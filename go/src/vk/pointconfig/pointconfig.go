@@ -1,11 +1,15 @@
 package pointconfig
 
 import (
+	"encoding/json"
 	"fmt"
+	"io/ioutil"
+	vomni "vk/omnibus"
 	vparams "vk/params"
 	vutils "vk/utils"
 )
 
+// `Šitie 4 nav it kā nav najadzīgi`
 var PointsAllJSON CfgJSONData
 var PointsAllDefaultJSON CfgJSONData
 var PointsAllData AllPointCfgData
@@ -14,10 +18,10 @@ var PointsAllDefaultData AllPointCfgData
 var AllPointData AllCfgData
 
 func init() {
-	PointsAllData = make(map[string]PointCfgData)
-	PointsAllDefaultData = make(map[string]PointCfgData)
-	PointsAllJSON = CfgJSONData{}
-	PointsAllDefaultJSON = CfgJSONData{}
+	//	PointsAllData = make(map[string]PointCfgData)
+	//	PointsAllDefaultData = make(map[string]PointCfgData)
+	//	PointsAllJSON = CfgJSONData{}
+	//	PointsAllDefaultJSON = CfgJSONData{}
 
 	AllPointData = AllCfgData{}
 	AllPointData.Default = make(map[string]PointCfgData)
@@ -72,7 +76,7 @@ func loadCfgFile(path string) (data CfgFileData, json CfgFileJSON, err error) {
 
 	fmt.Printf("=========================================== DATA =====================================\n%+v\n", json)
 
-	fmt.Println("Marketa Davidova @@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@")
+	fmt.Println("Marketa Davidova @@@@@@@@@@@@@\n", json)
 
 	return
 }
@@ -149,7 +153,8 @@ func preparePointCfg(doneCh chan bool, errCh chan error) {
 		return
 	}
 
-	fmt.Printf("DEFAULT\n%+v\nRUNNING%+v\n", AllPointData.Default, AllPointData.Running)
+	fmt.Printf("===================\n===================\n===================\nDEFAULT\n%+v\nRUNNING%+v\n===================\n===================\n",
+		AllPointData.Default, AllPointData.Running)
 
 	doneCh <- true
 	return
@@ -242,4 +247,15 @@ func (d CfgRelIntervalStruct) hasCfgRelInterval() (has bool) {
 	}
 
 	return false
+}
+
+func (d CfgFileJSON) Save() (err error) {
+
+	data, _ := json.Marshal(d)
+	path := vutils.FileAbsPath(vparams.Params.PointConfigFile, "")
+	if err = ioutil.WriteFile(path, data, vomni.FilePermissions); nil != err {
+		return vutils.ErrFuncLine(err)
+	}
+
+	return
 }

@@ -2,6 +2,7 @@ package utils
 
 import (
 	"fmt"
+	"strconv"
 	"strings"
 	"time"
 )
@@ -61,6 +62,20 @@ func Duration2ConfInterval(dur time.Duration, fillZero bool) (str string) {
 	vals[2] = spl[0]
 
 	str = fmt.Sprintf(form, vals[0], vals[1], vals[2])
+
+	return
+}
+
+func DurationStrToIntervalStr(dStr string) (interval string, err error) {
+
+//	var d time.Duration
+
+	if dN, err := strconv.Atoi(dStr); nil != err {
+		err = ErrFuncLine(fmt.Errorf("Something wrong with Second string %q - %v", dStr, err))
+		return interval, err
+	} else {
+		interval = Duration2ConfInterval(time.Duration(int64(dN)), false)
+	}
 
 	return
 }

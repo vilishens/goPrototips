@@ -433,6 +433,16 @@ func addSignIn(flds []string, chDelete chan bool, chErr chan error) {
 	fmt.Println(".................................................>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>")
 
 	point := flds[vomni.MsgIndexPrefixSender]
+
+	fmt.Println("LIHTENBERG-lihtengerg-LIHTENBERG--> jāieliek normālā konfigurācijas pārbaude")
+
+	if _, has := Points[point]; !has {
+
+		//		fmt.Println("LIHTENBERG-lihtengerg-LIHTENBERG--> jāieliek normālā konfigurācijas pārbaude")
+
+		return
+	}
+
 	addr, ok := getUDPAddr(flds, vomni.MsgPrefixLen+vomni.MsgIndexHelloFromPointIP, vomni.MsgPrefixLen+vomni.MsgIndexHelloFromPointPort)
 
 	if ok {
@@ -441,6 +451,8 @@ func addSignIn(flds []string, chDelete chan bool, chErr chan error) {
 
 	// send back the flag to delete this message
 	chDelete <- true
+
+	//	fmt.Printf("vk-xxx PEVICHKA! %+v\nPoint %q\n", flds, point)
 
 	fmt.Printf("vk-xxx PEVICHKA! %+v\nPoint %q UDP %+v\n", flds, Points[point].Point.Point, Points[point].Point.UDPAddr)
 }
