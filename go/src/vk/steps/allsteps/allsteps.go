@@ -130,18 +130,20 @@ func doAllSteps(chanDone chan int) {
 
 	fmt.Println("Tagad jābeidz...")
 
-	for count := vomni.StepCount(); count > 0; count-- {
-		// let's do Post of each step starting from the last one
-		ind := count - 1
+	if vomni.DoneShutdown == done || vomni.DoneRestart == done || vomni.DoneReboot == done {
+		for count := vomni.StepCount(); count > 0; count-- {
+			// let's do Post of each step starting from the last one
+			ind := count - 1
 
-		locDone := make(chan bool)
-		thisS := steps[stepSequence[ind]]
-		go thisS.StepPost(locDone)
-		<-locDone
+			locDone := make(chan bool)
+			thisS := steps[stepSequence[ind]]
+			go thisS.StepPost(locDone)
+			<-locDone
 
-		str := fmt.Sprintf("===== Step %q -> closed", thisS.StepName())
-		vutils.LogStr(vomni.LogInfo, str)
-		fmt.Println(str)
+			str := fmt.Sprintf("===== Step %q -> closed", thisS.StepName())
+			vutils.LogStr(vomni.LogInfo, str)
+			fmt.Println(str)
+		}
 	}
 
 	if stop {
