@@ -160,6 +160,7 @@ func scanOctetAddrs(first byte, last byte, chGoOn chan bool, chDone chan int, ch
 		//Points[point].Run.LogStr(vomni.LogFileCdErr, err.String())
 		return
 	case <-locGoOn:
+		chGoOn <- true
 		fmt.Printf("Alex Feinsilber --- RESCAN --> DONE\n")
 	}
 

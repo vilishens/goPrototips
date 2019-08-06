@@ -151,6 +151,9 @@ func doAllSteps(chanDone chan int) {
 			vomni.RootErr <- err
 		}
 		if 0 != done {
+
+			fmt.Printf("*****\n*****\nChaiku popjem... %d\n*****\n*****\n", done)
+
 			chanDone <- done
 		}
 		return

@@ -188,3 +188,24 @@ func handlePointListData(w http.ResponseWriter, r *http.Request) {
 	}
 	w.Write(newData)
 }
+
+func handleStationAction(w http.ResponseWriter, r *http.Request) {
+
+	vars := mux.Vars(r)
+	todo := strings.ToUpper(vars["todo"])
+
+	//	var data interface{}
+
+	switch todo {
+	case "RESCANWHOLE":
+		rescanWhole()
+	case "EXIT":
+		vomni.RootDone <- vomni.DoneExit
+		//	case "FREEZE", "UNFREEZE", "LOADDEFAULTCFG", "LOADSAVEDCFG":
+	default:
+		log.Fatal(fmt.Sprintf("===> Don't know what to do with Station %q", todo))
+	}
+
+	responseOK(w)
+	//	xrun.ReceivedWebMsg(point, todo, data)
+}

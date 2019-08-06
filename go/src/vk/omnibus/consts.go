@@ -10,6 +10,7 @@ const (
 	PointCmdBits             = 0xFFFF0000
 	PointCmdOptionBits       = 0x0000FFFF
 	PointCmdLoadCfgIntoPoint = 0x00010000
+	PointCmdSaveCfg          = 0x00020000
 )
 
 // constants for log
@@ -45,6 +46,8 @@ const (
 	DoneStop         = 0x0000080
 	DonePostStop     = 0x0000100
 	DoneDisconnected = 0x0000200
+	DoneShutdown     = 0x0000400
+	DoneExit		 = 0x0000800
 )
 
 const (
@@ -88,6 +91,7 @@ const (
 const (
 	DirPermissions         = 0744
 	FileNonExecPermissions = 0666
+	FilePermissions        = 0644
 )
 
 const (

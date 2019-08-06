@@ -136,36 +136,6 @@ func handlePointListAction(w http.ResponseWriter, r *http.Request) {
 	//	xrun.ReceivedWebMsg(point, todo, data)
 }
 
-func handleStationAction(w http.ResponseWriter, r *http.Request) {
-
-	vars := mux.Vars(r)
-
-	todo := strings.ToUpper(vars["todo"])
-
-	//	var data interface{}
-
-	switch todo {
-	case "RESCANWHOLE":
-		rescanWhole()
-	case "LOADCFG", "SAVECFG":
-		/*
-			body, err := ioutil.ReadAll(r.Body)
-			if err != nil {
-				panic(err.Error())
-			}
-			err = json.Unmarshal(body, &data)
-			if err != nil {
-				panic(err.Error())
-			}
-		*/
-	case "FREEZE", "UNFREEZE", "LOADDEFAULTCFG", "LOADSAVEDCFG":
-	default:
-		log.Fatal(fmt.Sprintf("===> Don't know what to do with %q", todo))
-	}
-
-	responseOK(w)
-	//	xrun.ReceivedWebMsg(point, todo, data)
-}
 
 func responseOK(w http.ResponseWriter) {
 	type resp struct {
