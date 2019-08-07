@@ -158,9 +158,10 @@ func (d RunInterface) run(chGoOn chan bool, chDone chan int, chErr chan error) {
 
 	locDone := make(chan int)
 	type stage struct {
-		once  bool
-		index *int
-		cfg   vcfg.RelIntervalArray
+		once        bool
+		runEmptyArr bool
+		index       *int
+		cfg         vcfg.RelIntervalArray
 	}
 
 	stop := false
@@ -172,12 +173,12 @@ func (d RunInterface) run(chGoOn chan bool, chDone chan int, chErr chan error) {
 			Base: vomni.PointNonActiveIndex, Finish: vomni.PointNonActiveIndex}
 
 		allStages := []stage{
-			stage{once: true, index: &RunningData[d.Point].Index.Start, cfg: RunningData[d.Point].CfgRun.Start},   // start sequence
-			stage{once: false, index: &RunningData[d.Point].Index.Base, cfg: RunningData[d.Point].CfgRun.Base},    // base sequence
-			stage{once: true, index: &RunningData[d.Point].Index.Finish, cfg: RunningData[d.Point].CfgRun.Finish}} // finishe sequence
+			stage{once: true, runEmptyArr: false, index: &RunningData[d.Point].Index.Start, cfg: RunningData[d.Point].CfgRun.Start},   // start sequence
+			stage{once: false, runEmptyArr: true, index: &RunningData[d.Point].Index.Base, cfg: RunningData[d.Point].CfgRun.Base},     // base sequence
+			stage{once: true, runEmptyArr: false, index: &RunningData[d.Point].Index.Finish, cfg: RunningData[d.Point].CfgRun.Finish}} // finishe sequence
 
 		for _, v := range allStages {
-			go d.runArray(v.cfg, v.index, v.once, locDone)
+			go d.runArray(v.cfg, v.index, v.once, v.runEmptyArr, locDone)
 			rc := <-locDone
 
 			if vomni.DoneDisconnected == rc {
@@ -213,9 +214,9 @@ func (d RunInterface) run(chGoOn chan bool, chDone chan int, chErr chan error) {
 	}
 }
 
-func (d RunInterface) runArray(arr vcfg.RelIntervalArray, index *int, once bool, chDone chan int) {
+func (d RunInterface) runArray(arr vcfg.RelIntervalArray, index *int, once bool, runEmpty bool, chDone chan int) {
 
-	if 0 == len(arr) {
+	if !runEmpty && 0 == len(arr) {
 		chDone <- vomni.DoneStop
 		return
 	}
@@ -223,14 +224,20 @@ func (d RunInterface) runArray(arr vcfg.RelIntervalArray, index *int, once bool,
 	*index = nextIndex(*index, len(arr))
 
 	for {
-		// set the interval for this new state
-		tick := time.NewTicker(arr[*index].Seconds)
-		// put the message in the send queue
-		msg := vmsg.QeueuGpioSet(d.Point, d.UDPAddr, arr[*index].Gpio, arr[*index].State)
 
-		fmt.Printf("vk-xxx SHADOW *** -------> POINT %15s ADDR %20s MSG %s\n", d.Point, d.UDPAddr.IP.String(), msg)
+		var tick *time.Ticker
 
-		d.LogStr(vomni.LogFileCdInfo, fmt.Sprintf("Send message: %q", msg))
+		if !(runEmpty && 0 == len(arr)) {
+
+			// set the interval for this new state
+			tick = time.NewTicker(arr[*index].Seconds)
+			// put the message in the send queue
+			msg := vmsg.QeueuGpioSet(d.Point, d.UDPAddr, arr[*index].Gpio, arr[*index].State)
+
+			fmt.Printf("vk-xxx SHADOW *** -------> POINT %15s ADDR %20s MSG %s\n", d.Point, d.UDPAddr.IP.String(), msg)
+
+			d.LogStr(vomni.LogFileCdInfo, fmt.Sprintf("Send message: %q", msg))
+		}
 
 		done := 0
 
