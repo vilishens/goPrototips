@@ -29,23 +29,25 @@ func main() {
 		endCd := runApp()
 
 		switch endCd {
-		case vomni.DoneRestart, vomni.DoneStop, vomni.DoneError, vomni.DoneReboot:
+		case vomni.DoneExit:
+			vutils.LogStr(vomni.LogInfo, "***** App - EXIT *****")
 			end = true
-		}
-
-		switch endCd {
 		case vomni.DoneRestart:
 			vutils.LogStr(vomni.LogInfo, "***** App - RESTART *****")
+			end = true
 		case vomni.DoneStop:
 			vutils.LogStr(vomni.LogInfo, "***** App - STOP *****")
+			end = true
 		case vomni.DoneError:
-			str := fmt.Sprintf("***** App - ERROR *****")
-			vutils.LogStr(vomni.LogInfo, str)
+			vutils.LogStr(vomni.LogInfo, "***** App - ERROR *****")
+			end = true
 		case vomni.DoneReboot:
 			vutils.LogStr(vomni.LogInfo, "***** App - REBOOT *****")
+			end = true
 		default:
 			str := fmt.Sprintf("***** App - unknown Exit code %d *****", endCd)
 			vutils.LogStr(vomni.LogInfo, str)
+			fmt.Println(str)
 		}
 
 		if end {
@@ -67,6 +69,7 @@ func runApp() (cd int) {
 	case cd = <-chDone:
 		str := fmt.Sprintf("***** App - received code %d *****", cd)
 		vutils.LogStr(vomni.LogInfo, str)
+		fmt.Println(str)
 		break
 	}
 

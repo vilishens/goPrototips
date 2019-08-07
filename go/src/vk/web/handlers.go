@@ -201,11 +201,15 @@ func handleStationAction(w http.ResponseWriter, r *http.Request) {
 		rescanWhole()
 	case "EXIT":
 		vomni.RootDone <- vomni.DoneExit
-		//	case "FREEZE", "UNFREEZE", "LOADDEFAULTCFG", "LOADSAVEDCFG":
+	case "REBOOT":
+		vomni.RootDone <- vomni.DoneReboot
+	case "SHUTDOWN":
+		vomni.RootDone <- vomni.DoneStop
+	case "RESTART":
+		vomni.RootDone <- vomni.DoneRestart
 	default:
 		log.Fatal(fmt.Sprintf("===> Don't know what to do with Station %q", todo))
 	}
 
 	responseOK(w)
-	//	xrun.ReceivedWebMsg(point, todo, data)
 }
