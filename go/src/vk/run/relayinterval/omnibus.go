@@ -51,6 +51,13 @@ type RunData struct {
 	CfgSaved   vcfg.RelIntervalStruct
 }
 
+type stage struct {
+	once        bool
+	runEmptyArr bool
+	index       *int
+	cfg         vcfg.RelIntervalArray
+}
+
 type webPoint struct {
 	Gpio    string
 	State   string

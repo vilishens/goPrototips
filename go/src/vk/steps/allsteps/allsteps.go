@@ -130,9 +130,24 @@ func doAllSteps(chanDone chan int) {
 		}
 	}
 
-	fmt.Println("Tagad jābeidz...")
+	l := ""
 
-	if vomni.DoneShutdown == done || vomni.DoneRestart == done || vomni.DoneReboot == done {
+	switch done {
+	case vomni.DoneShutdown:
+		l = "SHUTDOWN"
+	case vomni.DoneExit:
+		l = "EXIT"
+	case vomni.DoneRestart:
+		l = "RESTART"
+	case vomni.DoneReboot:
+		l = "REBOOT"
+	default:
+		l = "nezinu"
+	}
+
+	fmt.Println("Tagad jābeidz...", l)
+
+	if (done > 0) && (vomni.DoneExit != done) {
 		for count := vomni.StepCount(); count > 0; count-- {
 			// let's do Post of each step starting from the last one
 			ind := count - 1

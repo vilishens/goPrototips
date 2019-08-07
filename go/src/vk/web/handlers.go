@@ -204,7 +204,7 @@ func handleStationAction(w http.ResponseWriter, r *http.Request) {
 	case "REBOOT":
 		vomni.RootDone <- vomni.DoneReboot
 	case "SHUTDOWN":
-		vomni.RootDone <- vomni.DoneStop
+		vomni.RootDone <- vomni.DoneShutdown
 	case "RESTART":
 		vomni.RootDone <- vomni.DoneRestart
 	default:

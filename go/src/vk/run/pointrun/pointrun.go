@@ -46,6 +46,14 @@ func relayIntervalRunners() {
 	}
 }
 
+func StopAll(chGoOn chan bool) {
+
+	fmt.Println("@@@@@\n@@@@@@\nSTORAGE WARS\n@@@@@@\n@@@@@@")
+
+	chGoOn <- true
+
+}
+
 func RunStart(chGoOn chan bool, chDone chan int, chErr chan error) {
 
 	locGoOn := make(chan bool)

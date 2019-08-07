@@ -157,12 +157,6 @@ func (d RunInterface) run(chGoOn chan bool, chDone chan int, chErr chan error) {
 	chGoOn <- true
 
 	locDone := make(chan int)
-	type stage struct {
-		once        bool
-		runEmptyArr bool
-		index       *int
-		cfg         vcfg.RelIntervalArray
-	}
 
 	stop := false
 	for !stop {
@@ -178,7 +172,7 @@ func (d RunInterface) run(chGoOn chan bool, chDone chan int, chErr chan error) {
 			stage{once: true, runEmptyArr: false, index: &RunningData[d.Point].Index.Finish, cfg: RunningData[d.Point].CfgRun.Finish}} // finishe sequence
 
 		for _, v := range allStages {
-			go d.runArray(v.cfg, v.index, v.once, v.runEmptyArr, locDone)
+			go d.runArray(v, locDone)
 			rc := <-locDone
 
 			if vomni.DoneDisconnected == rc {
@@ -214,6 +208,65 @@ func (d RunInterface) run(chGoOn chan bool, chDone chan int, chErr chan error) {
 	}
 }
 
+func (d RunInterface) runArray(st stage, chDone chan int) {
+
+	if !st.runEmptyArr && 0 == len(st.cfg) {
+		chDone <- vomni.DoneStop
+		return
+	}
+
+	*st.index = nextIndex(*st.index, len(st.cfg))
+
+	for {
+
+		var tick *time.Ticker
+
+		if !(st.runEmptyArr && 0 == len(st.cfg)) {
+
+			// set the interval for this new state
+			tick = time.NewTicker(st.cfg[*st.index].Seconds)
+			// put the message in the send queue
+			msg := vmsg.QeueuGpioSet(d.Point, d.UDPAddr, st.cfg[*st.index].Gpio, st.cfg[*st.index].State)
+
+			fmt.Printf("vk-xxx SHADOW *** -------> POINT %15s ADDR %20s MSG %s\n", d.Point, d.UDPAddr.IP.String(), msg)
+
+			d.LogStr(vomni.LogFileCdInfo, fmt.Sprintf("Send message: %q", msg))
+		}
+
+		done := 0
+
+		select {
+
+		case cmd := <-RunningData[d.Point].ChCmd:
+
+			// Seit jāieliek msg apstrāde
+
+			chDone <- cmd
+			return
+
+		case done = <-d.ChDone:
+
+		case <-tick.C:
+			*st.index = nextIndex(*st.index, len(st.cfg))
+
+			if st.once && 0 == *st.index {
+				done = vomni.DoneStop
+			}
+		}
+
+		if 0 < done {
+			*st.index = vomni.PointNonActiveIndex
+
+			chDone <- done
+			return
+		}
+
+	}
+	//	chDone <- vomni.DoneStop
+
+}
+
+/*
 func (d RunInterface) runArray(arr vcfg.RelIntervalArray, index *int, once bool, runEmpty bool, chDone chan int) {
 
 	if !runEmpty && 0 == len(arr) {
@@ -271,7 +324,7 @@ func (d RunInterface) runArray(arr vcfg.RelIntervalArray, index *int, once bool,
 	//	chDone <- vomni.DoneStop
 
 }
-
+*/
 func nextIndex(ind int, count int) (index int) {
 
 	index = ind + 1

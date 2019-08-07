@@ -85,6 +85,12 @@ func (s *thisStep) StepPost(done chan bool) {
 	time.Sleep(vomni.DelayStepExec)
 
 	if isRunning {
+
+		chGoOn := make(chan bool)
+
+		go vpointrun.StopAll(chGoOn)
+		<-chGoOn
+
 		s.Done <- vomni.DonePostStop
 	}
 
