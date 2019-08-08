@@ -176,6 +176,9 @@ func (d RunInterface) run(chGoOn chan bool, chDone chan int, chErr chan error) {
 			rc := <-locDone
 
 			if vomni.DoneDisconnected == rc {
+
+				
+
 				d.SetState(vomni.DoneDisconnected, true)
 				str := fmt.Sprintf("Point %q lost connection", d.Point)
 				d.LogStr(vomni.LogFileCdErr, str)
@@ -206,6 +209,12 @@ func (d RunInterface) run(chGoOn chan bool, chDone chan int, chErr chan error) {
 
 		}
 	}
+}
+
+func (d RunInterface) Cmd(cmd int) {
+
+	RunningData[d.Point].ChCmd <- cmd
+
 }
 
 func (d RunInterface) runArray(st stage, chDone chan int) {
@@ -240,6 +249,8 @@ func (d RunInterface) runArray(st stage, chDone chan int) {
 		case cmd := <-RunningData[d.Point].ChCmd:
 
 			// Seit jāieliek msg apstrāde
+
+			fmt.Println("Katehisiz ", d.Point, " >>>> ", cmd)
 
 			chDone <- cmd
 			return

@@ -11,6 +11,7 @@ const (
 	PointCmdOptionBits       = 0x0000FFFF
 	PointCmdLoadCfgIntoPoint = 0x00010000
 	PointCmdSaveCfg          = 0x00020000
+	PointCmdStopCfg          = 0x00040000
 )
 
 // constants for log
@@ -47,7 +48,7 @@ const (
 	DonePostStop     = 0x0000100
 	DoneDisconnected = 0x0000200
 	DoneShutdown     = 0x0000400
-	DoneExit		 = 0x0000800
+	DoneExit         = 0x0000800
 )
 
 const (
@@ -112,6 +113,7 @@ const (
 	PointStateActive       = 0x000001
 	PointStateSigned       = 0x000002
 	PointStateDisconnected = 0x000004
+	PointStateStoppingNow  = 0x000008
 
 	PointCfgStateUnknown     = 0x000000
 	PointCfgStateReady       = 0x000001

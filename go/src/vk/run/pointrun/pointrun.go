@@ -50,6 +50,32 @@ func StopAll(chDone chan bool) {
 
 	fmt.Println("@@@@@\n@@@@@@\nSTORAGE WARS\n@@@@@@\n@@@@@@")
 
+	ind := len(vomni.CfgListSequence) - 1
+
+	for ind = len(vomni.CfgListSequence) - 1; ind >= 0; ind-- {
+		// start with the last item in the point configuration sequence
+		// (opposite direction to the start of configuration)
+
+		cfgCd := vomni.CfgListSequence[ind]
+
+		for k, v := range Points {
+			if 0 < v.Point.Type&cfgCd {
+				// the point has this configuration
+
+				if (0 == (v.Point.State & vomni.PointStateDisconnected)) &&
+					(0 < (v.Point.State & vomni.PointStateSigned)) {
+
+					Points[k].setState(vomni.PointStateStoppingNow, true)
+
+					v.Run[cfgCd].Cmd(vomni.PointCmdStopCfg)
+
+					fmt.Println("!!!!!\n!!!!!\n", v.Point.Point, "\n!!!!!\n!!!!!", k)
+				}
+			}
+		}
+
+	}
+
 	chDone <- true
 
 }

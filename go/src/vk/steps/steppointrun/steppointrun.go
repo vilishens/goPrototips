@@ -1,6 +1,7 @@
 package steppointrun
 
 import (
+	"fmt"
 	"time"
 	vomni "vk/omnibus"
 	vpointrun "vk/run/pointrun"
@@ -87,6 +88,8 @@ func (s *thisStep) StepPost(done chan bool) {
 	if isRunning {
 
 		chGoOn := make(chan bool)
+
+		fmt.Println("BATSIKAFF")
 
 		go vpointrun.StopAll(chGoOn)
 		<-chGoOn

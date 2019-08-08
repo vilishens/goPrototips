@@ -31,6 +31,7 @@ type Runner interface {
 
 	//#######################################
 	ReceiveWeb(cmd int, data interface{})
+	Cmd(cmd int)
 }
 
 type PointMsg struct {
