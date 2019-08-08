@@ -38,6 +38,9 @@ func main() {
 		case vomni.DoneStop:
 			vutils.LogStr(vomni.LogInfo, "***** App - STOP *****")
 			end = true
+		case vomni.DoneShutdown:
+			vutils.LogStr(vomni.LogInfo, "***** App - SHUTDOWN *****")
+			end = true
 		case vomni.DoneError:
 			vutils.LogStr(vomni.LogInfo, "***** App - ERROR *****")
 			end = true

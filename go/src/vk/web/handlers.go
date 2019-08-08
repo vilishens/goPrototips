@@ -194,8 +194,6 @@ func handleStationAction(w http.ResponseWriter, r *http.Request) {
 	vars := mux.Vars(r)
 	todo := strings.ToUpper(vars["todo"])
 
-	//	var data interface{}
-
 	switch todo {
 	case "RESCANWHOLE":
 		rescanWhole()

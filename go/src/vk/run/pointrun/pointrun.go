@@ -46,11 +46,11 @@ func relayIntervalRunners() {
 	}
 }
 
-func StopAll(chGoOn chan bool) {
+func StopAll(chDone chan bool) {
 
 	fmt.Println("@@@@@\n@@@@@@\nSTORAGE WARS\n@@@@@@\n@@@@@@")
 
-	chGoOn <- true
+	chDone <- true
 
 }
 

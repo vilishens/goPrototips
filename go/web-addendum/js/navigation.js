@@ -28,12 +28,7 @@ $("#stationrestart").on('click', function(){
 
 $("#stationshutdown").on('click', function(){
 
-    var urlStr = '/station/act/exit';
+    var urlStr = '/station/act/shutdown';
     
     DoAjax(urlStr, {}, 500);
 })
-
-
-//<a class="dropdown-item" id="" href="station/act/restart">Restart</a>
-//<a class="dropdown-item" id="stationshutdown" href="station/act/shutdown">Shutdown</a>
-//****  */<a class="dropdown-item" id="stationreboot" href="station/act/reboot">Reboot</a>
