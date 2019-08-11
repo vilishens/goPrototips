@@ -69,6 +69,50 @@ func (d RunInterface) ReceiveWeb(cmd int, data interface{}) {
 	*/
 }
 
+//#############
+
+func (d RunInterface) ReceiveCmd(cmd int) {
+
+	/*
+		newCmd := 0
+
+		switch cmd {
+		case vomni.PointCmdLoadCfgIntoPoint:
+			RunningData[d.Point].CfgRun = webInterface2Struct(data)
+			newCmd = cmdRestart
+		case vomni.PointCmdSaveCfg:
+
+			if err := webSavePointCfg(d.Point, data); nil != err {
+				vomni.LogErr.Println(vutils.ErrFuncLine(err))
+			} else {
+				dNew := webInterface2Struct(data)
+				RunningData[d.Point].CfgRun = dNew
+				RunningData[d.Point].CfgSaved = dNew
+			}
+			newCmd = cmdRestart
+		default:
+			log.Fatal("RelayInterval received ", cmd, ". What to do?")
+		}
+	*/
+	RunningData[d.Point].ChCmd <- cmd
+
+	//data.(vcfg.RelIntervalStruct)
+
+	/*
+		RunningData[d.Point]We
+
+		cfg := 147
+
+		switch cfg {
+		default:
+			str := fmt.Sprintf("\n\nDon't know how te receive configuration %08X for %q\n\n", cfg, d.Point)
+			panic(str)
+		}
+	*/
+}
+
+//#############
+
 func (d RunInterface) LogStr(infoCd int, str string) {
 
 	for _, v := range d.Logs {
@@ -260,6 +304,8 @@ func (d RunInterface) Cmd(cmd int) {
 
 func (d RunInterface) runArray(st stage, chDone chan int) {
 
+	isFreeze := false
+
 	if !st.runEmptyArr && 0 == len(st.cfg) {
 		chDone <- vomni.DoneStop
 		return
@@ -275,6 +321,11 @@ func (d RunInterface) runArray(st stage, chDone chan int) {
 
 			// set the interval for this new state
 			tick = time.NewTicker(st.cfg[*st.index].Seconds)
+
+			if isFreeze {
+				tick.Stop()
+			}
+
 			// put the message in the send queue
 			msg := vmsg.QeueuGpioSet(d.Point, d.UDPAddr, st.cfg[*st.index].Gpio, st.cfg[*st.index].State)
 
@@ -290,14 +341,11 @@ func (d RunInterface) runArray(st stage, chDone chan int) {
 		case cmd := <-RunningData[d.Point].ChCmd:
 
 			// Seit jāieliek msg apstrāde
-			str := "bisquit"
-			if cmd == vomni.PointCmdStopCfg {
-				str = "exit"
-			}
-			fmt.Println("Katehisiz ", d.Point, " >>>> ", str)
+			fmt.Printf("Katehisiz %q >>>> 0x%08X\n", d.Point, cmd)
+			fmt.Printf("Katehisiz %q >>>> 0x%08X\n", d.Point, cmd)
+			fmt.Printf("Katehisiz %q >>>> 0x%08X\n", d.Point, cmd)
 
-			done = cmd
-			if vomni.PointCmdStopCfg == done {
+			if vomni.PointCmdStopCfg == cmd {
 				if 0 < (RunningData[d.Point].State & vomni.PointStateStoppingNow) {
 					// this cfg is stopping now and received Exit code again, do nothing
 					done = 0
@@ -311,7 +359,14 @@ func (d RunInterface) runArray(st stage, chDone chan int) {
 					fmt.Println("========================================================")
 					fmt.Println("========================================================")
 					fmt.Println("========================================================")
+
+					done = cmd
 				}
+			} else if (vomni.PointCmdFreezeOff == cmd) || (vomni.PointCmdFreezeOn == cmd) {
+				fmt.Println("###========================================================")
+				fmt.Println("###========================================================")
+				fmt.Println("###========================================================")
+				done = cmd
 			}
 		case done = <-d.ChDone:
 
@@ -341,7 +396,32 @@ func (d RunInterface) runArray(st stage, chDone chan int) {
 			}
 		}
 
-		if 0 < done {
+		fmt.Println("=================== KLEVETA ============================", done)
+		fmt.Println("=================== KLEVETA ============================", done)
+		fmt.Println("=================== KLEVETA ============================", done)
+		fmt.Println("=================== KLEVETA ============================", done)
+		fmt.Println("========================================================", done)
+		fmt.Println("========================================================", done)
+		fmt.Println("========================================================", done)
+		fmt.Println("========================================================", done)
+		fmt.Println("=================== KLEVETA ============================", done)
+		fmt.Println("=================== KLEVETA ============================", done)
+		fmt.Println("=================== KLEVETA ============================", done)
+		fmt.Println("=================== KLEVETA ============================", done)
+
+		if (vomni.PointCmdFreezeOff == done) || (vomni.PointCmdFreezeOn == done) {
+
+			fmt.Printf("Logofet %q >>>> 0x%08X\n", d.Point, done)
+			fmt.Printf("logofet %q >>>> 0x%08X\n", d.Point, done)
+			fmt.Printf("Logofet %q >>>> 0x%08X\n", d.Point, done)
+
+			if vomni.PointCmdFreezeOn == done {
+				tick.Stop()
+				isFreeze = true
+			} else if vomni.PointCmdFreezeOff == done {
+				isFreeze = false
+			}
+		} else if 0 < done {
 
 			*st.index = vomni.PointNonActiveIndex
 

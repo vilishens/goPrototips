@@ -20,6 +20,9 @@ var BTN_SAVE_TXT = "Save";
 var BTN_CLASS_ACTIVE = "btn-warning active";
 var BTN_CLASS_INACTIVE = "btn-outline-secondary disabled";
 var BTN_CLASS_IN_USE = 'btn-success active';
+var BTN_CLASS_FREEZE_ON = 'freeze-on'
+var BTN_CLASS_SET_FREEZE_ON = 'btn-danger active ' + BTN_CLASS_FREEZE_ON;
+var BTN_CLASS_SET_FREEZE_OFF = 'btn-warning active';
 
 var TABLE_START = "tableStart";
 var TABLE_BASE = "tableBase";
@@ -180,6 +183,8 @@ function checkDataSetButtons() {
         ThisState |= STATE_NON_EQ_SETS_RUN_SAVED;
     }
 
+    setFreezeButton();
+
     setMostButtonsInactive();
     if(ThisState & STATE_ERR_BITS) {
         setErrButtons(ThisState & STATE_ERR_BITS);
@@ -188,6 +193,43 @@ function checkDataSetButtons() {
         if(ThisState & bits) {
             setNonEqualButtons(ThisState & bits); 
         }    
+    }
+}
+
+function setFreezeButtonOn() {
+    var btn = $('#' + BTN_FREEZE);
+
+    minusClass(btn, BTN_CLASS_IN_USE);
+    minusClass(btn, BTN_CLASS_ACTIVE);
+    minusClass(btn, BTN_CLASS_INACTIVE);
+    minusClass(btn, BTN_CLASS_SET_FREEZE_OFF);
+
+    plusClass(btn, BTN_CLASS_SET_FREEZE_ON);
+}
+
+function setFreezeButtonOff() {
+    var btn = $('#' + BTN_FREEZE);
+
+    minusClass(btn, BTN_CLASS_IN_USE);
+    minusClass(btn, BTN_CLASS_ACTIVE);
+    minusClass(btn, BTN_CLASS_INACTIVE);
+    minusClass(btn, BTN_CLASS_SET_FREEZE_ON);
+    
+    plusClass(btn, BTN_CLASS_SET_FREEZE_OFF);
+}
+
+function setFreezeButton() {
+
+    var btn = $('#' + BTN_FREEZE);
+
+    if((CfgIndex["Start"] < 0) && (CfgIndex["Base"] < 0) && (CfgIndex["Finish"] < 0)) {
+        setButtonInactive(btn);
+    } else {
+        if (btn.hasClass(BTN_CLASS_FREEZE_ON)) {
+            setFreezeButtonOn()
+        } else {
+            setFreezeButtonOff()
+        }
     }
 }
 
@@ -733,6 +775,19 @@ function btnSavePressed(btn) {
     saveRunCfg();
 }
 
+function btnFreezePressed(btn) {
+
+    var btn = $('#' + BTN_FREEZE);
+
+    if(btn.hasClass(BTN_CLASS_FREEZE_ON)) {
+        setFreezeButtonOff();
+        sendFreezeOff();
+    } else {
+        setFreezeButtonOn();
+        sendFreezeOn();
+    }
+}
+
 function btnLoadDefaultPressed(btn) {
 
     unsetAllTableEditOptions();
@@ -751,6 +806,20 @@ function loadInputData() {
     var urlStr = URL_PAGE_HANDLER + "loadinp/" + THIS_POINT+"/"+THIS_CFG.toString();
 
     ReturnData(urlStr, d);
+}
+
+function sendFreezeOn() {
+    var d = {};
+    var urlStr = URL_PAGE_HANDLER + "freezeon/" + THIS_POINT+"/"+THIS_CFG.toString();
+
+    DoAjax( urlStr, d, 500);
+}
+
+function sendFreezeOff() {
+    var d = {};
+    var urlStr = URL_PAGE_HANDLER + "freezeoff/" + THIS_POINT+"/"+THIS_CFG.toString();
+
+    DoAjax( urlStr, d, 500);
 }
 
 function loadDefaultCfg() {

@@ -90,20 +90,26 @@ func handlePointCfg(w http.ResponseWriter, r *http.Request) {
 	case "GET":
 		getPointCfg(w, r)
 		return
-
 	case "LOADINP", "LOADDEFAULT", "LOADSAVED":
 		cfgCd, _ := strconv.Atoi(cfg)
 		send2Point(w, r, point, vomni.PointCmdLoadCfgIntoPoint|cfgCd)
 		//		loadCfgData
 		return
-
 	case "SAVECFG":
 		cfgCd, _ := strconv.Atoi(cfg)
 		send2Point(w, r, point, vomni.PointCmdSaveCfg|cfgCd)
 		return
-
+	case "FREEZEON":
+		cfgCd, _ := strconv.Atoi(cfg)
+		vpointrun.WebCmd(vomni.PointCmdFreezeOn|cfgCd, point)
+		return
+	case "FREEZEOFF":
+		cfgCd, _ := strconv.Atoi(cfg)
+		vpointrun.WebCmd(vomni.PointCmdFreezeOff|cfgCd, point)
+		return
 	default:
-		log.Fatal("Don't know what to do with %q", todo)
+		str := fmt.Sprintf("Don't know what to do with %q", todo)
+		log.Fatal(str)
 
 	}
 }
