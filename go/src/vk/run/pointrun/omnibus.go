@@ -31,6 +31,7 @@ type Runner interface {
 
 	//#######################################
 	ReceiveWeb(cmd int, data interface{})
+	GetRunTotal() (count int)
 	Cmd(cmd int)
 }
 

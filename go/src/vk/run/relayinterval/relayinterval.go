@@ -15,10 +15,12 @@ import (
 
 var RunningPoints map[string]*RunInterface
 var RunningData map[string]*RunData
+var RunningList map[string]bool
 
 func init() {
 	RunningPoints = make(map[string]*RunInterface)
 	RunningData = make(map[string]*RunData)
+	RunningList = make(map[string]bool)
 }
 
 func (d RunInterface) GetCfgs() (cfgDefault interface{}, cfgRun interface{}, cfgSaved interface{},
@@ -106,6 +108,7 @@ func (d RunInterface) LetsGo(chGoOn chan bool, chDone chan int, chErr chan error
 			select {
 			case <-locGoOn:
 				d.SetState(vomni.PointStateActive|vomni.PointStateSigned, true)
+				RunningList[d.Point] = true
 				chGoOn <- true
 			case rc := <-locDone:
 
@@ -116,13 +119,15 @@ func (d RunInterface) LetsGo(chGoOn chan bool, chDone chan int, chErr chan error
 					d.SetState(vomni.PointStateSigned, false)
 					waitNext = false
 				}
+
+				if vomni.DoneExit == rc {
+
+					RunningList[d.Point] = false
+					chDone <- vomni.PointCmdExitCfg | d.Type
+				}
 			}
 		}
-
-		fmt.Println("xxxxx\nxxxxx\nNehuj!!!\n=====\n=====")
-
 	}
-
 }
 
 func (d RunInterface) GetDone(done int) {
@@ -152,6 +157,17 @@ func (d RunInterface) Ready() (ready bool) {
 	return
 }
 
+func (d RunInterface) GetRunTotal() (count int) {
+
+	for _, v := range RunningList {
+		if v {
+			count++
+		}
+	}
+
+	return count
+}
+
 func (d RunInterface) run(chGoOn chan bool, chDone chan int, chErr chan error) {
 
 	chGoOn <- true
@@ -159,6 +175,7 @@ func (d RunInterface) run(chGoOn chan bool, chDone chan int, chErr chan error) {
 	locDone := make(chan int)
 
 	stop := false
+	zzz := 0
 	for !stop {
 
 		fmt.Println("$$$\n$$$\nVICINS-GEIRGS\n$$$\n$$$")
@@ -171,15 +188,19 @@ func (d RunInterface) run(chGoOn chan bool, chDone chan int, chErr chan error) {
 			stage{once: false, runEmptyArr: true, index: &RunningData[d.Point].Index.Base, cfg: RunningData[d.Point].CfgRun.Base},     // base sequence
 			stage{once: true, runEmptyArr: false, index: &RunningData[d.Point].Index.Finish, cfg: RunningData[d.Point].CfgRun.Finish}} // finishe sequence
 
-		for _, v := range allStages {
-			go d.runArray(v, locDone)
+		for zzz = 0; zzz < len(allStages); {
+
+			fmt.Println("@@@\n###\n@@@\n###\nGirljanda YYY", zzz, "IND", RunningData[d.Point].Index)
+
+			go d.runArray(allStages[zzz], locDone)
 			rc := <-locDone
 
 			if vomni.DoneDisconnected == rc {
 
-				
-
 				d.SetState(vomni.DoneDisconnected, true)
+
+				RunningList[d.Point] = false
+
 				str := fmt.Sprintf("Point %q lost connection", d.Point)
 				d.LogStr(vomni.LogFileCdErr, str)
 
@@ -203,11 +224,31 @@ func (d RunInterface) run(chGoOn chan bool, chDone chan int, chErr chan error) {
 					break
 				}
 			*/
+
 			if cmdRestart == rc {
+				// restart sign-in (not restart the point)
 				break
 			}
 
+			if vomni.DoneExit == rc || vomni.PointCmdStopCfg == rc {
+				zzz = len(allStages) - 1
+
+				fmt.Printf("***\n***\n*** Furletova %q %d\n***\n***\n", d.Point, zzz)
+
+				//fmt.Println("*****\n*****\n*****\nGirljanda X", zzz, "\n*****\n*****\n*****")
+			} else {
+				zzz++
+			}
+
+			if len(allStages) == zzz {
+				stop = true
+				fmt.Printf("@@@\n@@@\n@@@ Karasj %q %d\n@@@\n@@@\n", d.Point, zzz)
+			}
 		}
+
+		fmt.Printf("***\n***\n*** Admiralis Katasonovs %q\n***\n***\n", d.Point)
+
+		chDone <- vomni.DoneExit
 	}
 }
 
@@ -249,14 +290,49 @@ func (d RunInterface) runArray(st stage, chDone chan int) {
 		case cmd := <-RunningData[d.Point].ChCmd:
 
 			// Seit jāieliek msg apstrāde
+			str := "bisquit"
+			if cmd == vomni.PointCmdStopCfg {
+				str = "exit"
+			}
+			fmt.Println("Katehisiz ", d.Point, " >>>> ", str)
 
-			fmt.Println("Katehisiz ", d.Point, " >>>> ", cmd)
+			done = cmd
+			if vomni.PointCmdStopCfg == done {
+				if 0 < (RunningData[d.Point].State & vomni.PointStateStoppingNow) {
+					// this cfg is stopping now and received Exit code again, do nothing
+					done = 0
+				} else {
+					RunningData[d.Point].setState(vomni.PointStateStoppingNow, true)
 
-			chDone <- cmd
-			return
-
+					fmt.Println("========================================================")
+					fmt.Println("========================================================")
+					fmt.Println("========================================================")
+					fmt.Println("========================================================")
+					fmt.Println("========================================================")
+					fmt.Println("========================================================")
+					fmt.Println("========================================================")
+				}
+			}
 		case done = <-d.ChDone:
 
+			fmt.Println("Dizaster ", d.Point, " >>>> ", done)
+
+			if vomni.DoneExit == done {
+				if 0 < (RunningData[d.Point].State & vomni.PointStateStoppingNow) {
+					// this cfg is stopping now and received Exit code again, do nothing
+					done = 0
+				} else {
+					RunningData[d.Point].setState(vomni.PointStateStoppingNow, true)
+
+					fmt.Println("========================================================")
+					fmt.Println("========================================================")
+					fmt.Println("========================================================")
+					fmt.Println("========================================================")
+					fmt.Println("========================================================")
+					fmt.Println("========================================================")
+					fmt.Println("========================================================")
+				}
+			}
 		case <-tick.C:
 			*st.index = nextIndex(*st.index, len(st.cfg))
 
@@ -266,6 +342,7 @@ func (d RunInterface) runArray(st stage, chDone chan int) {
 		}
 
 		if 0 < done {
+
 			*st.index = vomni.PointNonActiveIndex
 
 			chDone <- done
@@ -400,11 +477,7 @@ func (d RunInterface) GetUDPAddr() (addr net.UDPAddr) {
 
 func (d *RunInterface) SetState(state int, on bool) {
 
-	if on {
-		d.State |= state
-	} else {
-		d.State &^= state
-	}
+	RunningData[d.Point].setState(state, on)
 }
 
 func (d *RunInterface) GetState() (state int) {
@@ -412,6 +485,14 @@ func (d *RunInterface) GetState() (state int) {
 }
 
 func (d *RunInterface) setState(state int, on bool) {
+	if on {
+		d.State |= state
+	} else {
+		d.State &^= state
+	}
+}
+
+func (d *RunData) setState(state int, on bool) {
 	if on {
 		d.State |= state
 	} else {

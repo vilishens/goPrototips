@@ -12,6 +12,7 @@ const (
 	PointCmdLoadCfgIntoPoint = 0x00010000
 	PointCmdSaveCfg          = 0x00020000
 	PointCmdStopCfg          = 0x00040000
+	PointCmdExitCfg          = 0x00080000
 )
 
 // constants for log
