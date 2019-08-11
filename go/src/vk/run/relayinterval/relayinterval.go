@@ -323,6 +323,7 @@ func (d RunInterface) runArray(st stage, chDone chan int) {
 			tick = time.NewTicker(st.cfg[*st.index].Seconds)
 
 			if isFreeze {
+				// the ticker has been created but stopt due to Freeze state
 				tick.Stop()
 			}
 
