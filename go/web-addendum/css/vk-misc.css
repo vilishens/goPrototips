@@ -11,3 +11,16 @@
         opacity: 1;
     }
 }
+
+.obj-signed {
+    color: green;
+}
+
+.obj-unsigned {
+    color: black;
+}
+
+.obj-blink {
+    animation: 1s infinite blink-itX;
+    display: inline-block;
+}

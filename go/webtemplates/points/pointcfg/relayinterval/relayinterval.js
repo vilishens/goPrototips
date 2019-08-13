@@ -85,6 +85,10 @@ var STATE_NOT_RCVD_BITS         = 0x0F000;
 var STATE_NON_EQ_SETS_RUN_SAVED = 0x10000;  // compare running and saved sets   
 var STATE_NON_EQ_SETS_BITS      = 0xF0000;
 
+var NAME_CLASS_DEFAULT = 'obj-unsigned';
+var NAME_CLASS_SIGNED = 'obj-signed';
+var NAME_CLASS_DISCONNECTED = 'obj-unsigned obj-blink';
+
 var ThisState = 0;
 
 var ColorBackOri;
@@ -411,20 +415,44 @@ function editState() {
 }
 
 function drawTitle() {
-    $('#pointName').text(THIS_POINT);
+
+    var title = $('#pointName');
+    var btn = $('#rescanBtn');
+
+    var nowClass = NAME_CLASS_DEFAULT;
+
+    btn.html();
+    if(AllD["Signed"]) {
+        if (!AllD["Disconnected"]) {
+            nowClass = NAME_CLASS_SIGNED;
+        } else {
+            nowClass = NAME_CLASS_DISCONNECTED;
+        }
+    }
+
+    nowClass = NAME_CLASS_DISCONNECTED;
+
+    if(nowClass == NAME_CLASS_DISCONNECTED) {
+        str = '<a href="/pointlist/act/rescan/'+THIS_POINT+'" class="btn btn-sm btn-outline-secondary '+nowClass+'" role="button">Rescan</a>';
+        btn.removeClass();
+        plusClass(btn, nowClass); 
+        
+        btn.html(str);
+    }    
+
+    title.removeClass();
+    plusClass(title, nowClass);
+
+    title.text(THIS_POINT);
 }
 
 function drawButtons() {
-//    if( editState()) {
-
-//    } else {
-        drawBtn(BTN_FREEZE, BTN_FREEZE_TXT);
-        drawBtn(BTN_LOAD, BTN_LOAD_TXT);
-        drawBtn(BTN_SAVE, BTN_SAVE_TXT);
-        drawBtn(BTN_LOAD_DEFAULT, BTN_LOAD_DEFAULT_TXT);
-        drawBtn(BTN_LOAD_SAVED, BTN_LOAD_SAVED_TXT);
-        drawBtn(BTN_EDIT, BTN_EDIT_TXT);
-//    }
+    drawBtn(BTN_FREEZE, BTN_FREEZE_TXT);
+    drawBtn(BTN_LOAD, BTN_LOAD_TXT);
+    drawBtn(BTN_SAVE, BTN_SAVE_TXT);
+    drawBtn(BTN_LOAD_DEFAULT, BTN_LOAD_DEFAULT_TXT);
+    drawBtn(BTN_LOAD_SAVED, BTN_LOAD_SAVED_TXT);
+    drawBtn(BTN_EDIT, BTN_EDIT_TXT);
 }
 
 function drawBtn(id, str) {
@@ -467,7 +495,7 @@ function drawBtnEdit(btn) {
 
 function drawBtnFreeze(btn) {
 
-    if(editState()) {
+    if(editState() || FirstLoad) {
         setButtonInactive(btn);
     } else {
         setButtonActive(btn);
