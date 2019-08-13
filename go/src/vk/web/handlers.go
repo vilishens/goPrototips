@@ -84,14 +84,35 @@ func handlePointCfg(w http.ResponseWriter, r *http.Request) {
 	point := vars["point"]
 	cfg := vars["cfg"]
 
+	cfgCd, _ := strconv.Atoi(cfg)
+	//	tmpl := ""
+
 	fmt.Println("viorika-VISKOPOLEANU", cfg, "Point", point, "TODO", todo)
 
 	switch strings.ToUpper(todo) {
+
+	/*
+	   === Vai šis gadījums vajadzīgs???
+	   	case "RESCAN":
+	   		rescanPoint(point)
+
+	   		switch cfgCd {
+	   		case vomni.CfgTypeRelayInterval:
+	   			tmpl = "cfgrelayinterval"
+	   		}
+	   		cfgData := []string{}
+
+	   		err := tmpls.ExecuteTemplate(w, tmpl, cfgData)
+	   		if err != nil {
+	   			http.Error(w, err.Error(), http.StatusInternalServerError)
+	   		}
+
+	   		return
+	*/
 	case "GET":
 		getPointCfg(w, r)
 		return
 	case "LOADINP", "LOADDEFAULT", "LOADSAVED":
-		cfgCd, _ := strconv.Atoi(cfg)
 		send2Point(w, r, point, vomni.PointCmdLoadCfgIntoPoint|cfgCd)
 		//		loadCfgData
 		return

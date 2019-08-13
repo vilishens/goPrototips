@@ -136,7 +136,6 @@ func handlePointListAction(w http.ResponseWriter, r *http.Request) {
 	//	xrun.ReceivedWebMsg(point, todo, data)
 }
 
-
 func responseOK(w http.ResponseWriter) {
 	type resp struct {
 		RC string

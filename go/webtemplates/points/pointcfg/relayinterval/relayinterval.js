@@ -430,14 +430,13 @@ function drawTitle() {
         }
     }
 
-    nowClass = NAME_CLASS_DISCONNECTED;
-
+//    var cfgCd = AllD["Type"].toString()
     if(nowClass == NAME_CLASS_DISCONNECTED) {
-        str = '<a href="/pointlist/act/rescan/'+THIS_POINT+'" class="btn btn-sm btn-outline-secondary '+nowClass+'" role="button">Rescan</a>';
+//        str = '<a href="/point/handle/cfg/rescan/'+THIS_POINT+'/'+cfgCd+'" class="btn btn-sm btn-outline-secondary '+nowClass+'" role="button">Rescan</a>';
         btn.removeClass();
         plusClass(btn, nowClass); 
         
-        btn.html(str);
+//        btn.html(str);
     }    
 
     title.removeClass();
