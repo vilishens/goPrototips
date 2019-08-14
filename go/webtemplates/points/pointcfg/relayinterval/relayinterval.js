@@ -433,7 +433,7 @@ function drawTitle() {
         }
     }
 
-    nowClass = NAME_CLASS_DISCONNECTED;
+//    nowClass = NAME_CLASS_DISCONNECTED;
 
     var str = "";
     var cfgCd = AllD["Type"].toString()
@@ -441,7 +441,7 @@ function drawTitle() {
 //        str = '<a href="/point/handle/cfg/rescan/'+THIS_POINT+'/'+cfgCd+'" class="btn btn-sm btn-outline-secondary '+nowClass+'" role="button">Rescan</a>';
 //        var str = '<a href="/point/handle/cfg/rescan/'+THIS_POINT+'/'+cfgCd+'" class="btn btn-sm btn-outline-secondary '+nowClass+'" role="button">Rescan</a>';
 
-        str = '<button class="btn btn-sm btn-outline-secondary" onclick="serviceParamsToggle()" id="' + OBJ_CFG_RESCAN_BTN_ID + '">Rescan</button>';
+        str = '<button class="btn btn-sm btn-outline-secondary" onclick="rescanPoint()" id="' + OBJ_CFG_RESCAN_BTN_ID + '">Rescan</button>';
 //        <td colspan="5"><input class="serviceBtn" type="button" titled="' + titleStr + '" value="'+ (visible ? SERV_NEED_HIDE : SERV_NEED_SHOW) + '" onclick="serviceParamsToggle()" id="' + SERV_SENSOR_BTN + '"></td>';
 
         btnSpan.html(str);
@@ -852,18 +852,18 @@ function loadInputData() {
     ReturnData(urlStr, d);
 }
 
-function sendFreezeOn() {
-    var d = {};
-    var urlStr = URL_PAGE_HANDLER + "freezeon/" + THIS_POINT+"/"+THIS_CFG.toString();
-
-    DoAjax( urlStr, d, 500);
-}
-
 function sendFreezeOff() {
     var d = {};
     var urlStr = URL_PAGE_HANDLER + "freezeoff/" + THIS_POINT+"/"+THIS_CFG.toString();
 
     DoAjax( urlStr, d, 500);
+}
+
+function rescanPoint() {
+
+    var urlStr = URL_PAGE_HANDLER + "rescan/" + THIS_POINT + "/" + THIS_CFG.toString();
+
+    LetAjax(urlStr, AJAX_LET_TIMEOUT);
 }
 
 function loadDefaultCfg() {
