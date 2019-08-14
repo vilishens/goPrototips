@@ -89,6 +89,9 @@ var NAME_CLASS_DEFAULT = 'obj-unsigned';
 var NAME_CLASS_SIGNED = 'obj-signed';
 var NAME_CLASS_DISCONNECTED = 'obj-unsigned obj-blink';
 
+var OBJ_CFG_RESCAN_SPAN_ID = 'rescanBtnSpan';
+var OBJ_CFG_RESCAN_BTN_ID = 'rescanBtn';
+
 var ThisState = 0;
 
 var ColorBackOri;
@@ -417,11 +420,11 @@ function editState() {
 function drawTitle() {
 
     var title = $('#pointName');
-    var btn = $('#rescanBtn');
+    var btnSpan = $('#' + OBJ_CFG_RESCAN_SPAN_ID);
 
     var nowClass = NAME_CLASS_DEFAULT;
 
-    btn.html();
+    btnSpan.html();
     if(AllD["Signed"]) {
         if (!AllD["Disconnected"]) {
             nowClass = NAME_CLASS_SIGNED;
@@ -430,14 +433,28 @@ function drawTitle() {
         }
     }
 
-//    var cfgCd = AllD["Type"].toString()
+    nowClass = NAME_CLASS_DISCONNECTED;
+
+    var str = "";
+    var cfgCd = AllD["Type"].toString()
     if(nowClass == NAME_CLASS_DISCONNECTED) {
 //        str = '<a href="/point/handle/cfg/rescan/'+THIS_POINT+'/'+cfgCd+'" class="btn btn-sm btn-outline-secondary '+nowClass+'" role="button">Rescan</a>';
-        btn.removeClass();
-        plusClass(btn, nowClass); 
-        
-//        btn.html(str);
+//        var str = '<a href="/point/handle/cfg/rescan/'+THIS_POINT+'/'+cfgCd+'" class="btn btn-sm btn-outline-secondary '+nowClass+'" role="button">Rescan</a>';
+
+        str = '<button class="btn btn-sm btn-outline-secondary" onclick="serviceParamsToggle()" id="' + OBJ_CFG_RESCAN_BTN_ID + '">Rescan</button>';
+//        <td colspan="5"><input class="serviceBtn" type="button" titled="' + titleStr + '" value="'+ (visible ? SERV_NEED_HIDE : SERV_NEED_SHOW) + '" onclick="serviceParamsToggle()" id="' + SERV_SENSOR_BTN + '"></td>';
+
+        btnSpan.html(str);
+
+        btnSpan.removeClass();
+        plusClass(btnSpan, nowClass); 
     }    
+
+    btnSpan.html(str);
+    btnSpan.removeClass();
+    if(nowClass == NAME_CLASS_DISCONNECTED) {
+        plusClass(btnSpan, nowClass); 
+    }
 
     title.removeClass();
     plusClass(title, nowClass);
