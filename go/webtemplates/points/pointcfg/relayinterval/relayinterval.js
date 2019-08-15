@@ -825,10 +825,10 @@ function btnFreezePressed(btn) {
 
     if(btn.hasClass(BTN_CLASS_FREEZE_ON)) {
         setFreezeButtonOff();
-        sendFreezeOff();
+        sendFreeze(false);
     } else {
         setFreezeButtonOn();
-        sendFreezeOn();
+        sendFreeze(true);
     }
 }
 
@@ -852,11 +852,13 @@ function loadInputData() {
     ReturnData(urlStr, d);
 }
 
-function sendFreezeOff() {
-    var d = {};
-    var urlStr = URL_PAGE_HANDLER + "freezeoff/" + THIS_POINT+"/"+THIS_CFG.toString();
+function sendFreeze(on) {
 
-    DoAjax( urlStr, d, 500);
+    var freezeStr = on ? "freezeon/" : "freezeoff/";
+
+    var urlStr = URL_PAGE_HANDLER + freezeStr + THIS_POINT+"/"+THIS_CFG.toString();
+
+    LetAjax( urlStr, AJAX_LET_TIMEOUT);
 }
 
 function rescanPoint() {
