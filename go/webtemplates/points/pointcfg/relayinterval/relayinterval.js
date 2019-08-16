@@ -211,7 +211,11 @@ function setFreezeButtonOn() {
     minusClass(btn, BTN_CLASS_INACTIVE);
     minusClass(btn, BTN_CLASS_SET_FREEZE_OFF);
 
-    plusClass(btn, BTN_CLASS_SET_FREEZE_ON);
+    if(0 < (ThisState & STATE_EDIT)) {
+        plusClass(btn, BTN_CLASS_INACTIVE);
+    } else {
+        plusClass(btn, BTN_CLASS_SET_FREEZE_ON);
+    }
 }
 
 function setFreezeButtonOff() {
@@ -229,7 +233,9 @@ function setFreezeButton() {
 
     var btn = $('#' + BTN_FREEZE);
 
-    if((CfgIndex["Start"] < 0) && (CfgIndex["Base"] < 0) && (CfgIndex["Finish"] < 0)) {
+    if(((CfgIndex["Start"] < 0) && (CfgIndex["Base"] < 0) && (CfgIndex["Finish"] < 0))
+        ||
+       (0 < (ThisState & STATE_EDIT))) {
         setButtonInactive(btn);
     } else {
         if (btn.hasClass(BTN_CLASS_FREEZE_ON)) {
@@ -1024,6 +1030,8 @@ function setAllTableEditOptions() {
     setTablesAddButton()
 
     ThisState |= STATE_EDIT;
+
+    setButtonInactive($("#"+BTN_FREEZE));
 
   //  setEditButtons();
 }    

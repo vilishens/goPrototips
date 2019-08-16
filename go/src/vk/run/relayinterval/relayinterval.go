@@ -52,21 +52,15 @@ func (d RunInterface) ReceiveWeb(cmd int, data interface{}) {
 		log.Fatal("RelayInterval received ", cmd, ". What to do?")
 	}
 
+	fmt.Println("$$$$$$$$$$$$$$$$$$$$$$ RESTART CMD $$$$$$$$$$$$$$$$$$$$$$")
+	fmt.Println("$$$$$$$$$$$$$$$$$$$$$$ RESTART CMD $$$$$$$$$$$$$$$$$$$$$$")
+	fmt.Println("$$$$$$$$$$$$$$$$$$$$$$ RESTART CMD $$$$$$$$$$$$$$$$$$$$$$")
+	fmt.Println("$$$$$$$$$$$$$$$$$$$$$$ RESTART CMD $$$$$$$$$$$$$$$$$$$$$$")
+	fmt.Println("$$$$$$$$$$$$$$$$$$$$$$ RESTART CMD $$$$$$$$$$$$$$$$$$$$$$")
+	fmt.Println("$$$$$$$$$$$$$$$$$$$$$$ RESTART CMD $$$$$$$$$$$$$$$$$$$$$$")
+	fmt.Println("$$$$$$$$$$$$$$$$$$$$$$ RESTART CMD $$$$$$$$$$$$$$$$$$$$$$")
+
 	RunningData[d.Point].ChCmd <- newCmd
-
-	//data.(vcfg.RelIntervalStruct)
-
-	/*
-		RunningData[d.Point]
-
-		cfg := 147
-
-		switch cfg {
-		default:
-			str := fmt.Sprintf("\n\nDon't know how te receive configuration %08X for %q\n\n", cfg, d.Point)
-			panic(str)
-		}
-	*/
 }
 
 //#############
@@ -222,7 +216,10 @@ func (d RunInterface) run(chGoOn chan bool, chDone chan int, chErr chan error) {
 	zzz := 0
 	for !stop {
 
-		fmt.Println("$$$\n$$$\nVICINS-GEIRGS\n$$$\n$$$")
+		fmt.Println("$$$$$$ VICINS-GEIRGS $$$$$$")
+		fmt.Println("$$$$$$ VICINS-GEIRGS $$$$$$")
+		fmt.Println("$$$$$$ VICINS-GEIRGS $$$$$$")
+		fmt.Println("$$$$$$ VICINS-GEIRGS $$$$$$")
 
 		RunningData[d.Point].Index = AllIndex{Start: vomni.PointNonActiveIndex,
 			Base: vomni.PointNonActiveIndex, Finish: vomni.PointNonActiveIndex}
@@ -234,7 +231,9 @@ func (d RunInterface) run(chGoOn chan bool, chDone chan int, chErr chan error) {
 
 		for zzz = 0; zzz < len(allStages); {
 
-			fmt.Println("@@@\n###\n@@@\n###\nGirljanda YYY", zzz, "IND", RunningData[d.Point].Index)
+			fmt.Println("@@@###@@@###Girljanda YYY", zzz, "IND", RunningData[d.Point].Index)
+			fmt.Println("@@@###@@@###Girljanda YYY", zzz, "IND", RunningData[d.Point].Index)
+			fmt.Println("@@@###@@@###Girljanda YYY", zzz, "IND", RunningData[d.Point].Index)
 
 			go d.runArray(allStages[zzz], locDone)
 			rc := <-locDone
@@ -270,8 +269,21 @@ func (d RunInterface) run(chGoOn chan bool, chDone chan int, chErr chan error) {
 			*/
 
 			if cmdRestart == rc {
-				// restart sign-in (not restart the point)
+				// restart the runArray routine with brand new data (not restart the point)
+
+				fmt.Printf("###===###===### SANEMU RESTART ###===###===### %v\n", stop)
+				fmt.Printf("###===###===### SANEMU RESTART ###===###===### %v\n", stop)
+				fmt.Printf("###===###===### SANEMU RESTART ###===###===### %v\n", stop)
+				fmt.Printf("###===###===### SANEMU RESTART ###===###===### %v\n", stop)
+				fmt.Printf("###===###===### SANEMU RESTART ###===###===### %v\n", stop)
+
 				break
+			}
+
+			if cmdRestart == rc {
+				fmt.Println("***###*** AFTER RESTART ***###***")
+				fmt.Println("***###*** AFTER RESTART ***###***")
+				fmt.Println("***###*** AFTER RESTART ***###***")
 			}
 
 			if vomni.DoneExit == rc || vomni.PointCmdStopCfg == rc {
@@ -292,7 +304,9 @@ func (d RunInterface) run(chGoOn chan bool, chDone chan int, chErr chan error) {
 
 		fmt.Printf("***\n***\n*** Admiralis Katasonovs %q\n***\n***\n", d.Point)
 
-		chDone <- vomni.DoneExit
+		if stop {
+			chDone <- vomni.DoneExit
+		}
 	}
 }
 
@@ -312,6 +326,12 @@ func (d RunInterface) runArray(st stage, chDone chan int) {
 	}
 
 	*st.index = nextIndex(*st.index, len(st.cfg))
+
+	fmt.Printf("==> POINTE %q Pirmais Index %d\n", d.Point, *st.index)
+	fmt.Printf("==> POINTE %q Pirmais Index %d\n", d.Point, *st.index)
+	fmt.Printf("==> POINTE %q Pirmais Index %d\n", d.Point, *st.index)
+	fmt.Printf("==> POINTE %q Pirmais Index %d\n", d.Point, *st.index)
+	fmt.Printf("==> POINTE %q Pirmais Index %d\n", d.Point, *st.index)
 
 	for {
 
@@ -370,7 +390,16 @@ func (d RunInterface) runArray(st stage, chDone chan int) {
 				fmt.Println("###============== FREEZE ==========================================")
 				fmt.Println("###============== FREEZE ==========================================")
 				done = cmd
+			} else if cmdRestart == cmd {
+				fmt.Println("###===###===###== RESTART ==###===###===###")
+				fmt.Println("###===###===###== RESTART ==###===###===###")
+				fmt.Println("###===###===###== RESTART ==###===###===###")
+				fmt.Println("###===###===###== RESTART ==###===###===###")
+				fmt.Println("###===###===###== RESTART ==###===###===###")
+				fmt.Println("###===###===###== RESTART ==###===###===###")
+				done = cmd
 			}
+
 		case done = <-d.ChDone:
 
 			fmt.Println("Dizaster ", d.Point, " >>>> ", done)
@@ -398,19 +427,6 @@ func (d RunInterface) runArray(st stage, chDone chan int) {
 				done = vomni.DoneStop
 			}
 		}
-
-		fmt.Println("=================== KLEVETA ============================", done)
-		fmt.Println("=================== KLEVETA ============================", done)
-		fmt.Println("=================== KLEVETA ============================", done)
-		fmt.Println("=================== KLEVETA ============================", done)
-		fmt.Println("========================================================", done)
-		fmt.Println("========================================================", done)
-		fmt.Println("========================================================", done)
-		fmt.Println("========================================================", done)
-		fmt.Println("=================== KLEVETA ============================", done)
-		fmt.Println("=================== KLEVETA ============================", done)
-		fmt.Println("=================== KLEVETA ============================", done)
-		fmt.Println("=================== KLEVETA ============================", done)
 
 		if (vomni.PointCmdFreezeOff == done) || (vomni.PointCmdFreezeOn == done) {
 

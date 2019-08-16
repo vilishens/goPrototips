@@ -12,9 +12,6 @@ func AllPointData() (data vomni.WebAllPointData) {
 
 	list := []string{}
 
-	fmt.Println()
-	fmt.Println()
-
 	for k, v := range Points {
 
 		list = append(list, k)
@@ -47,28 +44,8 @@ func AllPointData() (data vomni.WebAllPointData) {
 			_, _, _ = cfgDef, cfgRun, cfgSaved
 		}
 
-		/*
-			cfgDef, cfgRun, cfgSaved := Points[k].Run[vomni.CfgTypeRelayInterval].GetCfgs()
-
-			back, err := json.Marshal(cfgDef)
-			if nil != err {
-				panic(err)
-				return
-			}
-
-			json.Unmarshal(back, &cfgDef)
-
-			d.CfgDefault = cfgDef
-
-			d.CfgDefault, d.CfgRun, d.CfgSaved = Points[k].Run[vomni.CfgTypeRelayInterval].GetCfgs()
-		*/
-		fmt.Printf("Point %q Signed %t Disconn %t\n", d.Point, d.Signed, d.Disconnected)
-
 		pts[k] = d
 	}
-
-	fmt.Println()
-	fmt.Println()
 
 	sort.Strings(list)
 

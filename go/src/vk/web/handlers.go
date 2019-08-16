@@ -34,32 +34,6 @@ func getPointCfg(w http.ResponseWriter, r *http.Request) {
 	point := vars["point"]
 	cfg := vars["cfg"]
 
-	//	var data interface{}
-
-	fmt.Println("SVIRIDOFF-MIKAHIL_ABALMASOFF", cfg)
-
-	/*
-		tmplStr := "pointcfg"
-		data = pointCfg(point)
-
-		refl := reflect.ValueOf(data)
-
-		zType := refl.FieldByName("Type")
-
-		switch zType.Int() {
-		case vomni.PointTypeRelayOnOffInterval:
-			tmplStr = "cfgrelayonoffinterval"
-		default:
-			tmplStr = "pointcfg"
-		}
-
-		err = tmpls.ExecuteTemplate(w, tmplStr, point)
-
-		if err != nil {
-			http.Error(w, err.Error(), http.StatusInternalServerError)
-		}
-	*/
-
 	switch cfg {
 	case strconv.Itoa(vomni.CfgTypeRelayInterval):
 	default:

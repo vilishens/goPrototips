@@ -1,7 +1,6 @@
 package web
 
 import (
-	"fmt"
 	vomni "vk/omnibus"
 	vparam "vk/params"
 	vparams "vk/params"
@@ -17,8 +16,6 @@ func webPrefix() (prefix string) {
 }
 
 func allPointData() (data interface{}) {
-
-	fmt.Println("Mikhails")
 
 	data = vrun.AllPointData()
 
