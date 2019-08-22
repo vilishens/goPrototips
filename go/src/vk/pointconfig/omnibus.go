@@ -36,6 +36,7 @@ type RelIntervalStruct struct {
 
 type PointCfg struct {
 	RelInterv RelIntervalStruct
+	TempRelay []RunTempRelay
 }
 
 type PointCfgData struct {
@@ -51,6 +52,7 @@ type CfgJSONData map[string]CfgJSONPointData
 
 type CfgJSONPointData struct {
 	RelIntervalJSON CfgRelIntervalStruct `json:"RelayOnOffIntervals"`
+	TempRelayJSON   JSONTempRelay        `json:"TempRelay"`
 }
 
 type CfgRelInterval struct {

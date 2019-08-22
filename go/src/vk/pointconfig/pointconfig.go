@@ -32,6 +32,7 @@ func init() {
 
 func loadAllCfgFiles() (err error) {
 
+	// check if the running configuration file exist, if not - clone the default configuration file
 	if err = verifyCfgFiles(); nil != err {
 		err = vutils.ErrFuncLine(fmt.Errorf("Couldn't verify existance of configuration files - %v", err))
 		return
@@ -62,6 +63,7 @@ func loadCfgFile(path string) (data CfgFileData, json CfgFileJSON, err error) {
 
 	fmt.Printf("\n\n\n******* PAth 4 JSON %q\n\n", path)
 
+	// read the configuration file provided by the path
 	if json, err = getCfgJSON(path); nil != err {
 		err = vutils.ErrFuncLine(err)
 		return
@@ -69,6 +71,7 @@ func loadCfgFile(path string) (data CfgFileData, json CfgFileJSON, err error) {
 
 	fmt.Printf("=========================================== JSON =====================================\n%+v\n", json)
 
+	// put the file data into cofiguration structures
 	if data, err = json.putCfgJSON4Run(); nil != err {
 		err = vutils.ErrFuncLine(err)
 		return
@@ -105,6 +108,19 @@ func (d CfgFileJSON) putCfgJSON4Run() (data CfgFileData, err error) {
 				return
 			} else {
 				data[k] = newStorage
+			}
+		}
+
+		// add TempRelay configuration
+		if v.TempRelayJSON.hasCfgTempInterval() {
+			if newStorage, err = v.TempRelayJSON.putCfg4Run(newStorage); nil != err {
+				err = vutils.ErrFuncLine(fmt.Errorf("Temperature Relay configuration Error - %s", err.Error()))
+				return
+			} else {
+				data[k] = newStorage
+
+				//	log.Fatal("Kolbasiuk")
+
 			}
 		}
 	}
@@ -200,13 +216,6 @@ func (d CfgJSONData) putCfg4Run() (err error) {
 				PointsAllData[k] = newStruct
 			}
 		}
-
-		//		if v.RelIntervalJSON.hasCfgRelInterval() {
-		//			if err = v.RelIntervalJSON.putCfg4Run(k); nil != err {
-		//				err = vutils.ErrFuncLine(fmt.Errorf("Relay Interval configuration Error - %s", err.Error()))
-		//				return
-		//			}
-		//		}
 	}
 
 	return

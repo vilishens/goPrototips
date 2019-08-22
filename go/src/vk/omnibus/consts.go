@@ -131,6 +131,7 @@ const ()
 const (
 	CfgTypeUnknown       = 0x000000
 	CfgTypeRelayInterval = 0x000001
+	CfgTypeTempRelay     = 0x000002
 )
 
 //################################################# Net Info parameters (net/netinfo.go) ####################
