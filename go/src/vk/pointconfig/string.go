@@ -36,7 +36,7 @@ func (d PointCfg) String(offN int) (str string) {
 	return
 }
 
-func (d RelIntervalStruct) String(offN int) (str string) {
+func (d RunRelIntervalStruct) String(offN int) (str string) {
 
 	str += strings.Repeat(offset, offN) + "START\n"
 	str += d.Start.String(offN + 1)
@@ -48,7 +48,7 @@ func (d RelIntervalStruct) String(offN int) (str string) {
 	return
 }
 
-func (d RelIntervalArray) String(offN int) (str string) {
+func (d RunRelIntervalArray) String(offN int) (str string) {
 
 	for _, v := range d {
 		str += v.String(offN)
@@ -57,7 +57,7 @@ func (d RelIntervalArray) String(offN int) (str string) {
 	return
 }
 
-func (d RelInterval) String(offN int) (str string) {
+func (d RunRelInterval) String(offN int) (str string) {
 
 	str += strings.Repeat(offset, offN) + fmt.Sprintf("GPIO: %2d STATE: %d SECONDS %6d (%s)\n", d.Gpio, d.State,
 		d.Seconds/time.Second, vutils.Duration2ConfInterval(d.Seconds, true))

@@ -3,13 +3,12 @@ package pointconfig
 import (
 	"strconv"
 	vomni "vk/omnibus"
-	vparams "vk/params"
 	vutils "vk/utils"
 )
 
-func (d CfgRelIntervalStruct) putCfg4RunX(point string) (err error) {
+func (d JSONRelIntervalStruct) putCfg4RunX(point string) (err error) {
 
-	newD := RelIntervalStruct{}
+	newD := RunRelIntervalStruct{}
 	if newD.Start, err = d.Start.putCfg4Run(); nil != err {
 		err = vutils.ErrFuncLine(err)
 		return
@@ -34,30 +33,30 @@ func (d CfgRelIntervalStruct) putCfg4RunX(point string) (err error) {
 	return
 }
 
-func (d CfgRelIntervalStruct) newRelIntervalStruct() (newD RelIntervalStruct, err error) {
-	newD = RelIntervalStruct{}
+func (d JSONRelIntervalStruct) newRelIntervalStruct() (newD RunRelIntervalStruct, err error) {
+	newD = RunRelIntervalStruct{}
 	if newD.Start, err = d.Start.putCfg4Run(); nil != err {
 		err = vutils.ErrFuncLine(err)
-		return RelIntervalStruct{}, err
+		return RunRelIntervalStruct{}, err
 	}
 
 	if newD.Base, err = d.Base.putCfg4Run(); nil != err {
 		err = vutils.ErrFuncLine(err)
-		return RelIntervalStruct{}, err
+		return RunRelIntervalStruct{}, err
 	}
 
 	if newD.Finish, err = d.Finish.putCfg4Run(); nil != err {
 		err = vutils.ErrFuncLine(err)
-		return RelIntervalStruct{}, err
+		return RunRelIntervalStruct{}, err
 	}
 
 	return
 }
 
-func (d CfgRelIntervalStruct) putCfgDefault4Run(dst PointCfgData) (newDst PointCfgData, err error) {
+func (d JSONRelIntervalStruct) putCfgDefault4Run(dst PointCfgData) (newDst PointCfgData, err error) {
 
 	newDst = PointCfgData{}
-	newD := RelIntervalStruct{}
+	newD := RunRelIntervalStruct{}
 
 	if newD, err = d.newRelIntervalStruct(); nil != err {
 		err = vutils.ErrFuncLine(err)
@@ -73,10 +72,10 @@ func (d CfgRelIntervalStruct) putCfgDefault4Run(dst PointCfgData) (newDst PointC
 	return
 }
 
-func (d CfgRelIntervalStruct) putCfg4Run(dst PointCfgData) (newDst PointCfgData, err error) {
+func (d JSONRelIntervalStruct) putCfg4Run(dst PointCfgData) (newDst PointCfgData, err error) {
 
 	newDst = PointCfgData{}
-	newD := RelIntervalStruct{}
+	newD := RunRelIntervalStruct{}
 
 	if newD, err = d.newRelIntervalStruct(); nil != err {
 		err = vutils.ErrFuncLine(err)
@@ -92,12 +91,12 @@ func (d CfgRelIntervalStruct) putCfg4Run(dst PointCfgData) (newDst PointCfgData,
 	return
 }
 
-func (d CfgRelIntervalArray) putCfg4Run() (newD []RelInterval, err error) {
+func (d JSONRelIntervalArray) putCfg4Run() (newD []RunRelInterval, err error) {
 
-	newD = []RelInterval{}
+	newD = []RunRelInterval{}
 
 	for _, v := range d {
-		tmpD := RelInterval{Gpio: -1, State: -1, Seconds: 0}
+		tmpD := RunRelInterval{Gpio: -1, State: -1, Seconds: 0}
 
 		if "" != v.Gpio {
 			if tmpD.Gpio, err = strconv.Atoi(v.Gpio); nil != err {
@@ -121,30 +120,6 @@ func (d CfgRelIntervalArray) putCfg4Run() (newD []RelInterval, err error) {
 		}
 
 		newD = append(newD, tmpD)
-	}
-
-	return
-}
-
-func loadPointCfg() (data CfgJSONData, err error) {
-
-	if has, _ := vutils.PathExists(vparams.Params.PointConfigFile); !has {
-		if err := vutils.FileCopy(vparams.Params.PointConfigDefaultFile, vparams.Params.PointConfigFile); nil != err {
-			return CfgJSONData{}, vutils.ErrFuncLine(err)
-		}
-	}
-
-	if err = vutils.ReadJson(vparams.Params.PointConfigFile, &data); nil != err {
-		return CfgJSONData{}, vutils.ErrFuncLine(err)
-	}
-
-	return
-}
-
-func loadPointDefaultCfg() (data CfgJSONData, err error) {
-
-	if err = vutils.ReadJson(vparams.Params.PointConfigDefaultFile, &data); nil != err {
-		return CfgJSONData{}, vutils.ErrFuncLine(err)
 	}
 
 	return

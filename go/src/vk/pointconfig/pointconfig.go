@@ -10,8 +10,8 @@ import (
 )
 
 // `Šitie 4 nav it kā nav najadzīgi`
-var PointsAllJSON CfgJSONData
-var PointsAllDefaultJSON CfgJSONData
+var PointsAllJSON JSONData
+var PointsAllDefaultJSON JSONData
 var PointsAllData AllPointCfgData
 var PointsAllDefaultData AllPointCfgData
 
@@ -130,6 +130,30 @@ func verifyCfgFiles() (err error) {
 	return
 }
 
+func loadPointCfg() (data JSONData, err error) {
+
+	if has, _ := vutils.PathExists(vparams.Params.PointConfigFile); !has {
+		if err := vutils.FileCopy(vparams.Params.PointConfigDefaultFile, vparams.Params.PointConfigFile); nil != err {
+			return JSONData{}, vutils.ErrFuncLine(err)
+		}
+	}
+
+	if err = vutils.ReadJson(vparams.Params.PointConfigFile, &data); nil != err {
+		return JSONData{}, vutils.ErrFuncLine(err)
+	}
+
+	return
+}
+
+func loadPointDefaultCfg() (data JSONData, err error) {
+
+	if err = vutils.ReadJson(vparams.Params.PointConfigDefaultFile, &data); nil != err {
+		return JSONData{}, vutils.ErrFuncLine(err)
+	}
+
+	return
+}
+
 //##############################################################################
 //##############################################################################
 //##############################################################################
@@ -195,7 +219,7 @@ func preparePointCfg(doneCh chan bool, errCh chan error) {
 	doneCh <- true
 }
 
-func (d CfgJSONData) putCfg4Run() (err error) {
+func (d JSONData) putCfg4Run() (err error) {
 
 	for k, v := range d {
 		if _, has := PointsAllData[k]; !has {
@@ -216,7 +240,7 @@ func (d CfgJSONData) putCfg4Run() (err error) {
 	return
 }
 
-func (d CfgJSONData) putCfgDefault4Run() (err error) {
+func (d JSONData) putCfgDefault4Run() (err error) {
 
 	for k, v := range d {
 		if _, has := PointsAllDefaultData[k]; !has {
@@ -237,7 +261,7 @@ func (d CfgJSONData) putCfgDefault4Run() (err error) {
 	return
 }
 
-func (d CfgRelIntervalStruct) hasCfgRelInterval() (has bool) {
+func (d JSONRelIntervalStruct) hasCfgRelInterval() (has bool) {
 	if 0 < len(d.Start) {
 		return true
 	}

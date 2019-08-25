@@ -601,7 +601,7 @@ func (d *RunData) setState(state int, on bool) {
 
 func webSavePointCfg(point string, data interface{}) (err error) {
 
-	var newData vcfg.CfgRelIntervalStruct
+	var newData vcfg.JSONRelIntervalStruct
 
 	if newData, err = webInterface2SaveCfg(data); nil != err {
 		err = vutils.ErrFuncLine(err)
@@ -625,14 +625,14 @@ func webSavePointCfg(point string, data interface{}) (err error) {
 	return whole.Save()
 }
 
-func webInterface2SaveCfg(inter interface{}) (web vcfg.CfgRelIntervalStruct, err error) {
+func webInterface2SaveCfg(inter interface{}) (web vcfg.JSONRelIntervalStruct, err error) {
 	// WEB struct
-	web = vcfg.CfgRelIntervalStruct{}
+	web = vcfg.JSONRelIntervalStruct{}
 
 	for part, v := range inter.(map[string]interface{}) { // list add configuration parts
-		d := vcfg.CfgRelIntervalArray{}        // array for the configuration part records
+		d := vcfg.JSONRelIntervalArray{}       // array for the configuration part records
 		for _, v1 := range v.([]interface{}) { // fill part record array
-			rec := vcfg.CfgRelInterval{} // storage for a record data
+			rec := vcfg.JSONRelInterval{} // storage for a record data
 
 			for k2, v2 := range v1.(map[string]interface{}) {
 				switch strings.ToUpper(k2) {

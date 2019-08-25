@@ -9,7 +9,7 @@ import (
 	vcfg "vk/pointconfig"
 )
 
-func webInterface2Struct(data interface{}) (back vcfg.RelIntervalStruct) {
+func webInterface2Struct(data interface{}) (back vcfg.RunRelIntervalStruct) {
 	// WEB struct
 	web := webPointStruct{}
 	for part, v := range data.(map[string]interface{}) { // list add configuration parts
@@ -54,7 +54,7 @@ func webInterface2Struct(data interface{}) (back vcfg.RelIntervalStruct) {
 	}
 
 	// from the WEB structure to the regular one
-	back = vcfg.RelIntervalStruct{}
+	back = vcfg.RunRelIntervalStruct{}
 	back.Start = web.Start.webArray2Regular()
 	back.Base = web.Base.webArray2Regular()
 	back.Finish = web.Finish.webArray2Regular()
@@ -62,12 +62,12 @@ func webInterface2Struct(data interface{}) (back vcfg.RelIntervalStruct) {
 	return
 }
 
-func (d webPointArr) webArray2Regular() (newStr vcfg.RelIntervalArray) {
+func (d webPointArr) webArray2Regular() (newStr vcfg.RunRelIntervalArray) {
 
-	newStr = vcfg.RelIntervalArray{}
+	newStr = vcfg.RunRelIntervalArray{}
 
 	for _, v := range d {
-		newR := vcfg.RelInterval{}
+		newR := vcfg.RunRelInterval{}
 		newR.Gpio, _ = strconv.Atoi(v.Gpio)
 		newR.State, _ = strconv.Atoi(v.State)
 

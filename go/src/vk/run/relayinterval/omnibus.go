@@ -28,9 +28,9 @@ type RunInterface struct {
 	ChErr      chan error
 	ChDone     chan int
 	ChMsg      chan int
-	CfgDefault vcfg.RelIntervalStruct
-	CfgRun     vcfg.RelIntervalStruct
-	CfgSaved   vcfg.RelIntervalStruct
+	CfgDefault vcfg.RunRelIntervalStruct
+	CfgRun     vcfg.RunRelIntervalStruct
+	CfgSaved   vcfg.RunRelIntervalStruct
 }
 
 type RunData struct {
@@ -46,16 +46,16 @@ type RunData struct {
 	ChDone     chan int
 	ChMsg      chan string
 	ChCmd      chan int
-	CfgDefault vcfg.RelIntervalStruct
-	CfgRun     vcfg.RelIntervalStruct
-	CfgSaved   vcfg.RelIntervalStruct
+	CfgDefault vcfg.RunRelIntervalStruct
+	CfgRun     vcfg.RunRelIntervalStruct
+	CfgSaved   vcfg.RunRelIntervalStruct
 }
 
 type stage struct {
 	once        bool
 	runEmptyArr bool
 	index       *int
-	cfg         vcfg.RelIntervalArray
+	cfg         vcfg.RunRelIntervalArray
 }
 
 type webPoint struct {

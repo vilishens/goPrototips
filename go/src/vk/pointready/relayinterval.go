@@ -98,9 +98,9 @@ func NewRunData(point string, cfg vpointconfig.PointCfgData) (d vrunrelayinterva
 	return d
 }
 
-func getCfgDefault(point string) (d vpointconfig.RelIntervalStruct) {
+func getCfgDefault(point string) (d vpointconfig.RunRelIntervalStruct) {
 
-	d = vpointconfig.RelIntervalStruct{}
+	d = vpointconfig.RunRelIntervalStruct{}
 
 	if v, hasIt := vpointconfig.AllPointData.Default[point]; hasIt {
 		if 0 != (v.List & vomni.CfgTypeRelayInterval) {

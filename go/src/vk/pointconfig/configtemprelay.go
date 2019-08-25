@@ -116,7 +116,7 @@ func (d JSONConditions) putConditions4Run() (newD RunConditions, err error) {
 	return
 }
 
-func (d CfgJSONPointData) putTempRelauJSON4Run(storage PointCfgData) (newStorage PointCfgData, err error) {
+func (d JSONPointData) putTempRelauJSON4Run(storage PointCfgData) (newStorage PointCfgData, err error) {
 
 	// add TempRelay (separate) configuration
 	if d.TempRelayJSON.hasCfgTempInterval() {
