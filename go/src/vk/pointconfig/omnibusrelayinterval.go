@@ -59,16 +59,3 @@ type RunRelIntervalStruct struct {
 	Base   RunRelIntervalArray
 	Finish RunRelIntervalArray
 }
-
-type PointCfg struct {
-	RelInterv RunRelIntervalStruct
-	TempRelay []RunTempRelay
-}
-
-type PointCfgData struct {
-	List     int      // a field contains bits of available configurations of the point
-	Cfg      PointCfg // configuration to use
-	CfgSaved PointCfg // saved configuration
-}
-
-type AllPointCfgData map[string]PointCfgData

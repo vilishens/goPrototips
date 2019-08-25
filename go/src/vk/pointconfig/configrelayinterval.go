@@ -1,6 +1,7 @@
 package pointconfig
 
 import (
+	"fmt"
 	"strconv"
 	vomni "vk/omnibus"
 	vutils "vk/utils"
@@ -53,9 +54,9 @@ func (d JSONRelIntervalStruct) newRelIntervalStruct() (newD RunRelIntervalStruct
 	return
 }
 
-func (d JSONRelIntervalStruct) putCfgDefault4Run(dst PointCfgData) (newDst PointCfgData, err error) {
+func (d JSONRelIntervalStruct) putCfgDefault4Run(dst CfgPointData) (newDst CfgPointData, err error) {
 
-	newDst = PointCfgData{}
+	newDst = CfgPointData{}
 	newD := RunRelIntervalStruct{}
 
 	if newD, err = d.newRelIntervalStruct(); nil != err {
@@ -72,9 +73,9 @@ func (d JSONRelIntervalStruct) putCfgDefault4Run(dst PointCfgData) (newDst Point
 	return
 }
 
-func (d JSONRelIntervalStruct) putCfg4Run(dst PointCfgData) (newDst PointCfgData, err error) {
+func (d JSONRelIntervalStruct) putCfg4Run(dst CfgPointData) (newDst CfgPointData, err error) {
 
-	newDst = PointCfgData{}
+	newDst = CfgPointData{}
 	newD := RunRelIntervalStruct{}
 
 	if newD, err = d.newRelIntervalStruct(); nil != err {
@@ -123,4 +124,18 @@ func (d JSONRelIntervalArray) putCfg4Run() (newD []RunRelInterval, err error) {
 	}
 
 	return
+}
+
+func (d JSONPointData) putRelayIntervalJSON4Run(storage CfgPointData) (newStorage CfgPointData, err error) {
+	// add Relay Interval (separate) configuration
+	if d.RelIntervalJSON.hasCfgRelInterval() {
+		if newStorage, err = d.RelIntervalJSON.putCfg4Run(storage); nil != err {
+			err = vutils.ErrFuncLine(fmt.Errorf("Couldn't prepare Relay Interval configuration Error - %s", err.Error()))
+			return
+		}
+
+		storage = newStorage
+	}
+
+	return storage, err
 }

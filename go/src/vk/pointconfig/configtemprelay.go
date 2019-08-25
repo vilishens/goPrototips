@@ -17,7 +17,7 @@ func (d JSONTempRelay) hasCfgTempInterval() (has bool) {
 	return false
 }
 
-func (d JSONTempRelay) addCfgTempInterval2Run(dst PointCfgData) (newStorage PointCfgData, err error) {
+func (d JSONTempRelay) addCfgTempInterval2Run(dst CfgPointData) (newStorage CfgPointData, err error) {
 	if newStorage, err = d.putCfg4Run(dst); nil != err {
 		err = vutils.ErrFuncLine(fmt.Errorf("Temperature Relay configuration transformation to Run Error - %s", err.Error()))
 		return
@@ -26,9 +26,9 @@ func (d JSONTempRelay) addCfgTempInterval2Run(dst PointCfgData) (newStorage Poin
 	return
 }
 
-func (d JSONTempRelay) putCfg4Run(dst PointCfgData) (newDst PointCfgData, err error) {
+func (d JSONTempRelay) putCfg4Run(dst CfgPointData) (newDst CfgPointData, err error) {
 
-	newDst = PointCfgData{}
+	newDst = CfgPointData{}
 	newD := RunTempRelay{}
 	var fl float64
 
@@ -116,7 +116,7 @@ func (d JSONConditions) putConditions4Run() (newD RunConditions, err error) {
 	return
 }
 
-func (d JSONPointData) putTempRelauJSON4Run(storage PointCfgData) (newStorage PointCfgData, err error) {
+func (d JSONPointData) putTempRelayJSON4Run(storage CfgPointData) (newStorage CfgPointData, err error) {
 
 	// add TempRelay (separate) configuration
 	if d.TempRelayJSON.hasCfgTempInterval() {

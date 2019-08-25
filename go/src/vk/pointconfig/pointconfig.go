@@ -24,9 +24,9 @@ func init() {
 	//	PointsAllDefaultJSON = CfgJSONData{}
 
 	AllPointData = AllCfgData{}
-	AllPointData.Default = make(map[string]PointCfgData)
+	AllPointData.Default = make(map[string]CfgPointData)
 	AllPointData.DefaultJSON = CfgFileJSON{}
-	AllPointData.Running = make(map[string]PointCfgData)
+	AllPointData.Running = make(map[string]CfgPointData)
 	AllPointData.RunningJSON = CfgFileJSON{}
 }
 
@@ -95,24 +95,32 @@ func getCfgJSON(path string) (data CfgFileJSON, err error) {
 
 func (d CfgFileJSON) putCfgJSON4Run() (data CfgFileData, err error) {
 
-	data = make(map[string]PointCfgData)
+	data = make(map[string]CfgPointData)
 
 	for k, v := range d {
 
-		newStorage := PointCfgData{}
+		newStorage := CfgPointData{}
 
 		// add RelayInterval configuration
-		if v.RelIntervalJSON.hasCfgRelInterval() {
-			if newStorage, err = v.RelIntervalJSON.putCfg4Run(newStorage); nil != err {
-				err = vutils.ErrFuncLine(fmt.Errorf("Relay Interval configuration Error - %s", err.Error()))
-				return
-			}
-
-			data[k] = newStorage
+		if newStorage, err = v.putRelayIntervalJSON4Run(data[k]); nil != err {
+			err = vutils.ErrFuncLine(fmt.Errorf("Relay Interval configuration Error - %s", err.Error()))
+			return
 		}
+		data[k] = newStorage
+
+		/*
+			if v.RelIntervalJSON.hasCfgRelInterval() {
+				if newStorage, err = v.RelIntervalJSON.putCfg4Run(newStorage); nil != err {
+					err = vutils.ErrFuncLine(fmt.Errorf("Relay Interval configuration Error - %s", err.Error()))
+					return
+				}
+
+				data[k] = newStorage
+			}
+		*/
 
 		// add all Temperature Relay configurations for Run
-		if newStorage, err = v.putTempRelauJSON4Run(data[k]); nil != err {
+		if newStorage, err = v.putTempRelayJSON4Run(data[k]); nil != err {
 			err = vutils.ErrFuncLine(fmt.Errorf("Temperature Relay configuration Error - %s", err.Error()))
 			return
 		}
@@ -223,10 +231,10 @@ func (d JSONData) putCfg4Run() (err error) {
 
 	for k, v := range d {
 		if _, has := PointsAllData[k]; !has {
-			PointsAllData[k] = PointCfgData{}
+			PointsAllData[k] = CfgPointData{}
 		}
 
-		var newStruct PointCfgData
+		var newStruct CfgPointData
 		if v.RelIntervalJSON.hasCfgRelInterval() {
 			if newStruct, err = v.RelIntervalJSON.putCfg4Run(PointsAllData[k]); nil != err {
 				err = vutils.ErrFuncLine(fmt.Errorf("Relay Interval configuration Error - %s", err.Error()))
@@ -244,10 +252,10 @@ func (d JSONData) putCfgDefault4Run() (err error) {
 
 	for k, v := range d {
 		if _, has := PointsAllDefaultData[k]; !has {
-			PointsAllDefaultData[k] = PointCfgData{}
+			PointsAllDefaultData[k] = CfgPointData{}
 		}
 
-		var newStruct PointCfgData
+		var newStruct CfgPointData
 		if v.RelIntervalJSON.hasCfgRelInterval() {
 			if newStruct, err = v.RelIntervalJSON.putCfg4Run(PointsAllDefaultData[k]); nil != err {
 				err = vutils.ErrFuncLine(fmt.Errorf("Relay Interval Default configuration Error - %s", err.Error()))

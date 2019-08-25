@@ -55,7 +55,7 @@ func relayIntervalPointLoggers(point string, cd int) (logs []vomni.PointLog, err
 	return
 }
 
-func NewRunInterface(point string, cfg vpointconfig.PointCfgData) (d vrunrelayinterval.RunInterface) {
+func NewRunInterface(point string, cfg vpointconfig.CfgPointData) (d vrunrelayinterval.RunInterface) {
 	//d := vrunrelayinterval.RunInterface{}
 	d.Point = point
 	d.State = vomni.PointCfgStateUnknown
@@ -76,7 +76,7 @@ func NewRunInterface(point string, cfg vpointconfig.PointCfgData) (d vrunrelayin
 	return d
 }
 
-func NewRunData(point string, cfg vpointconfig.PointCfgData) (d vrunrelayinterval.RunData) {
+func NewRunData(point string, cfg vpointconfig.CfgPointData) (d vrunrelayinterval.RunData) {
 	//d := vrunrelayinterval.RunInterface{}
 	d.Point = point
 	d.State = vomni.PointCfgStateUnknown
