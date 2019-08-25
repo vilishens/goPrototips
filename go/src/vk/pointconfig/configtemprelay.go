@@ -1,6 +1,7 @@
 package pointconfig
 
 import (
+	"fmt"
 	"math"
 	"strconv"
 	"strings"
@@ -14,6 +15,15 @@ func (d JSONTempRelay) hasCfgTempInterval() (has bool) {
 	}
 
 	return false
+}
+
+func (d JSONTempRelay) addCfgTempInterval2Run(dst PointCfgData) (newStorage PointCfgData, err error) {
+	if newStorage, err = d.putCfg4Run(dst); nil != err {
+		err = vutils.ErrFuncLine(fmt.Errorf("Temperature Relay configuration transformation to Run Error - %s", err.Error()))
+		return
+	}
+
+	return
 }
 
 func (d JSONTempRelay) putCfg4Run(dst PointCfgData) (newDst PointCfgData, err error) {
@@ -104,4 +114,31 @@ func (d JSONConditions) putConditions4Run() (newD RunConditions, err error) {
 	}
 
 	return
+}
+
+func (d CfgJSONPointData) putTempRelauJSON4Run(storage PointCfgData) (newStorage PointCfgData, err error) {
+
+	// add TempRelay (separate) configuration
+	if d.TempRelayJSON.hasCfgTempInterval() {
+		if newStorage, err = d.TempRelayJSON.addCfgTempInterval2Run(storage); nil != err {
+			err = vutils.ErrFuncLine(fmt.Errorf("Couldn't prepare Temperature Relay configuration for Run - %s", err.Error()))
+			return
+		}
+
+		storage = newStorage
+	}
+
+	// add TempRelay (array) configurations
+	for _, v := range d.TempRelayArrayJSON {
+		if v.hasCfgTempInterval() {
+			if newStorage, err = v.addCfgTempInterval2Run(storage); nil != err {
+				err = vutils.ErrFuncLine(fmt.Errorf("Couldn't prepare Temperature Relay array configurations for Run - %s", err.Error()))
+				return
+			}
+
+			storage = newStorage
+		}
+	}
+
+	return storage, err
 }

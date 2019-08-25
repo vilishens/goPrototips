@@ -106,23 +106,18 @@ func (d CfgFileJSON) putCfgJSON4Run() (data CfgFileData, err error) {
 			if newStorage, err = v.RelIntervalJSON.putCfg4Run(newStorage); nil != err {
 				err = vutils.ErrFuncLine(fmt.Errorf("Relay Interval configuration Error - %s", err.Error()))
 				return
-			} else {
-				data[k] = newStorage
 			}
+
+			data[k] = newStorage
 		}
 
-		// add TempRelay configuration
-		if v.TempRelayJSON.hasCfgTempInterval() {
-			if newStorage, err = v.TempRelayJSON.putCfg4Run(newStorage); nil != err {
-				err = vutils.ErrFuncLine(fmt.Errorf("Temperature Relay configuration Error - %s", err.Error()))
-				return
-			} else {
-				data[k] = newStorage
-
-				//	log.Fatal("Kolbasiuk")
-
-			}
+		// add all Temperature Relay configurations for Run
+		if newStorage, err = v.putTempRelauJSON4Run(data[k]); nil != err {
+			err = vutils.ErrFuncLine(fmt.Errorf("Temperature Relay configuration Error - %s", err.Error()))
+			return
 		}
+		data[k] = newStorage
+
 	}
 
 	return

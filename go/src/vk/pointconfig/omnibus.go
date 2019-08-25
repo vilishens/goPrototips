@@ -51,8 +51,9 @@ type AllPointCfgData map[string]PointCfgData
 type CfgJSONData map[string]CfgJSONPointData
 
 type CfgJSONPointData struct {
-	RelIntervalJSON CfgRelIntervalStruct `json:"RelayOnOffIntervals"`
-	TempRelayJSON   JSONTempRelay        `json:"TempRelay"`
+	RelIntervalJSON    CfgRelIntervalStruct `json:"RelayOnOffIntervals"`
+	TempRelayJSON      JSONTempRelay        `json:"TempRelay"`
+	TempRelayArrayJSON []JSONTempRelay      `json:"TempRelayArray"`
 }
 
 type CfgRelInterval struct {
