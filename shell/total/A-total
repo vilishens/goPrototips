@@ -1,14 +1,22 @@
 #!/bin/bash
 
+echo "Vajag salabot PointCmdBite (tas par lielu priekš RASPBERIJA)"
+
+
+
 # golang itself
-GO_DL="https://dl.google.com/go/go1.12.9.linux-amd64.tar.gz"
-GO_DIR=$HOME/Biba
+GO_DL_PC="https://dl.google.com/go/go1.12.9.linux-amd64.tar.gz"
+GO_DL_RASP="https://dl.google.com/go/go1.12.9.linux-armv6l.tar.gz"
+GO_DL=$GO_DL_RASP
+GO_DIR=$HOME/Tools/dev
 GO_LANG_GZ="go-dl.tar.gz"
 
 # application code
 GO_DEV_BASE=$HOME/0_Dev/
-GO_DEV_DIR="likurgs"
-GIT_URL="git@bitbucket.org:vilishens/next.git"
+GO_DEV_DIR="goArduino"
+GIT_URL_BITBUCKET="git@bitbucket.org:vilishens/next.git"
+GIT_URL_GITHUB="https://github.com/vilishens/goPrototips.git"
+GIT_URL=$GIT_URL_GITHUB
 
 # environment settings
 GO_ROOT=$GO_DIR/go
@@ -39,15 +47,19 @@ if [ ! -d $GO_PATH_TMP ]; then
 fi
 
 echo '### GET additional golang packages'
-./get_go_packages
+#./get_go_packages
 
 echo '### COPY additinal packages to the permanent golang directory'
-cp -r $GO_PATH_TMP/bin/* $GO_DIR/go/bin
+#cp -r $GO_PATH_TMP/bin/* $GO_DIR/go/bin
 # remove directory with the packages as all packages moved to golang directory
-rm -rf $GO_PATH_TMP
+#rm -rf $GO_PATH_TMP
 
 echo '### SET back the permanent GOPATH'
 export GOPATH=$GO_PATH
+
+echo '### GET dns utils and nmap'
+sudo apt-get install dnsutils
+sudo apt install nmap
 
 echo '### PREPARE application'
 ./prepare_app $CURR_DIR $GO_PATH
