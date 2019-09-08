@@ -141,6 +141,8 @@ func doAllSteps(chanDone chan int) {
 		l = "RESTART"
 	case vomni.DoneReboot:
 		l = "REBOOT"
+	case vomni.DoneUpdateCode:
+		l = "UPDATE CODE"
 	default:
 		l = "nezinu"
 	}

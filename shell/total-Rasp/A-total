@@ -41,10 +41,10 @@ export SENDGRID_API_KEY=$SENDGRID_KEY
 
 echo '### SET temporary GOLANG environment for golang packages'
 export GOPATH=$GO_PATH_TMP
-#create the language directory if it doesn't exist 
-if [ ! -d $GO_PATH_TMP ]; then
-  mkdir -p $GO_PATH_TMP
-fi
+#create the additonal package directory if it doesn't exist 
+#if [ ! -d $GO_PATH_TMP ]; then
+#  mkdir -p $GO_PATH_TMP
+#fi
 
 echo '### GET additional golang packages'
 #./get_go_packages
@@ -67,6 +67,14 @@ echo '### PREPARE application'
 echo '### PREPARE .profile'
 ./set_profile $CURR_DIR $GO_ROOT $GO_PATH $SENDGRID_KEY
 
+echo '### COPY boot start script'
+cp startboot $HOME/bin
+
+echo '### SET cron'
+
+
+
+
 source $HOME/.profile
 
 echo ""
@@ -76,7 +84,12 @@ echo ""
 echo ""
 echo ""
 echo "**********************************************************"
-echo "Please add the configuration file and restart Raspberry Pi"
+echo "Please"
+echo "i)   add the configuration file;"
+echo "ii)  set cron"
+echo "			sudo crontab -e"
+echo "			@reboot /home/pi/bin/startboot &"
+echo "iii) restart Raspberry Pi"
 echo ""
 echo ""
 echo ""

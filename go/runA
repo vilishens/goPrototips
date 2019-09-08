@@ -5,7 +5,9 @@ GO_ARDUINO_PATH="/home/vilis/0_Dev/next/go"
 GO_ARDUINO_CMD="./goArduino"
 GO_REBOOT_CMD="sudo shutdown -r now"
 CD_RESTART=64 # paredzētais
-CD_REBOOT=32 
+CD_REBOOT=32
+CD_UPDATE=4096
+GO_UPDATE_CMD="./updateCode"
 
 CD=$CD_RESTART
 
@@ -44,7 +46,12 @@ while [  $CD -eq $CD_RESTART ]; do
     echo
     echo
 
+    if [ $CD -eq $CD_UPDATE ];  then
+	
 
+
+	CD=$CD_RESTART
+    fi	
 done
 
 cd $CURRENT_PATH
