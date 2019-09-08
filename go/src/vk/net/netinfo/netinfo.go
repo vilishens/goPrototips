@@ -100,9 +100,9 @@ func netInfo(chGoOn chan bool, chDone chan int, chErr chan error) {
 				// Jāņem vērā arī NetExternalTreatment
 
 				// vk-xxx A
-				//if err = sendNetInfov4(); nil != err {
-				//	err = vutils.ErrFuncLine(fmt.Errorf("Couldn't send new IPv4 - %v", err))
-				//}
+				if err = sendNetInfov4(); nil != err {
+					err = vutils.ErrFuncLine(fmt.Errorf("Couldn't send new IPv4 - %v", err))
+				}
 				// vk-xxx B
 			}
 
